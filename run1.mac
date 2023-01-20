@@ -1,0 +1,3 @@
+/run/initialize
+/random/setSeeds 1 1 
+/run/beamOn 1
