@@ -25,7 +25,7 @@ OpRunAction::OpRunAction(OpParameterContainer* par)
 	F = new TFile(PC -> GetParString("outName").c_str(),"recreate");
 	T = new TTree("G4sim","G4sim");
 
-	init();
+	init_Tree();
 }
 
 OpRunAction::~OpRunAction()
@@ -34,7 +34,7 @@ OpRunAction::~OpRunAction()
 	F -> Close();
 }
 
-void OpRunAction::init()
+void OpRunAction::init_Tree()
 {
 	bool bMCTrack = PC -> GetParBool("MCTrack");
 	bool bMCPostTrack = PC -> GetParBool("MCPostTrack");
@@ -96,42 +96,42 @@ void OpRunAction::EndOfRunAction(const G4Run* run)
 {
 }
 
-void OpRunAction::clear()
+void OpRunAction::clear_data()
 {
 	nTrack = 0;
-	fill_n(TrackID,500,0);
-	fill_n(ParentID,500,0);
-	fill_n(TrackPDG,500,0);
-	fill_n(TrackDetID,500,0);
-	fill_n(TrackPX,500,0);
-	fill_n(TrackPY,500,0);
-	fill_n(TrackPZ,500,0);
-	fill_n(TrackVX,500,0);
-	fill_n(TrackVY,500,0);
-	fill_n(TrackVZ,500,0);
-	fill_n(TrackEnergy,500,0);
-	fill_n(TrackKEnergy,500,0);
+	fill_n(TrackID,1000,0);
+	fill_n(ParentID,1000,0);
+	fill_n(TrackPDG,1000,0);
+	fill_n(TrackDetID,1000,0);
+	fill_n(TrackPX,1000,0);
+	fill_n(TrackPY,1000,0);
+	fill_n(TrackPZ,1000,0);
+	fill_n(TrackVX,1000,0);
+	fill_n(TrackVY,1000,0);
+	fill_n(TrackVZ,1000,0);
+	fill_n(TrackEnergy,1000,0);
+	fill_n(TrackKEnergy,1000,0);
 
 	nPostTrack = 0;
-	fill_n(PostTrackID,500,0);
-	fill_n(PostTrackPDG,500,0);
-	fill_n(PostTrackDetID,500,0);
-	fill_n(PostTrackPX,500,0);
-	fill_n(PostTrackPY,500,0);
-	fill_n(PostTrackPZ,500,0);
-	fill_n(PostTrackVX,500,0);
-	fill_n(PostTrackVY,500,0);
-	fill_n(PostTrackVZ,500,0);
-	fill_n(PostTrackEnergy,500,0);
-	fill_n(PostTrackKEnergy,500,0);
+	fill_n(PostTrackID,1000,0);
+	fill_n(PostTrackPDG,1000,0);
+	fill_n(PostTrackDetID,1000,0);
+	fill_n(PostTrackPX,1000,0);
+	fill_n(PostTrackPY,1000,0);
+	fill_n(PostTrackPZ,1000,0);
+	fill_n(PostTrackVX,1000,0);
+	fill_n(PostTrackVY,1000,0);
+	fill_n(PostTrackVZ,1000,0);
+	fill_n(PostTrackEnergy,1000,0);
+	fill_n(PostTrackKEnergy,1000,0);
 
 	nStep = 0;
-	fill_n(StepTrackID,500,0);
-	fill_n(StepDetID,500,0);
-	fill_n(StepVX,500,0);
-	fill_n(StepVY,500,0);
-	fill_n(StepVZ,500,0);
-	fill_n(StepEdep,500,0);
+	fill_n(StepTrackID,1000,0);
+	fill_n(StepDetID,1000,0);
+	fill_n(StepVX,1000,0);
+	fill_n(StepVY,1000,0);
+	fill_n(StepVZ,1000,0);
+	fill_n(StepEdep,1000,0);
 	EdepSumBox = 0;
 }
 
@@ -200,7 +200,7 @@ void OpRunAction::FillStep
 
 int OpRunAction::find_index(int*a) 
 {
-	for(int b=0; b<500; b++)
+	for(int b=0; b<1000; b++)
 	{
 		if(a[b]!=0) continue;
 		else return b;

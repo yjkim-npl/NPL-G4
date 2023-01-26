@@ -2,11 +2,11 @@
 #include "OpActionInitialization.hh"
 #include "OpParameterContainer.hh"
 
-//#include "G4RunManagerFactory.hh"
 #include "G4RunManager.hh"
 
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
+#include "G4OpticalPhysics.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -21,8 +21,6 @@ int main(int argc,char** argv)
 	if ( argc == 1 ) 
 		ui = new G4UIExecutive(argc, argv);
 
-//	auto* runManager =
-//		G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	G4RunManager* runManager = new G4RunManager;
 
 	string parameters = "OpParameters.conf";
@@ -32,6 +30,11 @@ int main(int argc,char** argv)
 	G4String physListStr = PC -> GetParString("physicslist");
 	G4PhysListFactory* physListFac = new G4PhysListFactory();
 	G4VModularPhysicsList* physicsList = physListFac ->GetReferencePhysList(physListStr.c_str());
+
+	// define optical physics
+	G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+	physicsList -> RegisterPhysics(opticalPhysics);
+
 	runManager->SetUserInitialization(physicsList);
   
 	// the random seed
@@ -44,8 +47,6 @@ int main(int argc,char** argv)
 	// Initialize visualization
 	//
 	G4VisManager* visManager = new G4VisExecutive;
-	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-	// G4VisManager* visManager = new G4VisExecutive("Quiet");
 	visManager->Initialize();
 
 	// Get the pointer to the User Interface manager

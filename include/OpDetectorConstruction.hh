@@ -2,6 +2,7 @@
 #define OpDetectorConstruction_h 1
 
 #include "G4VUserDetectorConstruction.hh"
+#include "OpMaterials.hh"
 #include "globals.hh"
 
 class G4VPhysicalVolume;
@@ -11,15 +12,17 @@ class OpParameterContainer;
 
 class OpDetectorConstruction : public G4VUserDetectorConstruction
 {
-public:
+	public:
 		OpDetectorConstruction(OpParameterContainer* par);
 
 		virtual ~OpDetectorConstruction();
 
 		virtual G4VPhysicalVolume* Construct();
 
-	protected:
+	private:
 		OpParameterContainer* PC;
+		OpMaterials* fMaterials;
+
 };
 
 #endif

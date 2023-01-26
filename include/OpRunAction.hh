@@ -25,13 +25,13 @@ class OpRunAction : public G4UserRunAction
 	    OpRunAction(OpParameterContainer* par);
     	virtual ~OpRunAction();
 
-		void init();
+		void init_Tree();
 
 	    // virtual G4Run* GenerateRun();
     	virtual void BeginOfRunAction(const G4Run*);
 	    virtual void   EndOfRunAction(const G4Run*);
 
-		void clear();
+		void clear_data();
 
 		void FillTrack
 			(G4int opt, G4int trkID, G4int parentID, G4int pdg, G4int detID,
@@ -41,7 +41,7 @@ class OpRunAction : public G4UserRunAction
 			(G4int trkID, G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep);
 
-		void update()
+		void update_Tree()
 			{T -> Fill();}
 
 	private:

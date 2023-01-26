@@ -6,53 +6,51 @@
 OpParameterContainer::OpParameterContainer()
 {
     par_Name = "Parameters.conf";
-    read();
-    Print();
+    ReadParameters();
 }
 
 OpParameterContainer::OpParameterContainer(string fileName)
 {
     par_Name = fileName;
-    read();
-    Print();
+    ReadParameters();
 }
 
 OpParameterContainer::~OpParameterContainer()
 {}
 
-void OpParameterContainer::read()
+void OpParameterContainer::ReadParameters()
 {
     ifstream par_file(par_Name);
     string line;
     while(getline(par_file,line))
     {
-        TString val_name, val_type;
+        G4String val_name, val_type;
         istringstream ss(line);
         ss >> val_name >> val_type;
 
         if(val_name[0] == '#') continue;
 
-        if(val_type.Contains("b") || val_type.Contains("bool"))
+        if(val_type.contains("b") || val_type.contains("bool"))
         {
-            Bool_t val = 0;
+            G4bool val = 0;
             ss >> val;
             par_bool.insert(make_pair(val_name,val));
         }
-        if(val_type.Contains("i") || val_type.Contains("int"))
+        if(val_type.contains("i") || val_type.contains("int"))
         {
-            Int_t val = -1;
+            G4int val = -1;
             ss >> val;
             par_int.insert(make_pair(val_name,val));
 		}
-        if(val_type.Contains("d") || val_type.Contains("double"))
+        if(val_type.contains("d") || val_type.contains("double"))
         {
-            Double_t val = 0;
+            G4double val = 0;
             ss >> val;
             par_double.insert(make_pair(val_name,val));
         }
-        if(val_type.Contains("s") || val_type.Contains("string"))
+        if(val_type.contains("s") || val_type.contains("string"))
         {
-            string val;
+            G4String val;
             ss >> val;
             par_string.insert(make_pair(val_name,val));
         }
@@ -68,7 +66,7 @@ const OpParameterContainer& OpParameterContainer::operator=(const OpParameterCon
     return *this;
 }
 
-void OpParameterContainer::Print()
+void OpParameterContainer::PrintParameter(G4String par)
 {
 //    G4cout << "yjkim in Parameter Container" << G4endl;
 }

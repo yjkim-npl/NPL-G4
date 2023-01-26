@@ -1,10 +1,10 @@
 #ifndef OpParameterContainer_h
 #define OpParameterContainer_h
 
-#include "TString.h"
+#include "globals.hh"
+
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <map>
 #include <string>
 using namespace std;
@@ -16,24 +16,24 @@ class OpParameterContainer
 		OpParameterContainer(string fileName);
 		virtual ~OpParameterContainer();
 		const OpParameterContainer& operator=(const OpParameterContainer &right);
-		void read();
-		void Print();
+		void ReadParameters();
+		void PrintParameter(G4String par);
 
-		Bool_t GetParBool(TString name)
+		G4bool GetParBool(G4String name)
 			{return par_bool[name];}
-		Int_t GetParInt(TString name)
+		G4int GetParInt(G4String name)
 			{return par_int[name];}
-		Double_t GetParDouble(TString name)
+		G4double GetParDouble(G4String name)
 			{return par_double[name];}
-		string GetParString(TString name)
+		G4String GetParString(G4String name)
 			{return par_string[name];}
 
 	private:
 		string par_Name;
-		map<TString,bool> par_bool;
-		map<TString,int> par_int;
-		map<TString,double> par_double;
-		map<TString, string> par_string;
+		map<G4String,G4bool> par_bool;
+		map<G4String,G4int> par_int;
+		map<G4String,G4double> par_double;
+		map<G4String,G4String> par_string;
 };
 #endif
 
