@@ -6,6 +6,7 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "G4LogicalVolume.hh"
+#include "G4OpticalPhoton.hh"
 
 OpSteppingAction::OpSteppingAction(OpRunAction* runAction)
 : G4UserSteppingAction(),
@@ -17,6 +18,8 @@ OpSteppingAction::~OpSteppingAction()
 
 void OpSteppingAction::UserSteppingAction(const G4Step* step)
 {
+	if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+		return;
 	// information of each steps
 	G4StepStatus stat = step -> GetPostStepPoint() -> GetStepStatus();
 	G4int trackID = step -> GetTrack() -> GetTrackID();

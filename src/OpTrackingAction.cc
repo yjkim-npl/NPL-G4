@@ -17,6 +17,8 @@ OpTrackingAction::~OpTrackingAction()
 
 void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 {
+//	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+//		G4cout << "Optical photon is created" << G4endl;
 	G4int trkID = track -> GetTrackID();
 	G4int parentID = track -> GetParentID();
 	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();

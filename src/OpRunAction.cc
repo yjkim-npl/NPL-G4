@@ -22,7 +22,7 @@ OpRunAction::OpRunAction(OpParameterContainer* par)
 { 
 	PC = par;
 
-	F = new TFile(PC -> GetParString("outName").c_str(),"recreate");
+	F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
 	T = new TTree("G4sim","G4sim");
 
 	init_Tree();
@@ -38,7 +38,7 @@ void OpRunAction::init_Tree()
 {
 	bool bMCTrack = PC -> GetParBool("MCTrack");
 	bool bMCPostTrack = PC -> GetParBool("MCPostTrack");
-	bool bStep = PC -> GetParBool("Step");
+	bool bStep = PC -> GetParBool("MCStep");
 
 	if(bMCTrack)
 	{
@@ -99,39 +99,39 @@ void OpRunAction::EndOfRunAction(const G4Run* run)
 void OpRunAction::clear_data()
 {
 	nTrack = 0;
-	fill_n(TrackID,1000,0);
-	fill_n(ParentID,1000,0);
-	fill_n(TrackPDG,1000,0);
-	fill_n(TrackDetID,1000,0);
-	fill_n(TrackPX,1000,0);
-	fill_n(TrackPY,1000,0);
-	fill_n(TrackPZ,1000,0);
-	fill_n(TrackVX,1000,0);
-	fill_n(TrackVY,1000,0);
-	fill_n(TrackVZ,1000,0);
-	fill_n(TrackEnergy,1000,0);
-	fill_n(TrackKEnergy,1000,0);
+	fill_n(TrackID,max_tracks,0);
+	fill_n(ParentID,max_tracks,0);
+	fill_n(TrackPDG,max_tracks,0);
+	fill_n(TrackDetID,max_tracks,0);
+	fill_n(TrackPX,max_tracks,0);
+	fill_n(TrackPY,max_tracks,0);
+	fill_n(TrackPZ,max_tracks,0);
+	fill_n(TrackVX,max_tracks,0);
+	fill_n(TrackVY,max_tracks,0);
+	fill_n(TrackVZ,max_tracks,0);
+	fill_n(TrackEnergy,max_tracks,0);
+	fill_n(TrackKEnergy,max_tracks,0);
 
 	nPostTrack = 0;
-	fill_n(PostTrackID,1000,0);
-	fill_n(PostTrackPDG,1000,0);
-	fill_n(PostTrackDetID,1000,0);
-	fill_n(PostTrackPX,1000,0);
-	fill_n(PostTrackPY,1000,0);
-	fill_n(PostTrackPZ,1000,0);
-	fill_n(PostTrackVX,1000,0);
-	fill_n(PostTrackVY,1000,0);
-	fill_n(PostTrackVZ,1000,0);
-	fill_n(PostTrackEnergy,1000,0);
-	fill_n(PostTrackKEnergy,1000,0);
+	fill_n(PostTrackID,max_tracks,0);
+	fill_n(PostTrackPDG,max_tracks,0);
+	fill_n(PostTrackDetID,max_tracks,0);
+	fill_n(PostTrackPX,max_tracks,0);
+	fill_n(PostTrackPY,max_tracks,0);
+	fill_n(PostTrackPZ,max_tracks,0);
+	fill_n(PostTrackVX,max_tracks,0);
+	fill_n(PostTrackVY,max_tracks,0);
+	fill_n(PostTrackVZ,max_tracks,0);
+	fill_n(PostTrackEnergy,max_tracks,0);
+	fill_n(PostTrackKEnergy,max_tracks,0);
 
 	nStep = 0;
-	fill_n(StepTrackID,1000,0);
-	fill_n(StepDetID,1000,0);
-	fill_n(StepVX,1000,0);
-	fill_n(StepVY,1000,0);
-	fill_n(StepVZ,1000,0);
-	fill_n(StepEdep,1000,0);
+	fill_n(StepTrackID,max_steps,0);
+	fill_n(StepDetID,max_steps,0);
+	fill_n(StepVX,max_steps,0);
+	fill_n(StepVY,max_steps,0);
+	fill_n(StepVZ,max_steps,0);
+	fill_n(StepEdep,max_steps,0);
 	EdepSumBox = 0;
 }
 
@@ -142,35 +142,33 @@ void OpRunAction::FillTrack
 {
 	if(opt == MCTrack)	// starting point, prev track
 	{
+		TrackID[nTrack] = trkID;
+		ParentID[nTrack] = parentID;
+		TrackPDG[nTrack] = pdg;
+		TrackDetID[nTrack] = detID;
+		TrackPX[nTrack] = p.x();
+		TrackPY[nTrack] = p.y();
+		TrackPZ[nTrack] = p.z();
+		TrackVX[nTrack] = v.x();
+		TrackVY[nTrack] = v.y();
+		TrackVZ[nTrack] = v.z();
+		TrackEnergy[nTrack] = totenergy;
+		TrackKEnergy[nTrack] = kinenergy;
 		nTrack++;
-		int idx = find_index(TrackID);
-		TrackID[idx] = trkID;
-		ParentID[idx] = parentID;
-		TrackPDG[idx] = pdg;
-		TrackDetID[idx] = detID;
-		TrackPX[idx] = p.x();
-		TrackPY[idx] = p.y();
-		TrackPZ[idx] = p.z();
-		TrackVX[idx] = v.x();
-		TrackVY[idx] = v.y();
-		TrackVZ[idx] = v.z();
-		TrackEnergy[idx] = totenergy;
-		TrackKEnergy[idx] = kinenergy;
 	}
 	else if(opt == MCPostTrack)	// end point, post Track
 	{
-		int idx = find_index(PostTrackID);
+		PostTrackID[nPostTrack] = trkID;
+		PostTrackDetID[nPostTrack] = detID;
+		PostTrackPX[nPostTrack] = p.x();
+		PostTrackPY[nPostTrack] = p.y();
+		PostTrackPZ[nPostTrack] = p.z();
+		PostTrackVX[nPostTrack] = v.x();
+		PostTrackVY[nPostTrack] = v.y();
+		PostTrackVZ[nPostTrack] = v.z();
+		PostTrackEnergy[nPostTrack] = totenergy;
+		PostTrackKEnergy[nPostTrack] = kinenergy;
 		nPostTrack++;
-		PostTrackID[idx] = trkID;
-		PostTrackDetID[idx] = detID;
-		PostTrackPX[idx] = p.x();
-		PostTrackPY[idx] = p.y();
-		PostTrackPZ[idx] = p.z();
-		PostTrackVX[idx] = v.x();
-		PostTrackVY[idx] = v.y();
-		PostTrackVZ[idx] = v.z();
-		PostTrackEnergy[idx] = totenergy;
-		PostTrackKEnergy[idx] = kinenergy;
 	}
 	else
 	{
@@ -181,29 +179,17 @@ void OpRunAction::FillTrack
 void OpRunAction::FillStep
 (G4int trkID, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep)
 {
-	int idx = find_index(StepTrackID);
 	if(prev_detID != post_detID)	// at the boundary
-		StepDetID[idx] = post_detID;	// mainly this case means particle track killed in a volume
+		StepDetID[nStep] = post_detID;	// mainly this case means particle track killed in a volume
 	else
-		StepDetID[idx] = prev_detID;
-	nStep++;
-	StepTrackID[idx] = trkID;
-	StepVX[idx] = v.x();
-	StepVY[idx] = v.y();
-	StepVZ[idx] = v.z();
-	StepEdep[idx] = edep;
+		StepDetID[nStep] = prev_detID;
+	StepTrackID[nStep] = trkID;
+	StepVX[nStep] = v.x();
+	StepVY[nStep] = v.y();
+	StepVZ[nStep] = v.z();
+	StepEdep[nStep] = edep;
 
-	if(StepDetID[idx] == PC -> GetParInt("BoxID"))
+	if(StepDetID[nStep] == PC -> GetParInt("BoxID"))
 		EdepSumBox += edep;
+	nStep++;
 }
-
-
-int OpRunAction::find_index(int*a) 
-{
-	for(int b=0; b<1000; b++)
-	{
-		if(a[b]!=0) continue;
-		else return b;
-	}
-}
-
