@@ -35,9 +35,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	G4double world_sizeX = PC -> GetParDouble("World_sizeX");
 	G4double world_sizeY = PC -> GetParDouble("World_sizeY");
 	G4double world_sizeZ = PC -> GetParDouble("World_sizeZ");
-	G4cout << "yjkim" << G4endl;
 	G4Material* world_mat = fMaterials -> GetMaterial("G4_AIR");
-	G4cout << "yjkim" << G4endl;
 
 	G4Box* solidWorld =    
 		new G4Box("World",0.5*world_sizeX, 0.5*world_sizeY, 0.5*world_sizeZ);
@@ -47,22 +45,25 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		new G4PVPlacement(0,G4ThreeVector(),logicWorld,"World",0,false,worldID,checkOverlaps);  
 
 	// Box
-	G4int boxID = PC -> GetParInt("BoxID");
-	G4double box_sizeX = PC -> GetParDouble("Box_sizeX");
-	G4double box_sizeY = PC -> GetParDouble("Box_sizeY");
-	G4double box_sizeZ = PC -> GetParDouble("Box_sizeZ");
-	G4Material* mat_box = fMaterials -> GetMaterial("Polystyrene");
+	if(PC -> GetParBool("BoxIn"))
+	{
+		G4int boxID = PC -> GetParInt("BoxID");
+		G4double box_sizeX = PC -> GetParDouble("Box_sizeX");
+		G4double box_sizeY = PC -> GetParDouble("Box_sizeY");
+		G4double box_sizeZ = PC -> GetParDouble("Box_sizeZ");
+		G4Material* mat_box = fMaterials -> GetMaterial("Polystyrene");
 
-	G4Box* solidBox =
-		new G4Box("Box",0.5*box_sizeX,0.5*box_sizeY,0.5*box_sizeZ);
-	G4LogicalVolume* logicBox = 
-		new G4LogicalVolume(solidBox,mat_box,"Box");
-	new G4PVPlacement(0,G4ThreeVector(),logicBox,"Box",logicWorld,false,boxID,checkOverlaps);
+		G4Box* solidBox =
+			new G4Box("Box",0.5*box_sizeX,0.5*box_sizeY,0.5*box_sizeZ);
+		G4LogicalVolume* logicBox = 
+			new G4LogicalVolume(solidBox,mat_box,"Box");
+		new G4PVPlacement(0,G4ThreeVector(),logicBox,"Box",logicWorld,false,boxID,checkOverlaps);
 
-	G4VisAttributes* attBox = new G4VisAttributes(G4Colour(G4Colour::Gray()));
-	attBox -> SetVisibility(true);
-	attBox -> SetForceWireframe(true);
-	logicBox -> SetVisAttributes(attBox);
+		G4VisAttributes* attBox = new G4VisAttributes(G4Colour(G4Colour::Gray()));
+		attBox -> SetVisibility(true);
+		attBox -> SetForceWireframe(true);
+		logicBox -> SetVisAttributes(attBox);
+	}
 
 	return physWorld;
 }

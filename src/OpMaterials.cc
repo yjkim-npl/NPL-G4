@@ -8,7 +8,7 @@ OpMaterials::OpMaterials()
 {
 	fNistMan = G4NistManager::Instance();
 	CreateMaterials();
-//	ApplyMaterialProperties();
+	ApplyMaterialProperties();
 }
 
 OpMaterials::~OpMaterials()
@@ -20,12 +20,10 @@ G4Material* OpMaterials::GetMaterial(G4String matName)
 	G4Material* mat = map_mat[matName];
 	if(!mat)
 	{
-		G4cout << "yjkim in Nist" << G4endl;
 		mat = fNistMan -> FindOrBuildMaterial(matName);
 	}
 	if(!mat)
 	{
-		G4cout << "yjkim in Nist" << G4endl;
 		mat = G4Material::GetMaterial(matName);
 	}
 	if(!mat)
@@ -68,11 +66,11 @@ void OpMaterials::CreateMaterials()
 	G4Element* F = new G4Element("Fluorine"	,symbol="F", z=9., a=18.9984*g/mole);
 
 	// Create materials with single component and default material
-	fVac = G4Material::GetMaterial("G4_Galactic");
+	G4Material* fVac = G4Material::GetMaterial("G4_Galactic");
 		map_mat.insert(make_pair("Vacuum",fVac));
-	fAir = G4Material::GetMaterial("G4_AIR");
+	G4Material* fAir = G4Material::GetMaterial("G4_AIR");
 		map_mat.insert(make_pair("Air",fAir));
-	fSi = new G4Material("Silicon",	 z=14., a=28.09*g/mole,  density=2.33*g/cm3);
+	G4Material* fSi = new G4Material("Silicon",	 z=14., a=28.09*g/mole,  density=2.33*g/cm3);
 		map_mat.insert(make_pair("Silicon",fSi));
 	G4Material* fAl = new G4Material("Aluminium",z=13., a=26.98*g/mole,  density=2.699*g/cm3);
 		map_mat.insert(make_pair("Aluminium",fAl));
@@ -86,14 +84,14 @@ void OpMaterials::CreateMaterials()
 		map_mat.insert(make_pair("Lead",fPb));
 
 	// Create materials with complex component
-	fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
+	G4Material* fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
 		// Acryl, core material of cherenkov fiber
 	fPMMA -> AddElement(C,natoms=5);
 	fPMMA -> AddElement(H,natoms=8);
 	fPMMA -> AddElement(O,natoms=2);
 		map_mat.insert(make_pair("PMMA",fPMMA));
 	
-	fPS = new G4Material("Polystyrene",	density=1.05*g/cm3, ncompo=2);
+	G4Material* fPS = new G4Material("Polystyrene",	density=1.05*g/cm3, ncompo=2);
 	fPS -> AddElement(C,natoms=8);
 	fPS -> AddElement(H,natoms=8);
 		map_mat.insert(make_pair("Polystyrene",fPS));
@@ -102,11 +100,44 @@ void OpMaterials::CreateMaterials()
 void OpMaterials::ApplyMaterialProperties()
 {
 	// photon energy spectrum
-	G4double opEn_small[] = {1.37760*eV, 4.13281*eV};
+	vector<G4double> opEn = {
+		1.37760*eV, 1.41696*eV, 1.45864*eV, 1.50284*eV, 1.54980*eV, 1.59980*eV, 1.65312*eV, 1.71013*eV,
+		1.77120*eV, 1.83680*eV, 1.90745*eV, 1.98375*eV, 2.06640*eV, 2.15625*eV, 2.25426*eV, 2.36160*eV,
+		2.47968*eV, 2.61019*eV, 2.75520*eV, 2.91728*eV, 3.09960*eV, 3.30625*eV, 3.54241*eV, 3.81490*eV,     4.13281*eV};
 
 	// Air
-	G4double RI_Air[] = {1.0, 1.0};
+	G4Material* fAir = map_mat["Air"];
+	vector<G4double> RI_Air;	RI_Air.assign(opEn.size(),1.0);
 	G4MaterialPropertiesTable* mp_air = new G4MaterialPropertiesTable();
-	mp_air -> AddProperty("RINDEX",opEn_small,RI_Air,sizeof(opEn_small));
+	mp_air -> AddProperty("RINDEX",opEn,RI_Air);
 	fAir -> SetMaterialPropertiesTable(mp_air);
+	map_mat["Air"] = fAir;
+
+	// PS
+	G4Material* fPS = map_mat["Polystyrene"];
+	vector<G4double> RI_PS = {
+		1.57483, 1.57568, 1.57644, 1.57726, 1.57817, 1.57916, 1.58026, 1.58148,
+		1.58284, 1.58435, 1.58605, 1.58796, 1.59013, 1.59328, 1.59621, 1.59960,
+		1.60251, 1.60824, 1.61229, 1.62032, 1.62858, 1.63886, 1.65191, 1.66888, 1.69165
+	};
+	vector<G4double> ABS_PS = {
+		2.714*m, 3.102*m, 3.619*m, 4.343*m, 5.791*m, 7.896*m, 4.343*m, 7.896*m,
+		5.429*m, 36.19*m, 17.37*m, 36.19*m, 5.429*m, 28.95*m, 21.71*m, 14.48*m,
+		12.41*m, 8.686*m, 7.238*m, 1.200*m, 0.200*m, 0.500*m, 0.200*m, 0.100*m, 0.100*m
+	};
+	vector<G4double> ScintFast_PS = {
+		0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+		0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.07, 0.13,
+		0.33, 0.63, 1.00, 0.50, 0.00, 0.00, 0.00, 0.00, 0.00
+	};
+	G4MaterialPropertiesTable* mp_PS = new G4MaterialPropertiesTable();
+	mp_PS -> AddProperty("RINDEX",opEn,RI_PS);
+	mp_PS -> AddProperty("ABSLENGTH",opEn,ABS_PS);
+	mp_PS -> AddProperty("FASTCOMPONENT",opEn,ScintFast_PS);
+	mp_PS -> AddConstProperty("SCINTILLATIONYIELD",10./MeV);
+	mp_PS -> AddConstProperty("RESOLUTIONSCALE",1.0);
+	mp_PS -> AddConstProperty("FASTTIMECONSTANT",2.8*ns);
+	fPS -> SetMaterialPropertiesTable(mp_PS);
+	fPS -> GetIonisation() -> SetBirksConstant(0.126*mm/MeV);
+	map_mat["Polystyrene"] = fPS;
 }

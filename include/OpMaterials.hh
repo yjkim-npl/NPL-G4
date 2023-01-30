@@ -24,11 +24,11 @@ class OpMaterials
 
 		G4NistManager* fNistMan;
 
-		G4Material* fVac;
-		G4Material* fAir;
-		G4Material* fPMMA;
-		G4Material* fPS;
-		G4Material* fSi;
+//		G4Material* fVac;
+//		G4Material* fAir;
+//		G4Material* fPMMA;
+//		G4Material* fPS;
+//		G4Material* fSi;
 
 		map<G4String, G4Material*> map_mat;
 };
