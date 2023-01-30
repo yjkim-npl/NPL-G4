@@ -5,26 +5,31 @@
 #include "G4NistManager.hh"
 #include "G4OpticalSurface.hh"
 
+#include "globals.hh"
+
 #include <map>
 using namespace std;
 
 class OpMaterials
 {
 	public:
+		OpMaterials();
 		virtual ~OpMaterials();
-		static OpMaterials* GetInstance();
-		G4Material* GetMaterial(const G4String);
+		G4Material* GetMaterial(G4String);
 		G4OpticalSurface* GetOpticalSurface(const G4String);
 
 	private:
-		OpMaterials();
 		void CreateMaterials();
 		void ApplyMaterialProperties();
 
-		static OpMaterials* fInstance;
 		G4NistManager* fNistMan;
 
+		G4Material* fVac;
+		G4Material* fAir;
+		G4Material* fPMMA;
+		G4Material* fPS;
+		G4Material* fSi;
+
 		map<G4String, G4Material*> map_mat;
-		map<G4String, G4OpticalSurface*> map_surf;
 };
 #endif

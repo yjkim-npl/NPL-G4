@@ -17,11 +17,13 @@ OpDetectorConstruction::OpDetectorConstruction(OpParameterContainer* par)
 : G4VUserDetectorConstruction()
 {
 	PC = par;
-	fMaterials = OpMaterials::GetInstance();
+	fMaterials = new OpMaterials();
 }
 
 OpDetectorConstruction::~OpDetectorConstruction()
-{ }
+{ 
+	delete fMaterials;
+}
 
 G4VPhysicalVolume* OpDetectorConstruction::Construct()
 {  
@@ -29,11 +31,13 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	G4bool checkOverlaps = true;
 
 	// World
-	G4int worldID = PC -> GetParInt("worldID");
-	G4double world_sizeX = PC -> GetParDouble("world_sizeX");
-	G4double world_sizeY = PC -> GetParDouble("world_sizeY");
-	G4double world_sizeZ = PC -> GetParDouble("world_sizeZ");
-	G4Material* world_mat = fMaterials -> GetMaterial("Air");
+	G4int worldID = PC -> GetParInt("WorldID");
+	G4double world_sizeX = PC -> GetParDouble("World_sizeX");
+	G4double world_sizeY = PC -> GetParDouble("World_sizeY");
+	G4double world_sizeZ = PC -> GetParDouble("World_sizeZ");
+	G4cout << "yjkim" << G4endl;
+	G4Material* world_mat = fMaterials -> GetMaterial("G4_AIR");
+	G4cout << "yjkim" << G4endl;
 
 	G4Box* solidWorld =    
 		new G4Box("World",0.5*world_sizeX, 0.5*world_sizeY, 0.5*world_sizeZ);

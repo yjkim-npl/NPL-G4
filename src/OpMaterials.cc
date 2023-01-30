@@ -4,8 +4,6 @@
 
 #include <utility>
 
-OpMaterials* OpMaterials::fInstance = 0;
-
 OpMaterials::OpMaterials()
 {
 	fNistMan = G4NistManager::Instance();
@@ -16,18 +14,20 @@ OpMaterials::OpMaterials()
 OpMaterials::~OpMaterials()
 {}
 
-OpMaterials* OpMaterials::GetInstance()
-{
-	if(fInstance = 0) fInstance = new OpMaterials();
-	return fInstance;
-}
 
-G4Material* OpMaterials::GetMaterial(const G4String matName)
+G4Material* OpMaterials::GetMaterial(G4String matName)
 {
-//	G4Material* mat = fNistMan -> FindOrBuildMaterial(matName);
 	G4Material* mat = map_mat[matName];
 	if(!mat)
+	{
+		G4cout << "yjkim in Nist" << G4endl;
+		mat = fNistMan -> FindOrBuildMaterial(matName);
+	}
+	if(!mat)
+	{
+		G4cout << "yjkim in Nist" << G4endl;
 		mat = G4Material::GetMaterial(matName);
+	}
 	if(!mat)
 	{
 		G4ExceptionDescription out;
@@ -39,7 +39,8 @@ G4Material* OpMaterials::GetMaterial(const G4String matName)
 
 G4OpticalSurface* OpMaterials::GetOpticalSurface(const G4String surfName)
 {
-	G4OpticalSurface* surf = map_surf[surfName];
+//	G4OpticalSurface* surf = map_surf[surfName];
+	G4OpticalSurface* surf = NULL;
 	if(!surf)
 	{
 		G4ExceptionDescription out;
@@ -67,14 +68,14 @@ void OpMaterials::CreateMaterials()
 	G4Element* F = new G4Element("Fluorine"	,symbol="F", z=9., a=18.9984*g/mole);
 
 	// Create materials with single component and default material
-	G4Material* fVac = G4Material::GetMaterial("G4_Galactic");
+	fVac = G4Material::GetMaterial("G4_Galactic");
 		map_mat.insert(make_pair("Vacuum",fVac));
-	G4Material* fAir = G4Material::GetMaterial("G4_AIR");
+	fAir = G4Material::GetMaterial("G4_AIR");
 		map_mat.insert(make_pair("Air",fAir));
+	fSi = new G4Material("Silicon",	 z=14., a=28.09*g/mole,  density=2.33*g/cm3);
+		map_mat.insert(make_pair("Silicon",fSi));
 	G4Material* fAl = new G4Material("Aluminium",z=13., a=26.98*g/mole,  density=2.699*g/cm3);
 		map_mat.insert(make_pair("Aluminium",fAl));
-	G4Material* fSi = new G4Material("Silicon",	 z=14., a=28.09*g/mole,  density=2.33*g/cm3);
-		map_mat.insert(make_pair("Silicon",fSi));
 	G4Material* fFe = new G4Material("Iron",	 z=26., a=55.845*g/mole, density=7.874*g/cm3);
 		map_mat.insert(make_pair("Iron",fFe));
 	G4Material* fCu = new G4Material("Copper",	 z=29., a=63.546*g/mole, density=8.96*g/cm3);
@@ -85,14 +86,14 @@ void OpMaterials::CreateMaterials()
 		map_mat.insert(make_pair("Lead",fPb));
 
 	// Create materials with complex component
-	G4Material* fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
+	fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
 		// Acryl, core material of cherenkov fiber
 	fPMMA -> AddElement(C,natoms=5);
 	fPMMA -> AddElement(H,natoms=8);
 	fPMMA -> AddElement(O,natoms=2);
 		map_mat.insert(make_pair("PMMA",fPMMA));
 	
-	G4Material* fPS = new G4Material("Polystyrene",	density=1.05*g/cm3, ncompo=2);
+	fPS = new G4Material("Polystyrene",	density=1.05*g/cm3, ncompo=2);
 	fPS -> AddElement(C,natoms=8);
 	fPS -> AddElement(H,natoms=8);
 		map_mat.insert(make_pair("Polystyrene",fPS));
@@ -100,10 +101,6 @@ void OpMaterials::CreateMaterials()
 
 void OpMaterials::ApplyMaterialProperties()
 {
-	G4Material* fAir = map_mat["Air"];
-	G4Material* fPS = map_mat["Polystyrene"];	// scintillation fiber
-	G4Material* fPMMA = map_mat["PMMA"];			// cherenkov fiber
-
 	// photon energy spectrum
 	G4double opEn_small[] = {1.37760*eV, 4.13281*eV};
 
