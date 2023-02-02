@@ -19,20 +19,19 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction(OpParameterContainer* par)
   fParticleGun(0) 
 {
 	PC = par;
-	G4int n_particle = PC -> GetParInt("NperEvent");
-	fParticleGun  = new G4ParticleGun(n_particle);
+	fParticleGun  = new G4ParticleGun();
 	fPolarized = true;
 	fPolarization = 30.;
 
 	// default particle kinematic
 	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-	G4String particleName = PC -> GetParString("particle");
+	G4String particleName = PC -> GetParString("Beam_particle");
 	G4ParticleDefinition* particle
 		= particleTable->FindParticle(particleName);
 	fParticleGun -> SetParticleDefinition(particle);	// particle
 	fParticleGun -> SetParticleTime(0.0 * ns);	// generated time
 	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));	// with momentum dir
-	fParticleGun -> SetParticleEnergy(PC->GetParDouble("energy")*MeV);	// and its energy
+	fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
 }
 
 OpPrimaryGeneratorAction::~OpPrimaryGeneratorAction()
@@ -42,28 +41,31 @@ OpPrimaryGeneratorAction::~OpPrimaryGeneratorAction()
 
 void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4double x0 = PC -> GetParDouble("x0") *(G4UniformRand()-0.5);
-	G4double y0 = PC -> GetParDouble("y0") *(G4UniformRand()-0.5);
-	G4double z0 = PC -> GetParDouble("z0");
-
-	fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-
-	fParticleGun->GeneratePrimaryVertex(anEvent);
-
-//	G4cout << fParticleGun -> GetParticleDefinition() -> GetParticleName() << G4endl;
-	// for optical photon beam, the polarization must be defined
-	if(fParticleGun -> GetParticleDefinition() ==
-			G4OpticalPhoton::OpticalPhotonDefinition())
+	G4int n_particle = PC -> GetParInt("NperEvent");
+	for(G4int n=0; n< n_particle; n++)
 	{
-		if(fPolarized)
+		G4double x0 = 
+			(PC->GetParDouble("Beam_x0")+PC->GetParDouble("Beam_dx")*(G4UniformRand()-0.5)) * mm;
+		G4double y0 = 
+			(PC->GetParDouble("Beam_y0")+PC->GetParDouble("Beam_dy")*(G4UniformRand()-0.5)) * mm;
+		G4double z0 =
+			(PC->GetParDouble("Beam_z0")+PC->GetParDouble("Beam_dz")*(G4UniformRand()-0.5)) * mm;
+
+		fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+		fParticleGun->GeneratePrimaryVertex(anEvent);
+		// for optical photon beam, the polarization must be defined
+		if(fParticleGun -> GetParticleDefinition() ==
+				G4OpticalPhoton::OpticalPhotonDefinition())
 		{
-//			G4cout << "yjkim" << G4endl;
-			SetOptPhotonPolar(fPolarization);
-		}else{
-			SetOptPhotonPolar();
+			if(fPolarized)
+			{
+//		  	G4cout << "yjkim" << G4endl;
+				SetOptPhotonPolar(fPolarization);
+			}else{
+				SetOptPhotonPolar();
+			}
 		}
 	}
-//	G4cout << "yjkim: " << fParticleGun -> GetParticleDefinition() -> GetParticleName() << G4endl;
 }
 
 void OpPrimaryGeneratorAction::SetOptPhotonPolar()

@@ -11,6 +11,10 @@
 
 #include <vector>
 #include <map>
+
+#define max_tracks 1000
+#define max_steps 1000
+#define max_opticalphotons 10000
 using namespace std;
 
 class OpParameterContainer;
@@ -37,6 +41,9 @@ class OpRunAction : public G4UserRunAction
 			(G4int opt, G4int trkID, G4int parentID, G4int pdg, G4int detID,
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
+		void FillOpticalPhoton
+			(G4int opt, G4int trkID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v);
+
 		void FillStep
 			(G4int trkID, G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep);
@@ -54,43 +61,64 @@ class OpRunAction : public G4UserRunAction
 
 		// Track data
 		G4int nTrack;
-		G4int TrackID[500];
-		G4int ParentID[500];
-		G4int TrackPDG[500];
-		G4int TrackDetID[500];
-		G4double TrackPX[500];
-		G4double TrackPY[500];
-		G4double TrackPZ[500];
-		G4double TrackVX[500];
-		G4double TrackVY[500];
-		G4double TrackVZ[500];
-		G4double TrackEnergy[500];
-		G4double TrackKEnergy[500];
+		G4int TrackID[max_tracks];
+		G4int ParentID[max_tracks];
+		G4int TrackPDG[max_tracks];
+		G4int TrackDetID[max_tracks];
+		G4double TrackPX[max_tracks];
+		G4double TrackPY[max_tracks];
+		G4double TrackPZ[max_tracks];
+		G4double TrackVX[max_tracks];
+		G4double TrackVY[max_tracks];
+		G4double TrackVZ[max_tracks];
+		G4double TrackEnergy[max_tracks];
+		G4double TrackKEnergy[max_tracks];
 
 		// PostTrack data
 		G4int nPostTrack;
-		G4int PostTrackID[500];
-		G4int PostTrackPDG[500];
-		G4int PostTrackDetID[500];
-		G4double PostTrackPX[500];
-		G4double PostTrackPY[500];
-		G4double PostTrackPZ[500];
-		G4double PostTrackVX[500];
-		G4double PostTrackVY[500];
-		G4double PostTrackVZ[500];
-		G4double PostTrackEnergy[500];
-		G4double PostTrackKEnergy[500];
+		G4int PostTrackID[max_tracks];
+		G4int PostTrackPDG[max_tracks];
+		G4int PostTrackDetID[max_tracks];
+		G4double PostTrackPX[max_tracks];
+		G4double PostTrackPY[max_tracks];
+		G4double PostTrackPZ[max_tracks];
+		G4double PostTrackVX[max_tracks];
+		G4double PostTrackVY[max_tracks];
+		G4double PostTrackVZ[max_tracks];
+		G4double PostTrackEnergy[max_tracks];
+		G4double PostTrackKEnergy[max_tracks];
 
 		// Step data
 		G4int nStep;
-		G4int StepTrackID[500];
-		G4int StepDetID[500];
-		G4double StepVX[500];
-		G4double StepVY[500];
-		G4double StepVZ[500];
-		G4double StepEdep[500];
+		G4int StepTrackID[max_steps];
+		G4int StepDetID[max_steps];
+		G4double StepVX[max_steps];
+		G4double StepVY[max_steps];
+		G4double StepVZ[max_steps];
+		G4double StepEdep[max_steps];
 
 		G4double EdepSumBox;
 
+		// Optical photon
+		G4int NOpticalPhotons;
+		G4int OpTrackID[max_opticalphotons];
+		G4int OpParentID[max_opticalphotons];
+		G4int OpDetID[max_opticalphotons];
+		G4double OpPX[max_opticalphotons];
+		G4double OpPY[max_opticalphotons];
+		G4double OpPZ[max_opticalphotons];
+		G4double OpVX[max_opticalphotons];
+		G4double OpVY[max_opticalphotons];
+		G4double OpVZ[max_opticalphotons];
+
+		G4int PostNOpticalPhotons;
+		G4int PostOpTrackID[max_opticalphotons];
+		G4int PostOpDetID[max_opticalphotons];
+		G4double PostOpPX[max_opticalphotons];
+		G4double PostOpPY[max_opticalphotons];
+		G4double PostOpPZ[max_opticalphotons];
+		G4double PostOpVX[max_opticalphotons];
+		G4double PostOpVY[max_opticalphotons];
+		G4double PostOpVZ[max_opticalphotons];
 };
 #endif

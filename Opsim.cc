@@ -27,19 +27,30 @@ int main(int argc,char** argv)
 	OpParameterContainer* PC = new OpParameterContainer(parameters);
 
 	// initialize the physics list
-	G4String physListStr = PC -> GetParString("physicslist");
+	G4String physListStr = PC -> GetParString("PhysicsList");
 	G4PhysListFactory* physListFac = new G4PhysListFactory();
 	G4VModularPhysicsList* physicsList = physListFac ->GetReferencePhysList(physListStr.c_str());
 
 	// define optical physics
-	G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-	physicsList -> RegisterPhysics(opticalPhysics);
-
+	if(PC -> GetParBool("OpticalPhysics") == true)
+	{
+		G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+		auto opticalParams = G4OpticalParameters::Instance();
+		opticalParams -> SetProcessActivation("Cerenkov",true);
+		opticalParams -> SetProcessActivation("Scintillation",true);
+		opticalParams -> SetCerenkovTrackSecondariesFirst(true);
+		opticalParams -> SetScintTrackSecondariesFirst(true);
+		physicsList -> RegisterPhysics(opticalPhysics);
+	}
 	runManager->SetUserInitialization(physicsList);
   
 	// the random seed
 	G4int seed = PC -> GetParInt("RandomSeed");
-	G4Random::setTheSeed(seed);
+	if(seed == 0) 
+		G4Random::setTheSeed(time(0));
+	else
+		G4Random::setTheSeed(seed);
+
 	// User action initialization
 	runManager->SetUserInitialization(new OpDetectorConstruction(PC));
 	runManager->SetUserInitialization(new OpActionInitialization(PC));
@@ -53,12 +64,20 @@ int main(int argc,char** argv)
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
 	// Process macro or start UI session
-	if ( PC -> GetParBool("visualisation") == false ) 
+	if ( PC -> GetParBool("Visualisation") == false ) 
 	{ 
 		// batch mode
 		G4String command = "/control/execute ";
-		G4String fileName = PC -> GetParString("macroFile");
-		UImanager->ApplyCommand(command+fileName);
+		if(argc == 1)
+		{
+			G4String fileName = PC -> GetParString("MacroFile");
+			UImanager->ApplyCommand(command+fileName);
+		}
+		else if (argc >= 2)
+		{
+			G4String macroFile = argv[1];
+			UImanager -> ApplyCommand(command+macroFile);
+		}
 	} else { 
 		// interactive mode
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
@@ -66,11 +85,7 @@ int main(int argc,char** argv)
 		delete ui;
 	}
 
-	// Job termination
-	// Free the store: user actions, physics_list and detector_description are
-	// owned and deleted by the run manager, so they should not be deleted 
-	// in the main() program !
-
+	delete PC;
 	delete visManager;
 	delete runManager;
 }

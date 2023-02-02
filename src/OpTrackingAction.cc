@@ -17,15 +17,20 @@ OpTrackingAction::~OpTrackingAction()
 
 void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 {
-//	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
-//		G4cout << "Optical photon is created" << G4endl;
+	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+		G4cout << "OpticalPhoton is created" << G4endl;
+
 	G4int trkID = track -> GetTrackID();
 	G4int parentID = track -> GetParentID();
-	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 	G4int detID = track -> GetVolume() -> GetCopyNo();
-
 	G4ThreeVector p = track -> GetMomentum();
 	G4ThreeVector v = track -> GetPosition();
+
+	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+	{
+		fRunAction -> FillOpticalPhoton(MCTrack, trkID, parentID, detID, p, v);
+	}
+	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 
 	G4double totenergy = track -> GetTotalEnergy();
 	G4double kinenergy = track -> GetKineticEnergy();
@@ -37,11 +42,16 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 {
 	G4int trkID = track -> GetTrackID();
 	G4int parentID = track -> GetParentID();
-	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 	G4int detID = track -> GetVolume() -> GetCopyNo();
-
 	G4ThreeVector p = track -> GetMomentum();
 	G4ThreeVector v = track -> GetPosition();
+
+	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+	{
+		fRunAction -> FillOpticalPhoton(MCPostTrack, trkID, parentID, detID, p, v);
+	}
+
+	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 
 	G4double totenergy = track -> GetTotalEnergy();
 	G4double kinenergy = track -> GetKineticEnergy();
