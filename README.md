@@ -53,3 +53,8 @@ The default setting of parameter container is "OpParameter.conf" in build direct
 #### 31.Jan
  - `Opsim.cc`: batch mode condition was modified (argc>2 => argc>=2)
  - `Opsim.cc`: time based seed was implemented
+
+#### 02.Feb
+ - `OpRunAction.xx`: added container for optical photons
+ - `OpTrackingAction.cc`: extract optical photons when it created and died
+ - `OpParameters.conf`: added boolean structure for photon output
