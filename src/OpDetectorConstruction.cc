@@ -8,6 +8,8 @@
 #include "G4Orb.hh"
 #include "G4Sphere.hh"
 #include "G4Trd.hh"
+#include "G4VSolid.hh"
+#include "G4SubtractionSolid.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"
@@ -65,11 +67,39 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			new G4LogicalVolume(solidSC,mat_SC,"SC");
 		new G4PVPlacement(0,G4ThreeVector(),logicSC,"SC",logicWorld,false,SCID,checkOverlaps);
 
-		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Gray()));
+		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Red()));
 		attSC -> SetVisibility(true);
 		attSC -> SetForceWireframe(true);
 		logicSC -> SetVisAttributes(attSC);
 	}
+
+	// SC Cage(temp)
+	if(PC -> GetParBool("SCCageIn"))
+	{
+		G4int SCCID = PC -> GetParInt("SCCID");
+		G4double SCC_sizeX = PC -> GetParDouble("SCC_sizeX");
+		G4double SCC_sizeY = PC -> GetParDouble("SCC_sizeY");
+		G4double SCC_sizeZ = PC -> GetParDouble("SCC_sizeZ");
+		G4Material* mat_SCC = fMaterials -> GetMaterial("Vacuum");
+
+		// define geometry(base and subtraction)
+		G4Box* solidSCCbase = 
+			new G4Box("SCCbase",0.5*(SCC_sizeX+1),0.5*(SCC_sizeY+1),0.5*(SCC_sizeZ+1));
+		G4Box* solidSCCsub = 
+			new G4Box("SCCbase",0.5*SCC_sizeX,0.5*SCC_sizeY,0.5*SCC_sizeZ);
+
+		G4VSolid* solidSCC = 
+			new G4SubtractionSolid("solidSCC",solidSCCbase,solidSCCsub);
+		G4LogicalVolume* logicSCC = 
+			new G4LogicalVolume(solidSCC, mat_SCC, "logicSCC");
+		new G4PVPlacement(0,G4ThreeVector(),logicSCC,"SCC",logicWorld,false,SCCID,checkOverlaps);
+
+		G4VisAttributes* attSCC = new G4VisAttributes(G4Colour(G4Colour::White()));
+		attSCC -> SetVisibility(true);
+		attSCC -> SetForceWireframe(true);
+		logicSCC -> SetVisAttributes(attSCC);
+	}
+
 
 	return physWorld;
 }

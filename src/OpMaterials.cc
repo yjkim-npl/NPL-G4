@@ -115,7 +115,7 @@ void OpMaterials::ApplyMaterialProperties()
 	G4MaterialPropertiesTable* mp_air = new G4MaterialPropertiesTable();
 	mp_air -> AddProperty("RINDEX",opEn,RI_Air);
 	fAir -> SetMaterialPropertiesTable(mp_air);
-//	map_mat["Air"] = fAir;
+	map_mat["Air"] = fAir;
 
 	// PolyVinylToluene
 

@@ -42,7 +42,7 @@ class OpRunAction : public G4UserRunAction
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
-			(G4int opt, G4int trkID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v);
+			(G4int opt, G4int trkID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time);
 
 		void FillStep
 			(G4int trkID, G4int prev_detID, G4int post_detID,
@@ -54,7 +54,7 @@ class OpRunAction : public G4UserRunAction
 	private:
 		OpParameterContainer* PC;
 
-		int find_index(int* a);
+		G4int find_OpIndex(G4int trkID);
 
 		TFile* F;
 		TTree* T;
@@ -104,21 +104,20 @@ class OpRunAction : public G4UserRunAction
 		G4int OpTrackID[max_opticalphotons];
 		G4int OpParentID[max_opticalphotons];
 		G4int OpDetID[max_opticalphotons];
+		G4int PostOpDetID[max_opticalphotons];
 		G4double OpPX[max_opticalphotons];
 		G4double OpPY[max_opticalphotons];
 		G4double OpPZ[max_opticalphotons];
 		G4double OpVX[max_opticalphotons];
 		G4double OpVY[max_opticalphotons];
 		G4double OpVZ[max_opticalphotons];
-
-		G4int PostNOpticalPhotons;
-		G4int PostOpTrackID[max_opticalphotons];
-		G4int PostOpDetID[max_opticalphotons];
+		G4double OpTime[max_opticalphotons];
 		G4double PostOpPX[max_opticalphotons];
 		G4double PostOpPY[max_opticalphotons];
 		G4double PostOpPZ[max_opticalphotons];
 		G4double PostOpVX[max_opticalphotons];
 		G4double PostOpVY[max_opticalphotons];
 		G4double PostOpVZ[max_opticalphotons];
+		G4double PostOpTime[max_opticalphotons];
 };
 #endif

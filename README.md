@@ -58,3 +58,6 @@ The default setting of parameter container is "OpParameter.conf" in build direct
  - `OpRunAction.xx`: added container for optical photons
  - `OpTrackingAction.cc`: extract optical photons when it created and died
  - `OpParameters.conf`: added boolean structure for photon output
+
+#### 03.Feb
+ - `OpParameterContainer.xx`: moved to standard class to static class
