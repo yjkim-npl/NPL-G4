@@ -14,7 +14,7 @@ class OpParameterContainer;
 class OpPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 	public:
-		OpPrimaryGeneratorAction(OpParameterContainer* par);    
+		OpPrimaryGeneratorAction();    
 		virtual ~OpPrimaryGeneratorAction();
 
 		// method from the base class

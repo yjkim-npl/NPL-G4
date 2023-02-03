@@ -7,10 +7,10 @@
 
 #include "OpParameterContainer.hh"
 
-OpActionInitialization::OpActionInitialization(OpParameterContainer* par)
+OpActionInitialization::OpActionInitialization()
  : G4VUserActionInitialization()
 {
-	PC = par;
+	PC = OpParameterContainer::GetInstance();
 }
 
 OpActionInitialization::~OpActionInitialization()
@@ -18,16 +18,16 @@ OpActionInitialization::~OpActionInitialization()
 
 void OpActionInitialization::BuildForMaster() const
 {
-  OpRunAction* runAction = new OpRunAction(PC);
+  OpRunAction* runAction = new OpRunAction();
   SetUserAction(runAction);
   
 }
 
 void OpActionInitialization::Build() const
 {
-  SetUserAction(new OpPrimaryGeneratorAction(PC));
+  SetUserAction(new OpPrimaryGeneratorAction());
 
-  OpRunAction* runAction = new OpRunAction(PC);
+  OpRunAction* runAction = new OpRunAction();
   SetUserAction(runAction);
   
   OpEventAction* eventAction = new OpEventAction(runAction);

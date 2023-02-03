@@ -17,13 +17,13 @@
 #include <functional>
 #include <map>
 
-OpRunAction::OpRunAction(OpParameterContainer* par)
+OpRunAction::OpRunAction()
 : G4UserRunAction()
 { 
-	PC = par;
+	PC = OpParameterContainer::GetInstance();
 
 	F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
-	T = new TTree("G4sim","G4sim");
+	T = new TTree("Opsim","Opsim");
 
 	init_Tree();
 }

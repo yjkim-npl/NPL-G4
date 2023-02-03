@@ -8,7 +8,7 @@ class OpParameterContainer;
 class OpActionInitialization : public G4VUserActionInitialization
 {
 	public:
-		OpActionInitialization(OpParameterContainer* par);
+		OpActionInitialization();
 		virtual ~OpActionInitialization();
 
 		virtual void BuildForMaster() const;

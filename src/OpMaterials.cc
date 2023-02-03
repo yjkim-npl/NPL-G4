@@ -53,6 +53,7 @@ void OpMaterials::CreateMaterials()
 	// Define default material: Vac, Air
 	fNistMan -> FindOrBuildMaterial("G4_Galactic");
 	fNistMan -> FindOrBuildMaterial("G4_AIR");
+	fNistMan -> FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
 	G4String symbol;
 	G4double a, z, density;
@@ -70,6 +71,8 @@ void OpMaterials::CreateMaterials()
 		map_mat.insert(make_pair("Vacuum",fVac));
 	G4Material* fAir = G4Material::GetMaterial("G4_AIR");
 		map_mat.insert(make_pair("Air",fAir));
+	G4Material* fScint = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+		map_mat.insert(make_pair("Scintillator",fScint));
 	G4Material* fSi = new G4Material("Silicon",	 z=14., a=28.09*g/mole,  density=2.33*g/cm3);
 		map_mat.insert(make_pair("Silicon",fSi));
 	G4Material* fAl = new G4Material("Aluminium",z=13., a=26.98*g/mole,  density=2.699*g/cm3);
@@ -100,6 +103,7 @@ void OpMaterials::CreateMaterials()
 void OpMaterials::ApplyMaterialProperties()
 {
 	// photon energy spectrum
+	vector<G4double> opEn_pvt = {2.479694*eV, 3.54242*eV};
 	vector<G4double> opEn = {
 		1.37760*eV, 1.41696*eV, 1.45864*eV, 1.50284*eV, 1.54980*eV, 1.59980*eV, 1.65312*eV, 1.71013*eV,
 		1.77120*eV, 1.83680*eV, 1.90745*eV, 1.98375*eV, 2.06640*eV, 2.15625*eV, 2.25426*eV, 2.36160*eV,
@@ -111,8 +115,12 @@ void OpMaterials::ApplyMaterialProperties()
 	G4MaterialPropertiesTable* mp_air = new G4MaterialPropertiesTable();
 	mp_air -> AddProperty("RINDEX",opEn,RI_Air);
 	fAir -> SetMaterialPropertiesTable(mp_air);
-	map_mat["Air"] = fAir;
+//	map_mat["Air"] = fAir;
 
+	// PolyVinylToluene
+
+	G4Material* fScint = map_mat["Scintillator"];
+//	vector<G4double> RI_PS = {};
 	// PS
 	G4Material* fPS = map_mat["Polystyrene"];
 	vector<G4double> RI_PS = {

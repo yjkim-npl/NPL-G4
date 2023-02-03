@@ -13,10 +13,10 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 
-OpDetectorConstruction::OpDetectorConstruction(OpParameterContainer* par)
+OpDetectorConstruction::OpDetectorConstruction()
 : G4VUserDetectorConstruction()
 {
-	PC = par;
+	PC = OpParameterContainer::GetInstance();
 	fMaterials = new OpMaterials();
 }
 
@@ -44,25 +44,31 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	G4VPhysicalVolume* physWorld = 
 		new G4PVPlacement(0,G4ThreeVector(),logicWorld,"World",0,false,worldID,checkOverlaps);  
 
-	// Box
-	if(PC -> GetParBool("BoxIn"))
+	// SC
+	if(PC -> GetParBool("SCIn"))
 	{
-		G4int boxID = PC -> GetParInt("BoxID");
-		G4double box_sizeX = PC -> GetParDouble("Box_sizeX");
-		G4double box_sizeY = PC -> GetParDouble("Box_sizeY");
-		G4double box_sizeZ = PC -> GetParDouble("Box_sizeZ");
-		G4Material* mat_box = fMaterials -> GetMaterial("Polystyrene");
+		G4int SCID = PC -> GetParInt("SCID");
+		G4double SC_sizeX = PC -> GetParDouble("SC_sizeX");
+		G4double SC_sizeY = PC -> GetParDouble("SC_sizeY");
+		G4double SC_sizeZ = PC -> GetParDouble("SC_sizeZ");
+		G4Material* mat_SC;
+		if(PC -> GetParInt("SCmatOpt") == 0)
+			mat_SC = fMaterials -> GetMaterial("Polystyrene");
+		else if(PC -> GetParInt("SCmatOpt") == 1)
+			mat_SC = fMaterials -> GetMaterial("Scintillator");
+		else
+			mat_SC = fMaterials -> GetMaterial("Polystyrene");
 
-		G4Box* solidBox =
-			new G4Box("Box",0.5*box_sizeX,0.5*box_sizeY,0.5*box_sizeZ);
-		G4LogicalVolume* logicBox = 
-			new G4LogicalVolume(solidBox,mat_box,"Box");
-		new G4PVPlacement(0,G4ThreeVector(),logicBox,"Box",logicWorld,false,boxID,checkOverlaps);
+		G4Box* solidSC =
+			new G4Box("SC",0.5*SC_sizeX,0.5*SC_sizeY,0.5*SC_sizeZ);
+		G4LogicalVolume* logicSC = 
+			new G4LogicalVolume(solidSC,mat_SC,"SC");
+		new G4PVPlacement(0,G4ThreeVector(),logicSC,"SC",logicWorld,false,SCID,checkOverlaps);
 
-		G4VisAttributes* attBox = new G4VisAttributes(G4Colour(G4Colour::Gray()));
-		attBox -> SetVisibility(true);
-		attBox -> SetForceWireframe(true);
-		logicBox -> SetVisAttributes(attBox);
+		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Gray()));
+		attSC -> SetVisibility(true);
+		attSC -> SetForceWireframe(true);
+		logicSC -> SetVisAttributes(attSC);
 	}
 
 	return physWorld;

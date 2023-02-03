@@ -12,8 +12,7 @@ using namespace std;
 class OpParameterContainer
 {
 	public:
-		OpParameterContainer();
-		OpParameterContainer(string fileName);
+		static OpParameterContainer* GetInstance();
 		virtual ~OpParameterContainer();
 		const OpParameterContainer& operator=(const OpParameterContainer &right);
 		void ReadParameters();
@@ -29,6 +28,9 @@ class OpParameterContainer
 			{return par_string[name];}
 
 	private:
+		static OpParameterContainer* fInstance;
+		OpParameterContainer();
+
 		string par_Name;
 		map<G4String,G4bool> par_bool;
 		map<G4String,G4int> par_int;

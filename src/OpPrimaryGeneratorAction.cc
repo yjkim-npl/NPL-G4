@@ -14,11 +14,11 @@
 #include "G4OpticalPhoton.hh"
 
 
-OpPrimaryGeneratorAction::OpPrimaryGeneratorAction(OpParameterContainer* par)
+OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fParticleGun(0) 
 {
-	PC = par;
+	PC = OpParameterContainer::GetInstance();
 	fParticleGun  = new G4ParticleGun();
 	fPolarized = true;
 	fPolarization = 30.;

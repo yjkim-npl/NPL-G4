@@ -13,7 +13,7 @@ class OpParameterContainer;
 class OpDetectorConstruction : public G4VUserDetectorConstruction
 {
 	public:
-		OpDetectorConstruction(OpParameterContainer* par);
+		OpDetectorConstruction();
 
 		virtual ~OpDetectorConstruction();
 

@@ -6,6 +6,7 @@
 
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
+#include "G4PhysicalConstants.hh"
 #include "G4OpticalPhysics.hh"
 
 #include "G4VisExecutive.hh"
@@ -23,8 +24,8 @@ int main(int argc,char** argv)
 
 	G4RunManager* runManager = new G4RunManager;
 
-	string parameters = "OpParameters.conf";
-	OpParameterContainer* PC = new OpParameterContainer(parameters);
+	OpParameterContainer* PC = OpParameterContainer::GetInstance();
+	PC -> PrintParameter("All");
 
 	// initialize the physics list
 	G4String physListStr = PC -> GetParString("PhysicsList");
@@ -52,8 +53,8 @@ int main(int argc,char** argv)
 		G4Random::setTheSeed(seed);
 
 	// User action initialization
-	runManager->SetUserInitialization(new OpDetectorConstruction(PC));
-	runManager->SetUserInitialization(new OpActionInitialization(PC));
+	runManager->SetUserInitialization(new OpDetectorConstruction());
+	runManager->SetUserInitialization(new OpActionInitialization());
 
 	// Initialize visualization
 	//
@@ -85,6 +86,7 @@ int main(int argc,char** argv)
 		delete ui;
 	}
 
+	G4cout << h_Planck << "\n" << c_light << G4endl;
 	delete PC;
 	delete visManager;
 	delete runManager;

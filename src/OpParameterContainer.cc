@@ -3,15 +3,22 @@
 #include "globals.hh"
 #include <sstream>
 
-OpParameterContainer::OpParameterContainer()
+OpParameterContainer* OpParameterContainer::fInstance = 0;
+
+OpParameterContainer* OpParameterContainer::GetInstance()
 {
-    par_Name = "Parameters.conf";
-    ReadParameters();
+	if(fInstance == 0)
+	{
+		fInstance = new OpParameterContainer();
+		G4cout << "Parameter Instance was filled" << G4endl;
+	}
+
+	return fInstance;
 }
 
-OpParameterContainer::OpParameterContainer(string fileName)
+OpParameterContainer::OpParameterContainer()
 {
-    par_Name = fileName;
+    par_Name = "OpParameters.conf";
     ReadParameters();
 }
 
@@ -68,5 +75,36 @@ const OpParameterContainer& OpParameterContainer::operator=(const OpParameterCon
 
 void OpParameterContainer::PrintParameter(G4String par)
 {
-//    G4cout << "yjkim in Parameter Container" << G4endl;
+	if(par == "ALL" || par == "All" || par == "all")
+	{
+		G4cout << "-----Boolean-----" << G4endl;
+		for(auto iter = par_bool.begin(); iter != par_bool.end(); iter++)
+			G4cout << iter->first << "  b  " << iter->second << G4endl;
+		G4cout << "-----Integer-----" << G4endl;
+		for(auto iter = par_int.begin(); iter != par_int.end(); iter++)
+			G4cout << iter->first << "  i  " << iter->second << G4endl;
+		G4cout << "-----Double-----" << G4endl;
+		for(auto iter = par_double.begin(); iter != par_double.end(); iter++)
+			G4cout << iter->first << "  d  " << iter->second << G4endl;
+		G4cout << "-----String-----" << G4endl;
+		for(auto iter = par_string.begin(); iter != par_string.end(); iter++)
+			G4cout << iter->first << "  s  " << iter->second << G4endl;
+	}
+	else
+	{
+		G4bool parb = par_bool[par];
+		G4int pari = par_int[par];
+		G4double pard = par_double[par];
+		G4String pars = par_string[par];
+		if(parb)
+			G4cout << par << " " << parb << G4endl;
+		else if (pari)
+			G4cout << par << " " << pari << G4endl;
+		else if (pard)
+			G4cout << par << " " << pard << G4endl;
+		else if (pars)
+			G4cout << par << " " << pars << G4endl;
+		else
+			G4cout << "yjkim in Parameter Container" << G4endl;
+	}
 }
