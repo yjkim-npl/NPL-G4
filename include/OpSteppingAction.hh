@@ -7,6 +7,7 @@
 class OpRunAction;
 
 class G4LogicalVolume;
+class G4OpBoundaryProcess;
 
 class OpSteppingAction : public G4UserSteppingAction
 {
@@ -17,7 +18,8 @@ class OpSteppingAction : public G4UserSteppingAction
     virtual void UserSteppingAction(const G4Step*);
 
   private:
-	OpRunAction* fRunAction;
+		OpRunAction* fRunAction;
+		G4OpBoundaryProcess* fOpProcess;
 
 };
 

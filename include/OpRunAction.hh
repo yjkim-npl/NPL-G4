@@ -14,7 +14,7 @@
 
 #define max_tracks 1000
 #define max_steps 1000
-#define max_opticalphotons 100000
+#define max_opticalphotons 1000
 using namespace std;
 
 class OpParameterContainer;
@@ -26,8 +26,8 @@ enum {MCTrack,MCPostTrack};	// Opt for FillTrack
 class OpRunAction : public G4UserRunAction
 {
 	public:
-	    OpRunAction();
-    	virtual ~OpRunAction();
+	  OpRunAction();
+    virtual ~OpRunAction();
 
 		void init_Tree();
 
@@ -50,6 +50,8 @@ class OpRunAction : public G4UserRunAction
 
 		void update_Tree()
 			{T -> Fill();}
+
+		void Print_track();
 
 	private:
 		OpParameterContainer* PC;

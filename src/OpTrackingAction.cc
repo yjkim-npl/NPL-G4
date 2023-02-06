@@ -26,7 +26,7 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 
 	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
 	{
-//		G4cout << "OpticalPhoton is created" << G4endl;
+		G4cout << "MCTrack optical photonID: " << trkID << G4endl;
 		fRunAction -> FillOpticalPhoton(MCTrack, trkID, parentID, detID, p, v, time);
 	}
 	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
@@ -48,7 +48,10 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 
 	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
 	{
+		G4cout << "MCPostTrack optical photon: " << trkID << G4endl;
 //		G4cout << "OpticalPhoton is dead" << G4endl;
+//		if(trkID=22)
+//			G4cout << track->GetDefinition()->GetParticleName() << G4endl;
 		fRunAction -> FillOpticalPhoton(MCPostTrack, trkID, parentID, detID, p, v, time);
 	}
 

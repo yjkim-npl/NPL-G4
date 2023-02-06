@@ -17,6 +17,8 @@ class OpEventAction : public G4UserEventAction
 		OpEventAction(OpRunAction* runAction);
 		virtual ~OpEventAction();
 
+		static G4int nOPsteps;
+
 		virtual void BeginOfEventAction(const G4Event* event);
 		virtual void EndOfEventAction(const G4Event* event);
 

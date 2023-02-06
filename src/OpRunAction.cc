@@ -107,11 +107,16 @@ void OpRunAction::init_Tree()
 }
 
 void OpRunAction::BeginOfRunAction(const G4Run*)
-{ 
+{
 }
 
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
+	for(G4int a=0; a<20; a++)
+	{
+		G4cout << OpTrackID[a] << G4endl;
+	}
+//	G4cout << NOpticalPhotons << G4endl;
 }
 
 void OpRunAction::clear_data()
@@ -228,6 +233,8 @@ void OpRunAction::FillOpticalPhoton
 {
 	if(opt == MCTrack)
 	{
+		G4cout << "Stacked o.p: " << NOpticalPhotons << G4endl;
+//		G4cout << "Stacked o.p: " << sizeof(OpTrackID)/sizeof(OpTrackID[0]) << G4endl;
 		OpTrackID[NOpticalPhotons] = trkID;
 		OpParentID[NOpticalPhotons] = parentID;
 		OpDetID[NOpticalPhotons] = detID;
@@ -242,15 +249,15 @@ void OpRunAction::FillOpticalPhoton
 	}
 	else if (opt == MCPostTrack)
 	{
-		G4int idx = find_OpIndex(trkID);
-		PostOpDetID[idx] = detID;
-		PostOpPX[idx] = p.x();
-		PostOpPY[idx] = p.y();
-		PostOpPZ[idx] = p.z();
-		PostOpVX[idx] = v.x();
-		PostOpVY[idx] = v.y();
-		PostOpVZ[idx] = v.z();
-		PostOpTime[idx] = time;
+//		G4int idx = find_OpIndex(trkID);
+//		PostOpDetID[idx] = detID;
+//		PostOpPX[idx] = p.x();
+//		PostOpPY[idx] = p.y();
+//		PostOpPZ[idx] = p.z();
+//		PostOpVX[idx] = v.x();
+//		PostOpVY[idx] = v.y();
+//		PostOpVZ[idx] = v.z();
+//		PostOpTime[idx] = time;
 	}
 }
 
@@ -274,13 +281,27 @@ void OpRunAction::FillStep
 
 G4int OpRunAction::find_OpIndex(G4int trkID)
 {
-	for(G4int idx=0; idx<NOpticalPhotons; idx++)
-	{
-		if(OpTrackID[idx] == trkID)
-			return idx;
-	}
-	G4ExceptionDescription msg;
-	msg << "OpRunAction::find_OpIndex exceed NOpticalPhotons" << G4endl;
-	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+//	for(G4int idx=0; idx<NOpticalPhotons; idx++)
+//	{
+//		if(OpTrackID[idx] == trkID)
+//		{
+//			return idx;
+//			break;
+//		}
+//	}
+//	G4cout << "RunAction::find_OpIndex " << trkID <<
+//		" " << OpTrackID[22] 
+//		<<G4endl;
 	return 0;
+	G4ExceptionDescription msg;
+	msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
+	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+}
+
+void OpRunAction::Print_track()
+{
+		for(G4int a=0; a<20; a++)
+	{
+		G4cout << "Print Track " << OpTrackID[a] << G4endl;
+	}
 }
