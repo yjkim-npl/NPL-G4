@@ -21,7 +21,7 @@ class OpParameterContainer;
 
 class G4Run;
 
-enum {MCTrack,MCPostTrack};	// Opt for FillTrack
+enum {MCTrack,MCPostTrack, temp};	// Opt for FillTrack
 
 class OpRunAction : public G4UserRunAction
 {
@@ -50,8 +50,6 @@ class OpRunAction : public G4UserRunAction
 
 		void update_Tree()
 			{T -> Fill();}
-
-		void Print_track();
 
 	private:
 		OpParameterContainer* PC;
@@ -121,5 +119,11 @@ class OpRunAction : public G4UserRunAction
 		G4double PostOpVY[max_opticalphotons];
 		G4double PostOpVZ[max_opticalphotons];
 		G4double PostOpTime[max_opticalphotons];
+
+		// temp
+		G4int Ntemp;
+		G4int* temp_trackID;
+		G4double temp_Edepsum;
+		G4double* temp_Edep;
 };
 #endif

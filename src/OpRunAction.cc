@@ -1,7 +1,6 @@
 #include "OpRunAction.hh"
 #include "OpPrimaryGeneratorAction.hh"
 #include "OpDetectorConstruction.hh"
-
 #include "OpParameterContainer.hh"
 
 #include "G4RunManager.hh"
@@ -26,12 +25,14 @@ OpRunAction::OpRunAction()
 	T = new TTree("Opsim","Opsim");
 
 	init_Tree();
+	G4cout << "Constructor of OpRunAction" << G4endl;
 }
 
 OpRunAction::~OpRunAction()
 {
 	F -> Write();
 	F -> Close();
+	G4cout << "Destructor of OpRunAction" << G4endl;
 }
 
 void OpRunAction::init_Tree()
@@ -104,6 +105,13 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostOpVZ",PostOpVZ,"PostOpVZ[NOpticalPhotons]/D");
 		T -> Branch("PostOpTime",PostOpTime,"PostOpTime[NOpticalPhotons]/D");
 	}
+	if(PC -> GetParBool("temp"))
+	{
+		T -> Branch("Ntemp",&Ntemp);
+		T -> Branch("temp_trackID",temp_trackID,"temp_trackID[Ntemp]/I");
+		T -> Branch("temp_Edepsum",&temp_Edepsum);
+		T -> Branch("temp_edep",temp_Edep,"temp_edep[Ntemp]/D");
+	}
 }
 
 void OpRunAction::BeginOfRunAction(const G4Run*)
@@ -112,11 +120,6 @@ void OpRunAction::BeginOfRunAction(const G4Run*)
 
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
-	for(G4int a=0; a<20; a++)
-	{
-		G4cout << OpTrackID[a] << G4endl;
-	}
-//	G4cout << NOpticalPhotons << G4endl;
 }
 
 void OpRunAction::clear_data()
@@ -279,6 +282,7 @@ void OpRunAction::FillStep
 	nStep++;
 }
 
+
 G4int OpRunAction::find_OpIndex(G4int trkID)
 {
 //	for(G4int idx=0; idx<NOpticalPhotons; idx++)
@@ -296,12 +300,4 @@ G4int OpRunAction::find_OpIndex(G4int trkID)
 	G4ExceptionDescription msg;
 	msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
 	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
-}
-
-void OpRunAction::Print_track()
-{
-		for(G4int a=0; a<20; a++)
-	{
-		G4cout << "Print Track " << OpTrackID[a] << G4endl;
-	}
 }

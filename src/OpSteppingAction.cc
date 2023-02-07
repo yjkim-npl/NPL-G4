@@ -1,7 +1,8 @@
-#include "OpSteppingAction.hh"
-#include "OpEventAction.hh"
-#include "OpRunAction.hh"
 #include "OpDetectorConstruction.hh"
+#include "OpEventAction.hh"
+#include "OpParameterContainer.hh"
+#include "OpRunAction.hh"
+#include "OpSteppingAction.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -13,10 +14,14 @@
 OpSteppingAction::OpSteppingAction(OpRunAction* runAction)
 : G4UserSteppingAction(),
   fRunAction(runAction)
-{}
+{
+	G4cout << "Constructor of OpSteppingAction" << G4endl;
+}
 
 OpSteppingAction::~OpSteppingAction()
-{}
+{
+	G4cout << "Destructor of OpSteppingAction" << G4endl;
+}
 
 void OpSteppingAction::UserSteppingAction(const G4Step* step)
 {

@@ -1,4 +1,5 @@
 #include "OpTrackingAction.hh"
+#include "OpParameterContainer.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
@@ -10,10 +11,13 @@ OpTrackingAction::OpTrackingAction(OpRunAction* runAction)
 :G4UserTrackingAction(),
  fRunAction(runAction)
 {
+	G4cout << "Constructor of OpTrackingAction" << G4endl;
 }
 
 OpTrackingAction::~OpTrackingAction()
-{}
+{
+	G4cout << "Destructor of OpTrackingAction" << G4endl;
+}
 
 void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 {

@@ -8,22 +8,22 @@ OpParameterContainer* OpParameterContainer::fInstance = 0;
 OpParameterContainer* OpParameterContainer::GetInstance()
 {
 	if(fInstance == 0)
-	{
 		fInstance = new OpParameterContainer();
-		G4cout << "Parameter Instance was filled" << G4endl;
-	}
 
 	return fInstance;
 }
 
 OpParameterContainer::OpParameterContainer()
 {
+	G4cout << "Constructor of OpParameterContainer" << G4endl;
     par_Name = "OpParameters.conf";
     ReadParameters();
 }
 
 OpParameterContainer::~OpParameterContainer()
-{}
+{
+	G4cout << "Destructor of OpParameterContainer" << G4endl;
+}
 
 void OpParameterContainer::ReadParameters()
 {

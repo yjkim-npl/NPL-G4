@@ -19,6 +19,7 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
   fParticleGun(0) 
 {
 	PC = OpParameterContainer::GetInstance();
+	G4cout << "Constructor of OpPrimaryGeneratorAction" << G4endl;
 	fParticleGun  = new G4ParticleGun();
 	fPolarized = true;
 	fPolarization = 30.;
@@ -37,6 +38,7 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 OpPrimaryGeneratorAction::~OpPrimaryGeneratorAction()
 {
   delete fParticleGun;
+	G4cout << "Destructor of OpPrimaryGeneratorAction" << G4endl;
 }
 
 void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)

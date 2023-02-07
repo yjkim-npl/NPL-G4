@@ -6,7 +6,7 @@
 
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
-#include "G4PhysicalConstants.hh"
+#include "G4HadronicParameters.hh"
 #include "G4OpticalPhysics.hh"
 
 #include "G4VisExecutive.hh"
@@ -25,11 +25,12 @@ int main(int argc,char** argv)
 	G4RunManager* runManager = new G4RunManager;
 
 	OpParameterContainer* PC = OpParameterContainer::GetInstance();
-	PC -> PrintParameter("All");
+//	PC -> PrintParameter("All");
 
 	// initialize the physics list
 	G4String physListStr = PC -> GetParString("PhysicsList");
 	G4PhysListFactory* physListFac = new G4PhysListFactory();
+	physListFac -> SetVerbose(0);
 	G4VModularPhysicsList* physicsList = physListFac ->GetReferencePhysList(physListStr.c_str());
 
 	// define optical physics
@@ -43,6 +44,8 @@ int main(int argc,char** argv)
 		opticalParams -> SetScintTrackSecondariesFirst(true);
 		physicsList -> RegisterPhysics(opticalPhysics);
 	}
+	G4HadronicParameters::Instance() -> SetVerboseLevel(0);
+	physicsList -> SetVerboseLevel(0);
 	runManager->SetUserInitialization(physicsList);
   
 	// the random seed
@@ -59,6 +62,7 @@ int main(int argc,char** argv)
 	// Initialize visualization
 	//
 	G4VisManager* visManager = new G4VisExecutive;
+	visManager -> SetVerboseLevel(0);
 	visManager->Initialize();
 
 	// Get the pointer to the User Interface manager
@@ -83,10 +87,8 @@ int main(int argc,char** argv)
 		// interactive mode
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
 		ui->SessionStart();
-		delete ui;
 	}
-
-	G4cout << h_Planck << "\n" << c_light << G4endl;
+	delete ui;
 	delete PC;
 	delete visManager;
 	delete runManager;
