@@ -19,7 +19,6 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
   fParticleGun(0) 
 {
 	PC = OpParameterContainer::GetInstance();
-	G4cout << "Constructor of OpPrimaryGeneratorAction" << G4endl;
 	fParticleGun  = new G4ParticleGun();
 	fPolarized = true;
 	fPolarization = 30.;
@@ -33,12 +32,16 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 	fParticleGun -> SetParticleTime(0.0 * ns);	// generated time
 	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));	// with momentum dir
 	fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
+
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpPrimaryGeneratorAction" << G4endl;
 }
 
 OpPrimaryGeneratorAction::~OpPrimaryGeneratorAction()
 {
   delete fParticleGun;
-	G4cout << "Destructor of OpPrimaryGeneratorAction" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpPrimaryGeneratorAction" << G4endl;
 }
 
 void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)

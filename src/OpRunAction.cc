@@ -25,14 +25,16 @@ OpRunAction::OpRunAction()
 	T = new TTree("Opsim","Opsim");
 
 	init_Tree();
-	G4cout << "Constructor of OpRunAction" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0) 
+		G4cout << "Constructor of OpRunAction" << G4endl;
 }
 
 OpRunAction::~OpRunAction()
 {
 	F -> Write();
 	F -> Close();
-	G4cout << "Destructor of OpRunAction" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0) 
+		G4cout << "Destructor of OpRunAction" << G4endl;
 }
 
 void OpRunAction::init_Tree()
@@ -87,9 +89,9 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("NOpticalPhotons",&NOpticalPhotons);
 		T -> Branch("OpTrackID",OpTrackID,"OpTrackID[NOpticalPhotons]/I");
+		T -> Branch("OpProcessID",OpProcessID,"OpProcessID[NOpticalPhotons]/I");
 		T -> Branch("OpParentID",OpParentID,"OpParentID[NOpticalPhotons]/I");
 		T -> Branch("OpDetID",OpDetID,"OpDetID[NOpticalPhotons]/I");
-		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
 		T -> Branch("OpPX",OpPX,"OpPX[NOpticalPhotons]/D");
 		T -> Branch("OpPY",OpPY,"OpPY[NOpticalPhotons]/D");
 		T -> Branch("OpPZ",OpPZ,"OpPZ[NOpticalPhotons]/D");
@@ -97,6 +99,8 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpVY",OpVY,"OpVY[NOpticalPhotons]/D");
 		T -> Branch("OpVZ",OpVZ,"OpVZ[NOpticalPhotons]/D");
 		T -> Branch("OpTime",OpTime,"OpTime[NOpticalPhotons]/D");
+		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
+		T -> Branch("PostProcID",PostProcID,"PostProcID[NOpticalPhotons]/I");
 		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[NOpticalPhotons]/D");
 		T -> Branch("PostOpPY",PostOpPY,"PostOpPY[NOpticalPhotons]/D");
 		T -> Branch("PostOpPZ",PostOpPZ,"PostOpPZ[NOpticalPhotons]/D");
@@ -105,21 +109,18 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostOpVZ",PostOpVZ,"PostOpVZ[NOpticalPhotons]/D");
 		T -> Branch("PostOpTime",PostOpTime,"PostOpTime[NOpticalPhotons]/D");
 	}
-	if(PC -> GetParBool("temp"))
-	{
-		T -> Branch("Ntemp",&Ntemp);
-		T -> Branch("temp_trackID",temp_trackID,"temp_trackID[Ntemp]/I");
-		T -> Branch("temp_Edepsum",&temp_Edepsum);
-		T -> Branch("temp_edep",temp_Edep,"temp_edep[Ntemp]/D");
-	}
 }
 
 void OpRunAction::BeginOfRunAction(const G4Run*)
 {
+	if(PC -> GetParInt("UserVerbosity") > 0) 
+		G4cout << "Begin of OpRunAction" << G4endl;
 }
 
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
+	if(PC -> GetParInt("UserVerbosity") > 0) 
+		G4cout << "End of OpRunAction" << G4endl;
 }
 
 void OpRunAction::clear_data()
@@ -170,9 +171,9 @@ void OpRunAction::clear_data()
 	{
 		NOpticalPhotons = 0;
 		fill_n(OpTrackID,max_opticalphotons,0);
+		fill_n(OpProcessID,max_opticalphotons,0);
 		fill_n(OpParentID,max_opticalphotons,0);
 		fill_n(OpDetID,max_opticalphotons,0);
-		fill_n(PostOpDetID,max_opticalphotons,0);
 		fill_n(OpPX,max_opticalphotons,0);
 		fill_n(OpPY,max_opticalphotons,0);
 		fill_n(OpPZ,max_opticalphotons,0);
@@ -180,6 +181,9 @@ void OpRunAction::clear_data()
 		fill_n(OpVY,max_opticalphotons,0);
 		fill_n(OpVZ,max_opticalphotons,0);
 		fill_n(OpTime,max_opticalphotons,0);
+
+		fill_n(PostOpDetID,max_opticalphotons,0);
+		fill_n(PostProcID,max_opticalphotons,0);
 		fill_n(PostOpPX,max_opticalphotons,0);
 		fill_n(PostOpPY,max_opticalphotons,0);
 		fill_n(PostOpPZ,max_opticalphotons,0);
@@ -232,13 +236,18 @@ void OpRunAction::FillTrack
 }
 
 void OpRunAction::FillOpticalPhoton
-(G4int opt, G4int trkID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time)
+(G4int opt, G4int trkID, G4int processID, G4int parentID, G4int detID, 
+ G4ThreeVector p, G4ThreeVector v, G4double time)
 {
 	if(opt == MCTrack)
 	{
-		G4cout << "Stacked o.p: " << NOpticalPhotons << G4endl;
+//		G4cout << "Stacked o.p: " << NOpticalPhotons << G4endl;
+//		G4int idx = find_OpIndex(OpTrackID);
 //		G4cout << "Stacked o.p: " << sizeof(OpTrackID)/sizeof(OpTrackID[0]) << G4endl;
+//		G4cout << creProcID << G4endl;
+//		G4cout << OpProcessID[idx] << G4endl;
 		OpTrackID[NOpticalPhotons] = trkID;
+		OpProcessID[NOpticalPhotons] = processID;
 		OpParentID[NOpticalPhotons] = parentID;
 		OpDetID[NOpticalPhotons] = detID;
 		OpPX[NOpticalPhotons] = p.x();
@@ -252,15 +261,16 @@ void OpRunAction::FillOpticalPhoton
 	}
 	else if (opt == MCPostTrack)
 	{
-//		G4int idx = find_OpIndex(trkID);
-//		PostOpDetID[idx] = detID;
-//		PostOpPX[idx] = p.x();
-//		PostOpPY[idx] = p.y();
-//		PostOpPZ[idx] = p.z();
-//		PostOpVX[idx] = v.x();
-//		PostOpVY[idx] = v.y();
-//		PostOpVZ[idx] = v.z();
-//		PostOpTime[idx] = time;
+		G4int idx = find_OpIndex(trkID);
+		PostOpDetID[idx] = detID;
+		PostProcID[idx] = processID;
+		PostOpPX[idx] = p.x();
+		PostOpPY[idx] = p.y();
+		PostOpPZ[idx] = p.z();
+		PostOpVX[idx] = v.x();
+		PostOpVY[idx] = v.y();
+		PostOpVZ[idx] = v.z();
+		PostOpTime[idx] = time;
 	}
 }
 
@@ -285,19 +295,79 @@ void OpRunAction::FillStep
 
 G4int OpRunAction::find_OpIndex(G4int trkID)
 {
-//	for(G4int idx=0; idx<NOpticalPhotons; idx++)
-//	{
-//		if(OpTrackID[idx] == trkID)
+	for(G4int idx=0; idx<NOpticalPhotons; idx++)
+	{
+		if(OpTrackID[idx] == trkID)
+			return idx;
+		else if (idx == max_opticalphotons-1)
+		{
+			G4ExceptionDescription msg;
+			msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
+			G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+		}
+//		else
 //		{
-//			return idx;
-//			break;
+//			G4ExceptionDescription msg;
+//			msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
+//			G4Exception("OpRunAction::find_OpIndex()", "OpR02",FatalException,msg);
 //		}
-//	}
+	}
 //	G4cout << "RunAction::find_OpIndex " << trkID <<
 //		" " << OpTrackID[22] 
 //		<<G4endl;
-	return 0;
-	G4ExceptionDescription msg;
-	msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
-	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+//	return 0;
 }
+
+void OpRunAction::update_Tree()
+{
+	if(PC -> GetParBool("MCTrack"))
+		nTrack = sizeof(TrackID)/sizeof(TrackID[0]);
+	if(PC -> GetParBool("MCPostTrack"))
+		nPostTrack = sizeof(PostTrackID)/sizeof(PostTrackID[0]);
+	if(PC -> GetParBool("MCStep"))
+		nStep = sizeof(StepTrackID)/sizeof(StepTrackID[0]);
+//	if(PC -> GetParBool("OpTrack"))
+//		return;
+//		NOpticalPhotons = sizeof(OpTrackID)/sizeof(OpTrackID[0]);
+
+	T -> Fill();
+
+//	PrintData(OpticalPhoton);
+}
+
+void OpRunAction::PrintData(G4int opt)
+{
+	if(opt == MCTrack)
+	{
+		G4cout << nTrack << G4endl;
+	}
+	else if (opt == MCPostTrack)
+	{
+		G4cout << nPostTrack << G4endl;
+	}
+	else if (opt == OpticalPhoton)
+	{
+		for(G4int a=0; a<NOpticalPhotons; a++)
+		{
+			if(a%10 == 0) 
+				G4cout << G4endl;
+			G4cout << a << " OptrckID: " << OpTrackID[a] <<
+//				" ProcID: " << OpProcessID[a] <<
+				" ParID: " << OpParentID[a] <<
+//				" DetID: " << OpDetID[a] <<
+//				" PZ: " << OpPZ[a] << 
+//				" VX: " << (G4float)OpVX[a] << 
+//				" VY: " << (G4float)OpVY[a] << 
+//				" Time: " << (G4float)OpTime[a] << 
+				" PostDetID: " << PostOpDetID[a] << 
+				" PostProcID: " << PostProcID[a] << 
+//				" pPZ: " << PostOpPZ[a] << 
+//				" pVX: " << PostOpVX[a] << 
+//				" pVY: " << PostOpVY[a] << 
+//				" pTime: " << PostOpTime[a] << 
+				G4endl;
+		}
+		G4cout << "NOpticalPhotns: " << NOpticalPhotons << G4endl;
+	}
+}
+

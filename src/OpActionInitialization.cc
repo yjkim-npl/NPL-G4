@@ -11,12 +11,14 @@ OpActionInitialization::OpActionInitialization()
  : G4VUserActionInitialization()
 {
 	PC = OpParameterContainer::GetInstance();
-	G4cout << "Constructor of OpActionInitialization" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpActionInitialization" << G4endl;
 }
 
 OpActionInitialization::~OpActionInitialization()
 {
-	G4cout << "Destructor of OpActionInitialization" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpActionInitialization" << G4endl;
 }
 
 void OpActionInitialization::BuildForMaster() const

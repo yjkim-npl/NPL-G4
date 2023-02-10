@@ -3,7 +3,6 @@
 #include "OpParameterContainer.hh"
 
 #include "G4RunManager.hh"
-
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
 #include "G4HadronicParameters.hh"
@@ -89,7 +88,7 @@ int main(int argc,char** argv)
 		ui->SessionStart();
 	}
 	delete ui;
-	delete PC;
 	delete visManager;
 	delete runManager;
+	delete PC;
 }

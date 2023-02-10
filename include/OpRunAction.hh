@@ -12,16 +12,16 @@
 #include <vector>
 #include <map>
 
-#define max_tracks 1000
-#define max_steps 1000
-#define max_opticalphotons 1000
+#define max_tracks 100
+#define max_steps 100
+#define max_opticalphotons 10000
 using namespace std;
 
 class OpParameterContainer;
 
 class G4Run;
 
-enum {MCTrack,MCPostTrack, temp};	// Opt for FillTrack
+enum {MCTrack,MCPostTrack, OpticalPhoton};	// Opt for FillTrack
 
 class OpRunAction : public G4UserRunAction
 {
@@ -42,14 +42,15 @@ class OpRunAction : public G4UserRunAction
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
-			(G4int opt, G4int trkID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time);
+			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time);
 
 		void FillStep
 			(G4int trkID, G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep);
 
-		void update_Tree()
-			{T -> Fill();}
+		void update_Tree();
+
+		void PrintData(G4int opt);
 
 	private:
 		OpParameterContainer* PC;
@@ -102,9 +103,9 @@ class OpRunAction : public G4UserRunAction
 		// Optical photon
 		G4int NOpticalPhotons;
 		G4int OpTrackID[max_opticalphotons];
+		G4int OpProcessID[max_opticalphotons];
 		G4int OpParentID[max_opticalphotons];
 		G4int OpDetID[max_opticalphotons];
-		G4int PostOpDetID[max_opticalphotons];
 		G4double OpPX[max_opticalphotons];
 		G4double OpPY[max_opticalphotons];
 		G4double OpPZ[max_opticalphotons];
@@ -112,6 +113,9 @@ class OpRunAction : public G4UserRunAction
 		G4double OpVY[max_opticalphotons];
 		G4double OpVZ[max_opticalphotons];
 		G4double OpTime[max_opticalphotons];
+
+		G4int PostOpDetID[max_opticalphotons];
+		G4int PostProcID[max_opticalphotons];
 		G4double PostOpPX[max_opticalphotons];
 		G4double PostOpPY[max_opticalphotons];
 		G4double PostOpPZ[max_opticalphotons];

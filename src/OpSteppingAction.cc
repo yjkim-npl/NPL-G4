@@ -15,12 +15,14 @@ OpSteppingAction::OpSteppingAction(OpRunAction* runAction)
 : G4UserSteppingAction(),
   fRunAction(runAction)
 {
-	G4cout << "Constructor of OpSteppingAction" << G4endl;
+	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpSteppingAction" << G4endl;
 }
 
 OpSteppingAction::~OpSteppingAction()
 {
-	G4cout << "Destructor of OpSteppingAction" << G4endl;
+	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpSteppingAction" << G4endl;
 }
 
 void OpSteppingAction::UserSteppingAction(const G4Step* step)
@@ -83,5 +85,5 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	else
 		postNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
 
-	fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
+//	fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
 }
