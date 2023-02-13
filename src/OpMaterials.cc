@@ -10,12 +10,14 @@ OpMaterials::OpMaterials()
 	fNistMan = G4NistManager::Instance();
 	CreateMaterials();
 	ApplyMaterialProperties();
-	G4cout << "Constructor of OpMaterials" << G4endl;
+	if(OpParameterContainer::GetInstance()->GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpMaterials" << G4endl;
 }
 
 OpMaterials::~OpMaterials()
 {
-	G4cout << "Destructor of OpMaterials" << G4endl;
+	if(OpParameterContainer::GetInstance()->GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpMaterials" << G4endl;
 }
 
 G4Material* OpMaterials::GetMaterial(G4String matName)
@@ -142,12 +144,12 @@ void OpMaterials::ApplyMaterialProperties()
 		0.33, 0.63, 1.00, 0.50, 0.00, 0.00, 0.00, 0.00, 0.00
 	};
 	G4MaterialPropertiesTable* mp_PS = new G4MaterialPropertiesTable();
-//	mp_PS -> AddProperty("RINDEX",opEn,RI_PS);
+	mp_PS -> AddProperty("RINDEX",opEn,RI_PS);
 	mp_PS -> AddProperty("ABSLENGTH",opEn,ABS_PS);
-//	mp_PS -> AddProperty("FASTCOMPONENT",opEn,ScintFast_PS);
+	mp_PS -> AddProperty("FASTCOMPONENT",opEn,ScintFast_PS);
 	mp_PS -> AddConstProperty("SCINTILLATIONYIELD",10./MeV);
 	mp_PS -> AddConstProperty("RESOLUTIONSCALE",1.0);
-//	mp_PS -> AddConstProperty("FASTTIMECONSTANT",2.8*ns);
+	mp_PS -> AddConstProperty("FASTTIMECONSTANT",2.8*ns);
 	fPS -> SetMaterialPropertiesTable(mp_PS);
 	fPS -> GetIonisation() -> SetBirksConstant(0.126*mm/MeV);
 	map_mat["Polystyrene"] = fPS;

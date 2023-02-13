@@ -21,13 +21,16 @@ OpDetectorConstruction::OpDetectorConstruction()
 	PC = OpParameterContainer::GetInstance();
 	fMaterials = new OpMaterials();
 
-	G4cout << "Constructor of OpDetectorConstruction" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpDetectorConstruction" << G4endl;
 }
 
 OpDetectorConstruction::~OpDetectorConstruction()
 { 
 	delete fMaterials;
-	G4cout << "Destructor of OpDetectorConstruction" << G4endl;
+
+	if(PC -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpDetectorConstruction" << G4endl;
 }
 
 G4VPhysicalVolume* OpDetectorConstruction::Construct()

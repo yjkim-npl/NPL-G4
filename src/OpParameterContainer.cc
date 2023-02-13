@@ -15,14 +15,16 @@ OpParameterContainer* OpParameterContainer::GetInstance()
 
 OpParameterContainer::OpParameterContainer()
 {
-	G4cout << "Constructor of OpParameterContainer" << G4endl;
-    par_Name = "OpParameters.conf";
-    ReadParameters();
+	par_Name = "OpParameters.conf";
+	ReadParameters();
+	if(this -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Constructor of OpParameterContainer" << G4endl;
 }
 
 OpParameterContainer::~OpParameterContainer()
 {
-	G4cout << "Destructor of OpParameterContainer" << G4endl;
+	if(this -> GetParInt("UserVerbosity") > 0)
+		G4cout << "Destructor of OpParameterContainer" << G4endl;
 }
 
 void OpParameterContainer::ReadParameters()
