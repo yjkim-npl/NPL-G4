@@ -22,17 +22,24 @@ OpEventAction::~OpEventAction()
 		G4cout << "Destructor of OpEventAction" << G4endl;
 }
 
-void OpEventAction::BeginOfEventAction(const G4Event*)
+void OpEventAction::BeginOfEventAction(const G4Event* event)
 {
 	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 0)
-		G4cout << "Begin of OpEventAction" << G4endl;
+		if(event -> GetEventID() == 0)
+			G4cout << "Begin of OpEventAction" << G4endl;
 	fRunAction -> clear_data();
 }
 
-void OpEventAction::EndOfEventAction(const G4Event*)
+void OpEventAction::EndOfEventAction(const G4Event* event)
 {
 	fRunAction -> update_Tree();
 	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 0)
-		G4cout << "End of OpEventAction" << G4endl;
+		if(event -> GetEventID() == 0)
+			G4cout << "End of OpEventAction" << G4endl;
+	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 1)
+		if(event -> GetEventID() == 0)
+			fRunAction -> PrintData(OpticalPhoton);
+	if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 2)
+		fRunAction -> PrintData(OpticalPhoton);
 }
 

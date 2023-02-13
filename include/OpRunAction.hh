@@ -106,7 +106,6 @@ class OpRunAction : public G4UserRunAction
 		G4int OpProcessID[max_opticalphotons];
 		G4int OpParentID[max_opticalphotons];
 		G4int OpDetID[max_opticalphotons];
-		G4int PostOpDetID[max_opticalphotons];
 		G4double OpPX[max_opticalphotons];
 		G4double OpPY[max_opticalphotons];
 		G4double OpPZ[max_opticalphotons];
@@ -114,6 +113,9 @@ class OpRunAction : public G4UserRunAction
 		G4double OpVY[max_opticalphotons];
 		G4double OpVZ[max_opticalphotons];
 		G4double OpTime[max_opticalphotons];
+
+		G4int PostOpDetID[max_opticalphotons];
+		G4int PostProcID[max_opticalphotons];
 		G4double PostOpPX[max_opticalphotons];
 		G4double PostOpPY[max_opticalphotons];
 		G4double PostOpPZ[max_opticalphotons];

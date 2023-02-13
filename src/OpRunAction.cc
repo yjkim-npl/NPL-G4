@@ -92,7 +92,6 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpProcessID",OpProcessID,"OpProcessID[NOpticalPhotons]/I");
 		T -> Branch("OpParentID",OpParentID,"OpParentID[NOpticalPhotons]/I");
 		T -> Branch("OpDetID",OpDetID,"OpDetID[NOpticalPhotons]/I");
-		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
 		T -> Branch("OpPX",OpPX,"OpPX[NOpticalPhotons]/D");
 		T -> Branch("OpPY",OpPY,"OpPY[NOpticalPhotons]/D");
 		T -> Branch("OpPZ",OpPZ,"OpPZ[NOpticalPhotons]/D");
@@ -100,6 +99,8 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpVY",OpVY,"OpVY[NOpticalPhotons]/D");
 		T -> Branch("OpVZ",OpVZ,"OpVZ[NOpticalPhotons]/D");
 		T -> Branch("OpTime",OpTime,"OpTime[NOpticalPhotons]/D");
+		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
+		T -> Branch("PostProcID",PostProcID,"PostProcID[NOpticalPhotons]/I");
 		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[NOpticalPhotons]/D");
 		T -> Branch("PostOpPY",PostOpPY,"PostOpPY[NOpticalPhotons]/D");
 		T -> Branch("PostOpPZ",PostOpPZ,"PostOpPZ[NOpticalPhotons]/D");
@@ -107,13 +108,6 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostOpVY",PostOpVY,"PostOpVY[NOpticalPhotons]/D");
 		T -> Branch("PostOpVZ",PostOpVZ,"PostOpVZ[NOpticalPhotons]/D");
 		T -> Branch("PostOpTime",PostOpTime,"PostOpTime[NOpticalPhotons]/D");
-	}
-	if(PC -> GetParBool("temp"))
-	{
-		T -> Branch("Ntemp",&Ntemp);
-		T -> Branch("temp_trackID",temp_trackID,"temp_trackID[Ntemp]/I");
-		T -> Branch("temp_Edepsum",&temp_Edepsum);
-		T -> Branch("temp_edep",temp_Edep,"temp_edep[Ntemp]/D");
 	}
 }
 
@@ -180,7 +174,6 @@ void OpRunAction::clear_data()
 		fill_n(OpProcessID,max_opticalphotons,0);
 		fill_n(OpParentID,max_opticalphotons,0);
 		fill_n(OpDetID,max_opticalphotons,0);
-		fill_n(PostOpDetID,max_opticalphotons,0);
 		fill_n(OpPX,max_opticalphotons,0);
 		fill_n(OpPY,max_opticalphotons,0);
 		fill_n(OpPZ,max_opticalphotons,0);
@@ -188,6 +181,9 @@ void OpRunAction::clear_data()
 		fill_n(OpVY,max_opticalphotons,0);
 		fill_n(OpVZ,max_opticalphotons,0);
 		fill_n(OpTime,max_opticalphotons,0);
+
+		fill_n(PostOpDetID,max_opticalphotons,0);
+		fill_n(PostProcID,max_opticalphotons,0);
 		fill_n(PostOpPX,max_opticalphotons,0);
 		fill_n(PostOpPY,max_opticalphotons,0);
 		fill_n(PostOpPZ,max_opticalphotons,0);
@@ -240,40 +236,41 @@ void OpRunAction::FillTrack
 }
 
 void OpRunAction::FillOpticalPhoton
-(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, 
+(G4int opt, G4int trkID, G4int processID, G4int parentID, G4int detID, 
  G4ThreeVector p, G4ThreeVector v, G4double time)
 {
 	if(opt == MCTrack)
 	{
-		G4cout << "Stacked o.p: " << NOpticalPhotons << G4endl;
-		G4int idx = find_OpIndex(OpTrackID);
+//		G4cout << "Stacked o.p: " << NOpticalPhotons << G4endl;
+//		G4int idx = find_OpIndex(OpTrackID);
 //		G4cout << "Stacked o.p: " << sizeof(OpTrackID)/sizeof(OpTrackID[0]) << G4endl;
-		OpTrackID[idx] = trkID;
-		OpProcessID[idx] = creProcID;
 //		G4cout << creProcID << G4endl;
 //		G4cout << OpProcessID[idx] << G4endl;
-		OpParentID[idx] = parentID;
-		OpDetID[idx] = detID;
-		OpPX[idx] = p.x();
-		OpPY[idx] = p.y();
-		OpPZ[idx] = p.z();
-		OpVX[idx] = v.x();
-		OpVY[idx] = v.y();
-		OpVZ[idx] = v.z();
-		OpTime[idx] = time;
-		++NOpticalPhotons;
+		OpTrackID[NOpticalPhotons] = trkID;
+		OpProcessID[NOpticalPhotons] = processID;
+		OpParentID[NOpticalPhotons] = parentID;
+		OpDetID[NOpticalPhotons] = detID;
+		OpPX[NOpticalPhotons] = p.x();
+		OpPY[NOpticalPhotons] = p.y();
+		OpPZ[NOpticalPhotons] = p.z();
+		OpVX[NOpticalPhotons] = v.x();
+		OpVY[NOpticalPhotons] = v.y();
+		OpVZ[NOpticalPhotons] = v.z();
+		OpTime[NOpticalPhotons] = time;
+		NOpticalPhotons++;
 	}
 	else if (opt == MCPostTrack)
 	{
-//		G4int idx = find_OpIndex(trkID);
-//		PostOpDetID[idx] = detID;
-//		PostOpPX[idx] = p.x();
-//		PostOpPY[idx] = p.y();
-//		PostOpPZ[idx] = p.z();
-//		PostOpVX[idx] = v.x();
-//		PostOpVY[idx] = v.y();
-//		PostOpVZ[idx] = v.z();
-//		PostOpTime[idx] = time;
+		G4int idx = find_OpIndex(trkID);
+		PostOpDetID[idx] = detID;
+		PostProcID[idx] = processID;
+		PostOpPX[idx] = p.x();
+		PostOpPY[idx] = p.y();
+		PostOpPZ[idx] = p.z();
+		PostOpVX[idx] = v.x();
+		PostOpVY[idx] = v.y();
+		PostOpVZ[idx] = v.z();
+		PostOpTime[idx] = time;
 	}
 }
 
@@ -298,22 +295,27 @@ void OpRunAction::FillStep
 
 G4int OpRunAction::find_OpIndex(G4int* a)
 {
-	for(G4int idx=0; idx<max_opticalphotons; idx++)
+	for(G4int idx=0; idx<NOpticalPhotons; idx++)
 	{
-		if(a[idx] != 0)
-			continue;
-		else if (idx == max_opticalphotons)
-			return max_opticalphotons;
-		else
+		if(OpTrackID[idx] == trkID)
 			return idx;
+		else if (idx == max_opticalphotons-1)
+		{
+			G4ExceptionDescription msg;
+			msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
+			G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+		}
+//		else
+//		{
+//			G4ExceptionDescription msg;
+//			msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
+//			G4Exception("OpRunAction::find_OpIndex()", "OpR02",FatalException,msg);
+//		}
 	}
 //	G4cout << "RunAction::find_OpIndex " << trkID <<
 //		" " << OpTrackID[22] 
 //		<<G4endl;
-	return 0;
-	G4ExceptionDescription msg;
-	msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
-	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+//	return 0;
 }
 
 void OpRunAction::update_Tree()
@@ -324,8 +326,8 @@ void OpRunAction::update_Tree()
 		nPostTrack = sizeof(PostTrackID)/sizeof(PostTrackID[0]);
 	if(PC -> GetParBool("MCStep"))
 		nStep = sizeof(StepTrackID)/sizeof(StepTrackID[0]);
-	if(PC -> GetParBool("OpTrack"))
-		return;
+//	if(PC -> GetParBool("OpTrack"))
+//		return;
 //		NOpticalPhotons = sizeof(OpTrackID)/sizeof(OpTrackID[0]);
 
 	T -> Fill();
@@ -347,9 +349,23 @@ void OpRunAction::PrintData(G4int opt)
 	{
 		for(G4int a=0; a<NOpticalPhotons; a++)
 		{
-			G4cout << a << " OpTrackID: " << OpTrackID[a] <<
-				" OpParentID: " << OpParentID[a] <<
-				" OpDetID: " << OpDetID[a] << G4endl;
+			if(a%10 == 0) 
+				G4cout << G4endl;
+			G4cout << a << " OptrckID: " << OpTrackID[a] <<
+//				" ProcID: " << OpProcessID[a] <<
+				" ParID: " << OpParentID[a] <<
+//				" DetID: " << OpDetID[a] <<
+//				" PZ: " << OpPZ[a] << 
+//				" VX: " << (G4float)OpVX[a] << 
+//				" VY: " << (G4float)OpVY[a] << 
+//				" Time: " << (G4float)OpTime[a] << 
+				" PostDetID: " << PostOpDetID[a] << 
+				" PostProcID: " << PostProcID[a] << 
+//				" pPZ: " << PostOpPZ[a] << 
+//				" pVX: " << PostOpVX[a] << 
+//				" pVY: " << PostOpVY[a] << 
+//				" pTime: " << PostOpTime[a] << 
+				G4endl;
 		}
 		G4cout << "NOpticalPhotns: " << NOpticalPhotons << G4endl;
 	}

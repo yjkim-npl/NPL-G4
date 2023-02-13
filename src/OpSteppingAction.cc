@@ -85,5 +85,5 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	else
 		postNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
 
-	fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
+//	fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
 }
