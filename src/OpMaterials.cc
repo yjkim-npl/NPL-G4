@@ -91,7 +91,20 @@ void OpMaterials::CreateMaterials()
 	G4Material* fPb = new G4Material("Lead",	 z=82., a=207.2*g/mole,  density=11.35*g/cm3);
 		map_mat.insert(make_pair("Lead",fPb));
 
+	G4Material* fAr = new G4Material("ArGas",  z=18, a=39.948*g/mole, density=1.7836*g/cm3,kStateGas);
+		map_mat.insert(make_pair("Argon",fAr));
+
 	// Create materials with complex component
+	G4Material* fCH4 = new G4Material("CH4Gas", density=0.717e-3*g/cm3, ncompo=2,kStateGas);
+	fCH4 -> AddElement(H,natoms=1);
+	fCH4 -> AddElement(H,natoms=4);
+		map_mat.insert(make_pair("MetanGas",fCH4));
+
+	G4double d_p10 = 0.9*fAr->GetDensity() + 0.1*fCH4->GetDensity();
+	G4Material* fP10 = new G4Material("P10Gas", density=d_p10, ncompo=2,kStateGas);
+	fP10 -> AddMaterial(fAr,0.9*fAr->GetDensity()/d_p10);
+	fP10 -> AddMaterial(fCH4,0.1*fCH4->GetDensity()/d_p10);
+		map_mat.insert(make_pair("P10Gas",fP10));
 	G4Material* fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
 		// Acryl, core material of cherenkov fiber
 	fPMMA -> AddElement(C,natoms=5);
@@ -109,7 +122,7 @@ void OpMaterials::ApplyMaterialProperties()
 {
 	// photon energy spectrum
 	vector<G4double> opEn_pvt = {2.479694*eV, 3.54242*eV};
-	vector<G4double> opEn = {
+	vector<G4double> opEn = {	// from 900nm to 300 nm with 50 nm step
 		1.37760*eV, 1.41696*eV, 1.45864*eV, 1.50284*eV, 1.54980*eV, 1.59980*eV, 1.65312*eV, 1.71013*eV,
 		1.77120*eV, 1.83680*eV, 1.90745*eV, 1.98375*eV, 2.06640*eV, 2.15625*eV, 2.25426*eV, 2.36160*eV,
 		2.47968*eV, 2.61019*eV, 2.75520*eV, 2.91728*eV, 3.09960*eV, 3.30625*eV, 3.54241*eV, 3.81490*eV,     4.13281*eV};

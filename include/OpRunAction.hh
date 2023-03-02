@@ -8,20 +8,24 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TList.h"
+//#include "TNamed.h"
 
 #include <vector>
 #include <map>
+#include <utility>
+#include <set>
 
-#define max_tracks 100
-#define max_steps 100
-#define max_opticalphotons 10000
+#define max_tracks 1000000
+#define max_steps 1000000
+#define max_opticalphotons 1000
 using namespace std;
 
 class OpParameterContainer;
 
 class G4Run;
 
-enum {MCTrack,MCPostTrack, OpticalPhoton};	// Opt for FillTrack
+enum {MCTrack,MCPostTrack, OpticalPhoton, Process};	// Opt for FillTrack
 
 class OpRunAction : public G4UserRunAction
 {
@@ -42,7 +46,10 @@ class OpRunAction : public G4UserRunAction
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
-			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time);
+			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy);
+
+		void FillOpticalPhotonBoundary
+			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v);
 
 		void FillStep
 			(G4int trkID, G4int prev_detID, G4int post_detID,
@@ -52,10 +59,18 @@ class OpRunAction : public G4UserRunAction
 
 		void PrintData(G4int opt);
 
+		void SetProcess(G4int procID, G4String procTypeName);
+
+		void SetInputParameters(G4int nevnts);
+
 	private:
 		OpParameterContainer* PC;
+		TList fInputParameters;
+		map<G4String, G4String> map_input_para;
+		TList fProcessTable;
+		map<G4int,G4String> map_process;
 
-		G4int find_OpIndex(G4int* a);
+		G4int find_OpIndex(G4int trkID);
 
 		TFile* F;
 		TTree* T;
@@ -112,6 +127,8 @@ class OpRunAction : public G4UserRunAction
 		G4double OpVX[max_opticalphotons];
 		G4double OpVY[max_opticalphotons];
 		G4double OpVZ[max_opticalphotons];
+		G4double OpEnergy[max_opticalphotons];
+		G4double OpKEnergy[max_opticalphotons];
 		G4double OpTime[max_opticalphotons];
 
 		G4int PostOpDetID[max_opticalphotons];
@@ -122,7 +139,20 @@ class OpRunAction : public G4UserRunAction
 		G4double PostOpVX[max_opticalphotons];
 		G4double PostOpVY[max_opticalphotons];
 		G4double PostOpVZ[max_opticalphotons];
+		G4double PostOpEnergy[max_opticalphotons];
+		G4double PostOpKEnergy[max_opticalphotons];
 		G4double PostOpTime[max_opticalphotons];
+
+		G4int NOpBoundary;
+		map<G4int,G4int> map_trackID_procIDB;
+		G4int OpTrackIDBoundary[max_opticalphotons];
+		G4int OpProcIDBoundary[max_opticalphotons];
+		G4double OpPXBoundary[max_opticalphotons];
+		G4double OpPYBoundary[max_opticalphotons];
+		G4double OpPZBoundary[max_opticalphotons];
+		G4double OpVXBoundary[max_opticalphotons];
+		G4double OpVYBoundary[max_opticalphotons];
+		G4double OpVZBoundary[max_opticalphotons];
 
 		// temp
 		G4int Ntemp;
@@ -131,3 +161,4 @@ class OpRunAction : public G4UserRunAction
 		G4double* temp_Edep;
 };
 #endif
+

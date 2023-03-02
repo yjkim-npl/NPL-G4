@@ -50,7 +50,8 @@
 #
 # Axes, scale, etc.
 #/vis/scene/add/scale   # Simple scale line
-#/vis/scene/add/axes    # Simple axes: x=red, y=green, z=blue.
+# Simple axes: x=red, y=green, z=blue.
+#/vis/scene/add/axes 1 1 1 100 mm
 #/vis/scene/add/eventID # Drawn at end of event
 #/vis/scene/add/date    # Date stamp
 #/vis/scene/add/logo2D  # Simple logo
@@ -83,5 +84,5 @@
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
 /vis/viewer/set/lightsVector 0 0 1
-#/vis/viewer/set/viewpointVector 0 0 1
-/vis/viewer/set/viewpointThetaPhi 120 160 deg
+/vis/viewer/set/viewpointVector -1 0 0 ## 0 1 0 is forbidden
+#/vis/viewer/set/viewpointThetaPhi 120 160 deg

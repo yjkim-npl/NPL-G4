@@ -10,6 +10,13 @@
 #include "G4LogicalVolume.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ProcessTable.hh"
+#include "G4ProcessVector.hh"
+#include "G4ProcessManager.hh"
+#include "G4ProcessType.hh"
+
+#include "TObject.h"
 
 #include <utility>
 #include <algorithm>
@@ -21,7 +28,10 @@ OpRunAction::OpRunAction()
 { 
 	PC = OpParameterContainer::GetInstance();
 
-	F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
+	if(PC -> GetParBool("UserOutputName"))
+		F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
+	else
+		F = new TFile(("out_"+PC->GetParString("Beam_particle")+"_"+to_string(PC->GetParInt("Beam_energy"))+"MeV.root").c_str(),"recreate");
 	T = new TTree("Opsim","Opsim");
 
 	init_Tree();
@@ -31,10 +41,35 @@ OpRunAction::OpRunAction()
 
 OpRunAction::~OpRunAction()
 {
-	F -> Write();
-	F -> Close();
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "Destructor of OpRunAction" << G4endl;
+	if(PC -> GetParInt("UserVerbosity") > 1)
+		G4cout << "map_process size: " << map_process.size() << G4endl;
+	for(auto iter : map_process)
+	{
+		if(PC -> GetParInt("UserVerbosity") > 1)
+			G4cout << iter.first << " " << iter.second << G4endl;
+		G4int procID = iter.first;
+		G4String procName = iter.second;
+		TNamed* process = new TNamed(to_string(procID),procName);
+		fProcessTable.Add(process);
+	}
+	for(auto iter : map_input_para)
+	{
+		if(PC -> GetParInt("UserVerbosity") > 1)
+			G4cout << iter.first << " " << iter.second << G4endl;
+		G4String paraName = iter.first;
+		G4String paraValue = iter.second;
+		TNamed* input_para = new TNamed(paraName.data(), paraValue.data());
+		fInputParameters.Add(input_para);
+	}
+	fProcessTable.Write("ProcessTable",TObject::kSingleKey);
+	fInputParameters.Write("InputParameters",TObject::kSingleKey);
+	F -> Write();
+	F -> Close();
+//	delete F;
+//	delete T;
+	F -> cd();
 }
 
 void OpRunAction::init_Tree()
@@ -98,6 +133,8 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpVX",OpVX,"OpVX[NOpticalPhotons]/D");
 		T -> Branch("OpVY",OpVY,"OpVY[NOpticalPhotons]/D");
 		T -> Branch("OpVZ",OpVZ,"OpVZ[NOpticalPhotons]/D");
+		T -> Branch("OpEnergy",OpEnergy,"OpEnergy[NOpticalPhotons]/D");
+		T -> Branch("OpKEnergy",OpKEnergy,"OpKEnergy[NOpticalPhotons]/D");
 		T -> Branch("OpTime",OpTime,"OpTime[NOpticalPhotons]/D");
 		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
 		T -> Branch("PostProcID",PostProcID,"PostProcID[NOpticalPhotons]/I");
@@ -107,11 +144,23 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostOpVX",PostOpVX,"PostOpVX[NOpticalPhotons]/D");
 		T -> Branch("PostOpVY",PostOpVY,"PostOpVY[NOpticalPhotons]/D");
 		T -> Branch("PostOpVZ",PostOpVZ,"PostOpVZ[NOpticalPhotons]/D");
+		T -> Branch("PostOpEnergy",PostOpEnergy,"PostOpEnergy[NOpticalPhotons]/D");
+		T -> Branch("PostOpKEnergy",PostOpKEnergy,"PostOpKEnergy[NOpticalPhotons]/D");
 		T -> Branch("PostOpTime",PostOpTime,"PostOpTime[NOpticalPhotons]/D");
+
+		T -> Branch("NOpBoundary",&NOpBoundary);
+		T -> Branch("OpTrackIDBoundary",OpTrackIDBoundary,"OpTrackIDBoundary[NOpBoundary]/I");
+		T -> Branch("OpProcIDBoundary",OpProcIDBoundary,"OpProcIDBoundary[NOpBoundary]/I");
+		T -> Branch("OpPXBoundary",OpPXBoundary,"OpPXBoundary[NOpBoundary]/D");
+		T -> Branch("OpPYBoundary",OpPYBoundary,"OpPYBoundary[NOpBoundary]/D");
+		T -> Branch("OpPZBoundary",OpPZBoundary,"OpPZBoundary[NOpBoundary]/D");
+		T -> Branch("OpVXBoundary",OpVXBoundary,"OpVXBoundary[NOpBoundary]/D");
+		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
+		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
 	}
 }
 
-void OpRunAction::BeginOfRunAction(const G4Run*)
+void OpRunAction::BeginOfRunAction(const G4Run* run)
 {
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "Begin of OpRunAction" << G4endl;
@@ -119,6 +168,8 @@ void OpRunAction::BeginOfRunAction(const G4Run*)
 
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
+	G4int Nevents = run -> GetNumberOfEvent();
+	SetInputParameters(Nevents);
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "End of OpRunAction" << G4endl;
 }
@@ -180,6 +231,8 @@ void OpRunAction::clear_data()
 		fill_n(OpVX,max_opticalphotons,0);
 		fill_n(OpVY,max_opticalphotons,0);
 		fill_n(OpVZ,max_opticalphotons,0);
+		fill_n(OpEnergy,max_opticalphotons,0);
+		fill_n(OpKEnergy,max_opticalphotons,0);
 		fill_n(OpTime,max_opticalphotons,0);
 
 		fill_n(PostOpDetID,max_opticalphotons,0);
@@ -190,7 +243,20 @@ void OpRunAction::clear_data()
 		fill_n(PostOpVX,max_opticalphotons,0);
 		fill_n(PostOpVY,max_opticalphotons,0);
 		fill_n(PostOpVZ,max_opticalphotons,0);
+		fill_n(PostOpEnergy,max_opticalphotons,0);
+		fill_n(PostOpKEnergy,max_opticalphotons,0);
 		fill_n(PostOpTime,max_opticalphotons,0);
+
+		NOpBoundary = 0;
+		map_trackID_procIDB.clear();
+		fill_n(OpTrackIDBoundary,max_opticalphotons,0);
+		fill_n(OpProcIDBoundary,max_opticalphotons,0);
+		fill_n(OpPXBoundary,max_opticalphotons,0);
+		fill_n(OpPYBoundary,max_opticalphotons,0);
+		fill_n(OpPZBoundary,max_opticalphotons,0);
+		fill_n(OpVXBoundary,max_opticalphotons,0);
+		fill_n(OpVYBoundary,max_opticalphotons,0);
+		fill_n(OpVZBoundary,max_opticalphotons,0);
 	}
 }
 
@@ -237,7 +303,7 @@ void OpRunAction::FillTrack
 
 void OpRunAction::FillOpticalPhoton
 (G4int opt, G4int trkID, G4int processID, G4int parentID, G4int detID, 
- G4ThreeVector p, G4ThreeVector v, G4double time)
+ G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy)
 {
 	if(opt == MCTrack)
 	{
@@ -257,6 +323,8 @@ void OpRunAction::FillOpticalPhoton
 		OpVY[NOpticalPhotons] = v.y();
 		OpVZ[NOpticalPhotons] = v.z();
 		OpTime[NOpticalPhotons] = time;
+		OpEnergy[NOpticalPhotons] = energy;
+		OpKEnergy[NOpticalPhotons] = kenergy;
 		NOpticalPhotons++;
 	}
 	else if (opt == MCPostTrack)
@@ -270,9 +338,33 @@ void OpRunAction::FillOpticalPhoton
 		PostOpVX[idx] = v.x();
 		PostOpVY[idx] = v.y();
 		PostOpVZ[idx] = v.z();
+		PostOpEnergy[idx] = energy;
+		PostOpKEnergy[idx] = kenergy;
 		PostOpTime[idx] = time;
 	}
 }
+
+void OpRunAction::FillOpticalPhotonBoundary
+(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v)
+{
+	if(map_trackID_procIDB.find(trkID) != map_trackID_procIDB.end())
+	{
+		return;
+	}
+//		G4cout << trkID << " " << procID << " " << map_trackID_procIDB[trkID] << G4endl;
+	map_trackID_procIDB.insert(make_pair(trkID,procID));
+//	G4cout << "after inserting map" << G4endl;
+	OpTrackIDBoundary[NOpBoundary] = trkID;
+	OpProcIDBoundary[NOpBoundary] = procID;
+	OpPXBoundary[NOpBoundary] = p.x();
+	OpPYBoundary[NOpBoundary] = p.y();
+	OpPZBoundary[NOpBoundary] = p.z();
+	OpVXBoundary[NOpBoundary] = v.x();
+	OpVYBoundary[NOpBoundary] = v.y();
+	OpVZBoundary[NOpBoundary] = v.z();
+	NOpBoundary++;
+}
+
 
 void OpRunAction::FillStep
 (G4int trkID, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep)
@@ -293,46 +385,33 @@ void OpRunAction::FillStep
 }
 
 
-G4int OpRunAction::find_OpIndex(G4int* a)
+G4int OpRunAction::find_OpIndex(G4int trkID)
 {
-	for(G4int idx=0; idx<NOpticalPhotons; idx++)
+	for(G4int idx=0; idx<max_opticalphotons; idx++)
 	{
 		if(OpTrackID[idx] == trkID)
 			return idx;
-		else if (idx == max_opticalphotons-1)
-		{
-			G4ExceptionDescription msg;
-			msg << "OpRunAction::find_OpIndex exceed maxOpticalPhotons" << G4endl;
-			G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
-		}
-//		else
-//		{
-//			G4ExceptionDescription msg;
-//			msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
-//			G4Exception("OpRunAction::find_OpIndex()", "OpR02",FatalException,msg);
-//		}
 	}
-//	G4cout << "RunAction::find_OpIndex " << trkID <<
-//		" " << OpTrackID[22] 
-//		<<G4endl;
-//	return 0;
+	G4ExceptionDescription msg;
+	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
+	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
 }
 
 void OpRunAction::update_Tree()
 {
-	if(PC -> GetParBool("MCTrack"))
-		nTrack = sizeof(TrackID)/sizeof(TrackID[0]);
-	if(PC -> GetParBool("MCPostTrack"))
-		nPostTrack = sizeof(PostTrackID)/sizeof(PostTrackID[0]);
-	if(PC -> GetParBool("MCStep"))
-		nStep = sizeof(StepTrackID)/sizeof(StepTrackID[0]);
+//	if(PC -> GetParBool("MCTrack"))
+//		nTrack = sizeof(TrackID)/sizeof(TrackID[0]);
+//	if(PC -> GetParBool("MCPostTrack"))
+//		nPostTrack = sizeof(PostTrackID)/sizeof(PostTrackID[0]);
+//	if(PC -> GetParBool("MCStep"))
+//		nStep = sizeof(StepTrackID)/sizeof(StepTrackID[0]);
 //	if(PC -> GetParBool("OpTrack"))
 //		return;
 //		NOpticalPhotons = sizeof(OpTrackID)/sizeof(OpTrackID[0]);
 
 	T -> Fill();
 
-//	PrintData(OpticalPhoton);
+//	PrintData(Process);
 }
 
 void OpRunAction::PrintData(G4int opt)
@@ -352,7 +431,7 @@ void OpRunAction::PrintData(G4int opt)
 			if(a%10 == 0) 
 				G4cout << G4endl;
 			G4cout << a << " OptrckID: " << OpTrackID[a] <<
-//				" ProcID: " << OpProcessID[a] <<
+				" ProcID: " << OpProcessID[a] <<
 				" ParID: " << OpParentID[a] <<
 //				" DetID: " << OpDetID[a] <<
 //				" PZ: " << OpPZ[a] << 
@@ -369,4 +448,124 @@ void OpRunAction::PrintData(G4int opt)
 		}
 		G4cout << "NOpticalPhotns: " << NOpticalPhotons << G4endl;
 	}
+
+	else if (opt == Process)
+	{
+//		auto procNames = G4ProcessTable::GetProcessTable() -> GetNameList();
+//		G4cout << "###############" << G4endl;
+//		G4cout << "Process Table" << G4endl;
+//		G4int idx = 0;
+//		for(auto name : *procNames)
+//		{
+//			G4cout << idx << " " << name << G4endl;
+//			idx++;
+//		}
+//		G4cout << "###############" << G4endl;
+
+//		for(iter = fProcessType.begin(); iter != fProcessType.end(); iter++)
+	}
+}
+
+void OpRunAction::SetProcess(G4int procID, G4String processTypeName)
+{
+		map_process.insert(make_pair(procID,processTypeName));
+}
+
+void OpRunAction::SetInputParameters(G4int nevnts)
+{
+	map_input_para.insert(make_pair("PhysicsList",PC->GetParString("PhysicsList")));
+	map_input_para.insert(make_pair("RandomSeed",to_string(PC->GetParInt("RandomSeed"))));
+	map_input_para.insert(make_pair("MacroFile",PC->GetParString("MacroFile")));
+	map_input_para.insert(make_pair("Beam_particle",PC->GetParString("Beam_particle")));
+	if(PC->GetParString("Beam_particle")=="ion")
+	{
+		map_input_para.insert(make_pair("InputIonID",to_string(PC->GetParInt("InputIonID"))));
+		map_input_para.insert(make_pair("InputCharge",to_string(PC->GetParInt("InputCharge"))));
+	}
+	map_input_para.insert(make_pair("Beam_energy",to_string(PC->GetParInt("Beam_energy"))));
+	map_input_para.insert(make_pair("NperEvent",to_string(PC->GetParInt("NperEvent"))));
+	map_input_para.insert(make_pair("NEvents",to_string(nevnts)));
+	map_input_para.insert(make_pair("Beam_shape",to_string(PC->GetParInt("Beam_shape"))));
+	if(PC->GetParInt("Beam_shape") == 1)
+	{
+		map_input_para.insert(make_pair("Beam_x0",to_string(PC->GetParDouble("Beam_x0"))));
+		map_input_para.insert(make_pair("Beam_dx",to_string(PC->GetParDouble("Beam_dx"))));
+		map_input_para.insert(make_pair("Beam_y0",to_string(PC->GetParDouble("Beam_y0"))));
+		map_input_para.insert(make_pair("Beam_dy",to_string(PC->GetParDouble("Beam_dy"))));
+		map_input_para.insert(make_pair("Beam_z0",to_string(PC->GetParDouble("Beam_z0"))));
+		map_input_para.insert(make_pair("Beam_dz",to_string(PC->GetParDouble("Beam_dz"))));
+	}
+	else if(PC->GetParInt("Beam_shape") == 2)
+	{
+		map_input_para.insert(make_pair("Beam_r0",to_string(PC->GetParDouble("Beam_r0"))));
+	}
+	map_input_para.insert(make_pair("MCTrack",PC->GetParBool("MCTrack")?"true":"false"));
+	map_input_para.insert(make_pair("MCPostTrack",PC->GetParBool("MCPostTrack")?"true":"false"));
+	map_input_para.insert(make_pair("MCStep",PC->GetParBool("MCStep")?"true":"false"));
+	map_input_para.insert(make_pair("OpTrack",PC->GetParBool("OpTrack")?"true":"false"));
+	map_input_para.insert(make_pair("SC1In",PC->GetParBool("SC1In")?"true":"false"));
+	map_input_para.insert(make_pair("SC2In",PC->GetParBool("SC2In")?"true":"false"));
+	map_input_para.insert(make_pair("WorldID",to_string(PC->GetParInt("WorldID"))));
+	map_input_para.insert(make_pair("World_sizeX",to_string(PC->GetParDouble("World_sizeX"))));
+	map_input_para.insert(make_pair("World_sizeY",to_string(PC->GetParDouble("World_sizeY"))));
+	map_input_para.insert(make_pair("World_sizeZ",to_string(PC->GetParDouble("World_sizeZ"))));
+	if(PC->GetParBool("SC1In"))
+	{
+		map_input_para.insert(make_pair("SC1ID",to_string(PC->GetParInt("SC1ID"))));
+		map_input_para.insert(make_pair("SC1_sizeX",to_string(PC->GetParDouble("SC1_sizeX"))));
+		map_input_para.insert(make_pair("SC1_sizeY",to_string(PC->GetParDouble("SC1_sizeY"))));
+		map_input_para.insert(make_pair("SC1_sizeZ",to_string(PC->GetParDouble("SC1_sizeZ"))));
+		map_input_para.insert(make_pair("SC1_ZOffset",to_string(PC->GetParDouble("SC1_ZOffset"))));
+		map_input_para.insert(make_pair("SC1matOpt",PC->GetParInt("SC1matOpt")==0?"PS":"PVT"));
+	}
+	if(PC->GetParBool("SC2In"))
+	{
+		map_input_para.insert(make_pair("SC2ID",to_string(PC->GetParInt("SC2ID"))));
+		map_input_para.insert(make_pair("SC2_sizeX",to_string(PC->GetParDouble("SC2_sizeX"))));
+		map_input_para.insert(make_pair("SC2_sizeY",to_string(PC->GetParDouble("SC2_sizeY"))));
+		map_input_para.insert(make_pair("SC2_sizeZ",to_string(PC->GetParDouble("SC2_sizeZ"))));
+		map_input_para.insert(make_pair("SC2_ZOffset",to_string(PC->GetParDouble("SC2_ZOffset"))));
+		map_input_para.insert(make_pair("SC2matOpt",PC->GetParInt("SC2matOpt")==0?"PS":"PVT"));
+	}
+	if(PC->GetParBool("SC3In"))
+	{
+		map_input_para.insert(make_pair("SC3ID",to_string(PC->GetParInt("SC3ID"))));
+		map_input_para.insert(make_pair("SC3_sizeX",to_string(PC->GetParDouble("SC3_sizeX"))));
+		map_input_para.insert(make_pair("SC3_sizeY",to_string(PC->GetParDouble("SC3_sizeY"))));
+		map_input_para.insert(make_pair("SC3_sizeZ",to_string(PC->GetParDouble("SC3_sizeZ"))));
+		map_input_para.insert(make_pair("SC3_ZOffset",to_string(PC->GetParDouble("SC3_ZOffset"))));
+		map_input_para.insert(make_pair("SC3matOpt",PC->GetParInt("SC3matOpt")==0?"PS":"PVT"));
+	}
+	if(PC->GetParBool("BDCIn"))
+	{
+		map_input_para.insert(make_pair("BDCID",to_string(PC->GetParInt("BDCID"))));
+		map_input_para.insert(make_pair("BDC_sizeX",to_string(PC->GetParDouble("BDC_sizeX"))));
+		map_input_para.insert(make_pair("BDC_sizeY",to_string(PC->GetParDouble("BDC_sizeY"))));
+		map_input_para.insert(make_pair("BDC_sizeZ",to_string(PC->GetParDouble("BDC_sizeZ"))));
+		map_input_para.insert(make_pair("BDC_ZOffset",to_string(PC->GetParDouble("BDC_ZOffset"))));
+	}
+	if(PC->GetParBool("BTOFIn"))
+	{
+		map_input_para.insert(make_pair("BTOFID",to_string(PC->GetParInt("BTOFID"))));
+		map_input_para.insert(make_pair("BTOF_sizeX",to_string(PC->GetParDouble("BTOF_sizeX"))));
+		map_input_para.insert(make_pair("BTOF_sizeY",to_string(PC->GetParDouble("BTOF_sizeY"))));
+		map_input_para.insert(make_pair("BTOF_sizeZ",to_string(PC->GetParDouble("BTOF_sizeZ"))));
+		map_input_para.insert(make_pair("BTOF_ZOffset",to_string(PC->GetParDouble("BTOF_ZOffset1"))));
+		map_input_para.insert(make_pair("BTOF_ZOffset",to_string(PC->GetParDouble("BTOF_ZOffset2"))));
+	}
+	if(PC->GetParBool("SensorIn"))
+	{
+		map_input_para.insert(make_pair("SensorID",to_string(PC->GetParInt("SensorID"))));
+		map_input_para.insert(make_pair("Sensor_sizeX",to_string(PC->GetParDouble("Sensor_sizeX"))));
+		map_input_para.insert(make_pair("Sensor_sizeY",to_string(PC->GetParDouble("Sensor_sizeY"))));
+		map_input_para.insert(make_pair("Sensor_totX",to_string(PC->GetParDouble("Sensor_totY"))));
+		map_input_para.insert(make_pair("Sensor_sizeZ",to_string(PC->GetParDouble("Sensor_sizeZ"))));
+		map_input_para.insert(make_pair("Sensor_ZOffset",to_string(PC->GetParDouble("Sensor_ZOffset"))));
+		map_input_para.insert(make_pair("Sensor_gapIn",PC->GetParBool("Sensor_gapIn")?"true":"false"));
+		if(PC->GetParBool("Sensor_gapIn"))
+			map_input_para.insert(make_pair("Sensor_gap",to_string(PC->GetParDouble("Sensor_gap"))));
+	}
+//	map_input_para.insert(make_pair(
+//	map_input_para.insert(make_pair(
+//	map_input_para.insert(make_pair(
 }

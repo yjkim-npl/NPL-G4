@@ -15,6 +15,7 @@ OpParameterContainer* OpParameterContainer::GetInstance()
 
 OpParameterContainer::OpParameterContainer()
 {
+//	par_Name = fileName;
 	par_Name = "OpParameters.conf";
 	ReadParameters();
 	if(this -> GetParInt("UserVerbosity") > 0)
