@@ -16,9 +16,9 @@
 #include <utility>
 #include <set>
 
-#define max_tracks 1000000
-#define max_steps 1000000
-#define max_opticalphotons 1000
+#define max_tracks 1000
+#define max_steps 1000
+#define max_opticalphotons 1000000
 using namespace std;
 
 class OpParameterContainer;
@@ -49,10 +49,10 @@ class OpRunAction : public G4UserRunAction
 			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy);
 
 		void FillOpticalPhotonBoundary
-			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v);
+			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t);
 
 		void FillStep
-			(G4int trkID, G4int prev_detID, G4int post_detID,
+			(G4int trkID, G4int pdg, G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep);
 
 		void update_Tree();
@@ -71,6 +71,7 @@ class OpRunAction : public G4UserRunAction
 		map<G4int,G4String> map_process;
 
 		G4int find_OpIndex(G4int trkID);
+		G4int find_StepIndex(G4int trkID);
 
 		TFile* F;
 		TTree* T;
@@ -89,6 +90,7 @@ class OpRunAction : public G4UserRunAction
 		G4double TrackVZ[max_tracks];
 		G4double TrackEnergy[max_tracks];
 		G4double TrackKEnergy[max_tracks];
+		G4double TrackEdepSum[max_steps];
 
 		// PostTrack data
 		G4int nPostTrack;
@@ -107,6 +109,7 @@ class OpRunAction : public G4UserRunAction
 		// Step data
 		G4int nStep;
 		G4int StepTrackID[max_steps];
+		G4int StepTrackPDG[max_steps];
 		G4int StepDetID[max_steps];
 		G4double StepVX[max_steps];
 		G4double StepVY[max_steps];
@@ -153,6 +156,7 @@ class OpRunAction : public G4UserRunAction
 		G4double OpVXBoundary[max_opticalphotons];
 		G4double OpVYBoundary[max_opticalphotons];
 		G4double OpVZBoundary[max_opticalphotons];
+		G4double OpTBoundary[max_opticalphotons];
 
 		// temp
 		G4int Ntemp;

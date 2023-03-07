@@ -10,6 +10,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4OpBoundaryProcess.hh"
+#include "G4SystemOfUnits.hh"
 
 OpSteppingAction::OpSteppingAction(OpRunAction* runAction)
 : G4UserSteppingAction(),
@@ -34,7 +35,7 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	G4ThreeVector pos = step -> GetPreStepPoint() -> GetPosition();
 	G4ThreeVector posp = step -> GetPostStepPoint() -> GetPosition();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
-	G4double edep = step -> GetTotalEnergyDeposit();
+	G4double edep = step -> GetTotalEnergyDeposit() / MeV;
 	G4int prevNo = step -> GetPreStepPoint()  -> GetPhysicalVolume() -> GetCopyNo();
 	G4int postNo = 0;
 
@@ -44,7 +45,7 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 		postNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
 
 	if(OpParameterContainer::GetInstance() -> GetParBool("MCStep"))
-		fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
+//		fRunAction -> FillStep(trackID, prevNo, postNo, pos, edep);
 
 	// boundary process status
 	if(step -> GetTrack() -> GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()
@@ -98,8 +99,8 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 				procID = 0;
 				processName = "OtherProcesses";
 			}
-			if(stat != fWorldBoundary)// && procID != -4 && procID != -13)
-				fRunAction -> FillOpticalPhotonBoundary(trackID,procID,mom,pos);
+//			if(stat != fWorldBoundary)// && procID != -4 && procID != -13)
+//				fRunAction -> FillOpticalPhotonBoundary(trackID,procID,mom,pos);
 //			if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
 //					stat == fGeomBoundary)
 //				G4cout << step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetName() << " " <<	

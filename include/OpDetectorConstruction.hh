@@ -18,11 +18,16 @@ class OpDetectorConstruction : public G4VUserDetectorConstruction
 		virtual ~OpDetectorConstruction();
 
 		virtual G4VPhysicalVolume* Construct();
+		virtual void ConstructSDandField();
 
 	private:
 		OpParameterContainer* PC;
 		OpMaterials* fMaterials;
 
+		G4LogicalVolume* logicSC1;
+		G4LogicalVolume* logicSC2;
+		G4LogicalVolume* logicSC3;
+		G4LogicalVolume* logicBTOF;
 };
 
 #endif

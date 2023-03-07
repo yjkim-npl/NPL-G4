@@ -43,8 +43,9 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 //		G4cout << "Op pdg: " << track->GetDefinition()->GetPDGEncoding() << G4endl;
 		// Scintillation 22
 		// Cerenkov 21
-		fRunAction -> FillOpticalPhoton
-			(MCTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
+		if(OpParameterContainer::GetInstance() -> GetParBool("OpTrack"))
+			fRunAction -> FillOpticalPhoton
+				(MCTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
 	}
 	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 
@@ -61,7 +62,8 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	G4ThreeVector v = track -> GetPosition();
 //	G4ThreeVector p = track -> GetStep() -> GetPreStepPoint() -> GetMomentum();
 //	G4ThreeVector v = track -> GetStep() -> GetPreStepPoint() -> GetPosition();
-	G4double time = track -> GetStep() -> GetPreStepPoint() -> GetGlobalTime();
+	G4double time = track -> GetGlobalTime();
+//	G4double time = track -> GetStep() -> GetPreStepPoint() -> GetGlobalTime();
 	G4int processID = -999;
 	G4double totenergy = track -> GetStep() -> GetPreStepPoint() -> GetTotalEnergy();
 	G4double kinenergy = track -> GetStep() -> GetPreStepPoint() -> GetKineticEnergy();
@@ -74,8 +76,9 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 		fRunAction -> SetProcess(processID, process -> GetProcessName());
 		// Transportation 91
 		// OpAbsorption 31
-		fRunAction -> FillOpticalPhoton
-			(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
+		if(OpParameterContainer::GetInstance() -> GetParBool("OpPostTrack"))
+			fRunAction -> FillOpticalPhoton
+				(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
 	}
 
 	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();

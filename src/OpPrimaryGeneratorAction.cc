@@ -55,7 +55,7 @@ void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	}
 	fParticleGun -> SetParticleTime(0.0 * ns);	// generated time
 	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));	// with momentum dir
-	fParticleGun -> SetParticleEnergy(PC->GetParInt("Beam_energy")*MeV);	// and its energy
+	fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
 
 	G4int n_particle = PC -> GetParInt("NperEvent");
 

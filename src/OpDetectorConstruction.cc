@@ -1,4 +1,6 @@
 #include "OpDetectorConstruction.hh"
+#include "OpSCSD.hh"
+#include "OpSD.hh"
 #include "OpParameterContainer.hh"
 
 #include "G4RunManager.hh"
@@ -10,6 +12,7 @@
 #include "G4Trd.hh"
 #include "G4VSolid.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4SDManager.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"
@@ -74,7 +77,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 
 		G4Box* solidSC1 =
 			new G4Box("SC1",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		G4LogicalVolume* logicSC1 = 
+		logicSC1 = 
 			new G4LogicalVolume(solidSC1,mat,"SC1");
 		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC1,"SC1",logicWorld,false,ID+1,checkOverlaps);
 
@@ -100,9 +103,15 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 
 		G4Box* solidSC2 =
 			new G4Box("SC2",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		G4LogicalVolume* logicSC2 = 
+		logicSC2 = 
 			new G4LogicalVolume(solidSC2,mat,"SC2");
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
+
+//		G4cout << "SC2mat: " << logicSC2 -> GetMaterial() -> GetName() << G4endl;
+//		checked G4_PLASTIC_SC_VINYLTOLUENE
+
+		G4VPhysicalVolume* phySC2 =  new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
+//		G4cout << "SC2 copyNo: " << phySC2->GetCopyNo() << G4endl;
+//		checked copyNo of SC2 is 201
 
 		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
 		attSC -> SetVisibility(true);
@@ -126,7 +135,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 
 		G4Box* solidSC3 =
 			new G4Box("SC3",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		G4LogicalVolume* logicSC3 = 
+		logicSC3 = 
 			new G4LogicalVolume(solidSC3,mat,"SC3");
 		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC3,"SC3",logicWorld,false,ID+1,checkOverlaps);
 
@@ -242,7 +251,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		{
 			G4Box* solidBTOF = 
 				new G4Box("solidBTOF",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-			G4LogicalVolume* logicBTOF = 
+			logicBTOF = 
 				new G4LogicalVolume(solidBTOF,mat,"logicBTOF");
 			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset1-translation)),logicBTOF,"BTOF1",logicWorld,false,ID+1,checkOverlaps);
 			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset2-translation)),logicBTOF,"BTOF2",logicWorld,false,ID+2,checkOverlaps);
@@ -254,4 +263,39 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		}
 	}
 	return physWorld;
+}
+
+void OpDetectorConstruction::ConstructSDandField()
+{
+	G4SDManager* SDman = G4SDManager::GetSDMpointer();
+	if(PC -> GetParBool("SC1In"))
+	{
+		OpSCSD* SC1SD = new OpSCSD("SC1","SC1C");
+		SDman -> AddNewDetector(SC1SD);
+		logicSC1 -> SetSensitiveDetector(SC1SD);
+	}
+	if(PC -> GetParBool("SC2In"))
+	{
+		OpSCSD* SC2SD = new OpSCSD("SC2","SC2C");
+		SDman -> AddNewDetector(SC2SD);
+		logicSC2 -> SetSensitiveDetector(SC2SD);
+		if(PC -> GetParBool("OpticalPhysics"))
+		{
+			OpSD* OpSC2SD = new OpSD("OpSC2","OpSC2C");
+			SDman -> AddNewDetector(OpSC2SD);
+			logicSC2 -> SetSensitiveDetector(OpSC2SD);
+		}
+	}
+	if(PC -> GetParBool("SC3In"))
+	{
+		OpSCSD* SC3SD = new OpSCSD("SC3","SC3C");
+		SDman -> AddNewDetector(SC3SD);
+		logicSC3 -> SetSensitiveDetector(SC3SD);
+	}
+	if(PC -> GetParBool("BTOFIn")) 
+	{
+		OpSCSD* BTOFSD = new OpSCSD("BTOF","BTOFC");
+		SDman -> AddNewDetector(BTOFSD);
+		logicBTOF -> SetSensitiveDetector(BTOFSD);
+	}
 }

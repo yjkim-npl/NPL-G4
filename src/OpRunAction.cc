@@ -41,6 +41,8 @@ OpRunAction::OpRunAction()
 
 OpRunAction::~OpRunAction()
 {
+	G4cout << "NOpticalPhotons : " << NOpticalPhotons << G4endl;
+	G4cout << "NOpBoundary : " << NOpBoundary << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "Destructor of OpRunAction" << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 1)
@@ -110,15 +112,13 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("nStep",&nStep);
 		T -> Branch("StepTrackID",StepTrackID,"StepTrackID[nStep]/I");
+		T -> Branch("StepTrackPDG",StepTrackPDG,"StepTrackPDG[nStep]/I");
 		T -> Branch("StepDetID",StepDetID,"StepDetID[nStep]/I");
 
 		T -> Branch("StepVX",StepVX,"StepVX[nStep]/D");
 		T -> Branch("StepVY",StepVY,"StepVY[nStep]/D");
 		T -> Branch("StepVZ",StepVZ,"StepVZ[nStep]/D");
 		T -> Branch("StepEdep",StepEdep,"StepEdep[nStep]/D");
-
-		// for energy sum of box
-		T -> Branch("EdepSumBox",&EdepSumBox);
 	}
 	if(PC -> GetParBool("OpTrack"))
 	{
@@ -136,6 +136,9 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpEnergy",OpEnergy,"OpEnergy[NOpticalPhotons]/D");
 		T -> Branch("OpKEnergy",OpKEnergy,"OpKEnergy[NOpticalPhotons]/D");
 		T -> Branch("OpTime",OpTime,"OpTime[NOpticalPhotons]/D");
+	}
+	if(PC -> GetParBool("OpPostTrack"))
+	{
 		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
 		T -> Branch("PostProcID",PostProcID,"PostProcID[NOpticalPhotons]/I");
 		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[NOpticalPhotons]/D");
@@ -147,7 +150,9 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostOpEnergy",PostOpEnergy,"PostOpEnergy[NOpticalPhotons]/D");
 		T -> Branch("PostOpKEnergy",PostOpKEnergy,"PostOpKEnergy[NOpticalPhotons]/D");
 		T -> Branch("PostOpTime",PostOpTime,"PostOpTime[NOpticalPhotons]/D");
-
+	}
+	if(PC -> GetParBool("OpBoundary"))
+	{
 		T -> Branch("NOpBoundary",&NOpBoundary);
 		T -> Branch("OpTrackIDBoundary",OpTrackIDBoundary,"OpTrackIDBoundary[NOpBoundary]/I");
 		T -> Branch("OpProcIDBoundary",OpProcIDBoundary,"OpProcIDBoundary[NOpBoundary]/I");
@@ -157,6 +162,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpVXBoundary",OpVXBoundary,"OpVXBoundary[NOpBoundary]/D");
 		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
 		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
+		T -> Branch("OpTBoundary",OpTBoundary,"OpTBoundary[NOpBoundary]/D");
 	}
 }
 
@@ -211,12 +217,12 @@ void OpRunAction::clear_data()
 	{
 		nStep = 0;
 		fill_n(StepTrackID,max_steps,0);
+		fill_n(StepTrackPDG,max_steps,0);
 		fill_n(StepDetID,max_steps,0);
 		fill_n(StepVX,max_steps,0);
 		fill_n(StepVY,max_steps,0);
 		fill_n(StepVZ,max_steps,0);
 		fill_n(StepEdep,max_steps,0);
-		EdepSumBox = 0;
 	}
 	if(PC->GetParBool("OpTrack"))
 	{
@@ -234,7 +240,9 @@ void OpRunAction::clear_data()
 		fill_n(OpEnergy,max_opticalphotons,0);
 		fill_n(OpKEnergy,max_opticalphotons,0);
 		fill_n(OpTime,max_opticalphotons,0);
-
+	}
+	if(PC -> GetParBool("OpPostTrack"))
+	{
 		fill_n(PostOpDetID,max_opticalphotons,0);
 		fill_n(PostProcID,max_opticalphotons,0);
 		fill_n(PostOpPX,max_opticalphotons,0);
@@ -246,7 +254,9 @@ void OpRunAction::clear_data()
 		fill_n(PostOpEnergy,max_opticalphotons,0);
 		fill_n(PostOpKEnergy,max_opticalphotons,0);
 		fill_n(PostOpTime,max_opticalphotons,0);
-
+	}
+	if(PC -> GetParBool("OpBoundary"))
+	{
 		NOpBoundary = 0;
 		map_trackID_procIDB.clear();
 		fill_n(OpTrackIDBoundary,max_opticalphotons,0);
@@ -257,6 +267,7 @@ void OpRunAction::clear_data()
 		fill_n(OpVXBoundary,max_opticalphotons,0);
 		fill_n(OpVYBoundary,max_opticalphotons,0);
 		fill_n(OpVZBoundary,max_opticalphotons,0);
+		fill_n(OpTBoundary,max_opticalphotons,0);
 	}
 }
 
@@ -345,15 +356,13 @@ void OpRunAction::FillOpticalPhoton
 }
 
 void OpRunAction::FillOpticalPhotonBoundary
-(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v)
+(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t)
 {
-	if(map_trackID_procIDB.find(trkID) != map_trackID_procIDB.end())
-	{
-		return;
-	}
-//		G4cout << trkID << " " << procID << " " << map_trackID_procIDB[trkID] << G4endl;
+//	if(map_trackID_procIDB.find(trkID) != map_trackID_procIDB.end())
+//	{
+//		return;
+//	}
 	map_trackID_procIDB.insert(make_pair(trkID,procID));
-//	G4cout << "after inserting map" << G4endl;
 	OpTrackIDBoundary[NOpBoundary] = trkID;
 	OpProcIDBoundary[NOpBoundary] = procID;
 	OpPXBoundary[NOpBoundary] = p.x();
@@ -362,25 +371,29 @@ void OpRunAction::FillOpticalPhotonBoundary
 	OpVXBoundary[NOpBoundary] = v.x();
 	OpVYBoundary[NOpBoundary] = v.y();
 	OpVZBoundary[NOpBoundary] = v.z();
+	OpTBoundary[NOpBoundary] = t;
+//	G4cout << t << G4endl;
 	NOpBoundary++;
 }
 
 
 void OpRunAction::FillStep
-(G4int trkID, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep)
+(G4int trkID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep)
 {
+//	G4int idx = find_StepIndex(trkID);
+
 	if(prev_detID != post_detID)	// at the boundary
 		StepDetID[nStep] = post_detID;	// mainly this case means particle track killed in a volume
 	else
 		StepDetID[nStep] = prev_detID;
 	StepTrackID[nStep] = trkID;
+	StepTrackPDG[nStep] = pdg;
 	StepVX[nStep] = v.x();
 	StepVY[nStep] = v.y();
 	StepVZ[nStep] = v.z();
 	StepEdep[nStep] = edep;
+//	StepEdepSum[nStep] += edep;
 
-	if(StepDetID[nStep] == PC -> GetParInt("BoxID"))
-		EdepSumBox += edep;
 	nStep++;
 }
 
@@ -395,6 +408,17 @@ G4int OpRunAction::find_OpIndex(G4int trkID)
 	G4ExceptionDescription msg;
 	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
 	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+}
+G4int OpRunAction::find_StepIndex(G4int trkID)
+{
+	for(G4int idx=0; idx<max_steps; idx++)
+	{
+		if(StepTrackID[idx] == trkID)
+			return idx;
+	}
+//	G4ExceptionDescription msg;
+//	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
+//	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
 }
 
 void OpRunAction::update_Tree()
@@ -503,8 +527,11 @@ void OpRunAction::SetInputParameters(G4int nevnts)
 	map_input_para.insert(make_pair("MCPostTrack",PC->GetParBool("MCPostTrack")?"true":"false"));
 	map_input_para.insert(make_pair("MCStep",PC->GetParBool("MCStep")?"true":"false"));
 	map_input_para.insert(make_pair("OpTrack",PC->GetParBool("OpTrack")?"true":"false"));
+	map_input_para.insert(make_pair("OpPostTrack",PC->GetParBool("OpPostTrack")?"true":"false"));
+	map_input_para.insert(make_pair("OpBoundary",PC->GetParBool("OpBoundary")?"true":"false"));
 	map_input_para.insert(make_pair("SC1In",PC->GetParBool("SC1In")?"true":"false"));
 	map_input_para.insert(make_pair("SC2In",PC->GetParBool("SC2In")?"true":"false"));
+	map_input_para.insert(make_pair("SC3In",PC->GetParBool("SC2In")?"true":"false"));
 	map_input_para.insert(make_pair("WorldID",to_string(PC->GetParInt("WorldID"))));
 	map_input_para.insert(make_pair("World_sizeX",to_string(PC->GetParDouble("World_sizeX"))));
 	map_input_para.insert(make_pair("World_sizeY",to_string(PC->GetParDouble("World_sizeY"))));
