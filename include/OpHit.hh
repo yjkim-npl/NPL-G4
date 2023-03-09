@@ -20,16 +20,29 @@ class OpHit : public G4VHit
 		const OpHit& operator=(const OpHit &right);
 		G4bool operator==(const OpHit &right);
 
-		void AddHit(G4int trackID, G4int detectorID);
-		void AddStep(G4int procID, G4String procName, G4ThreeVector p, G4ThreeVector v, G4double t);
-//		void AddE(G4int opt, G4double e);
+		void AddHit(G4int trackID, G4int trackPDG, G4int detectorID);
+		void CountStep()
+			{nSteps++;}
+		void AddProcess(G4int procID, G4String procName)
+			{vec_procID.push_back(procID); vec_procName.push_back(procName);}
+		void AddMomentum(G4ThreeVector p)
+			{vec_p.push_back(p);}
+		void AddPosition(G4ThreeVector v)
+			{vec_v.push_back(v);}
+		void AddTime(G4double t)
+			{vec_t.push_back(t);}
+		void AddEdep(G4double edep)
+			{vec_Edep.push_back(edep); EdepSum+=edep;}
 
+
+		G4int GetNSteps()
+			{return nSteps;}
 		G4int GetTrackID()
 			{return trkID;}
+		G4int GetTrackPDG()
+			{return trkPDG;}
 		G4int GetDetID()
 			{return detID;}
-		G4int GetSizeOfVector()
-			{return size_vec;}
 		G4int GetProcID(G4int idx)
 			{return vec_procID[idx];}
 		G4String GetProcName(G4int idx) 
@@ -40,19 +53,23 @@ class OpHit : public G4VHit
 			{return vec_v[idx];}
 		G4double GetTime(G4int idx)
 			{return vec_t[idx];}
-//		G4Double GetEnergy(G4int opt) 
-//			{return opt==0?pair_Eif.first:opt==1?pair_Eif.second:-10;}
+		G4double GetEdep(G4int idx)
+			{return vec_Edep[idx];}
+		G4double GetEdepSum() 
+			{return EdepSum;}
 
 	private:
+		G4int nSteps;
 		G4int trkID;
+		G4int trkPDG;
 		G4int detID;
-		G4int size_vec;
+		G4double EdepSum; 
+		vector<G4double> vec_Edep;
 		vector<G4int> vec_procID;
 		vector<G4String> vec_procName;
 		vector<G4ThreeVector> vec_p;
 		vector<G4ThreeVector> vec_v;
 		vector<G4double> vec_t;
-//		pair<G4double,G4double> pair_Eif;
 };
 typedef G4THitsCollection<OpHit> OpHitsCollection;
 #endif

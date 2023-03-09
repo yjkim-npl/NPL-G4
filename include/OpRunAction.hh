@@ -16,8 +16,8 @@
 #include <utility>
 #include <set>
 
-#define max_tracks 1000
-#define max_steps 1000
+#define max_tracks 10000
+#define max_steps 10000
 #define max_opticalphotons 1000000
 using namespace std;
 

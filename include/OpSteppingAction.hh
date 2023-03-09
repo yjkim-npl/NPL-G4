@@ -20,7 +20,6 @@ class OpSteppingAction : public G4UserSteppingAction
   private:
 		OpRunAction* fRunAction;
 		G4OpBoundaryProcess* fOpProcess;
-
 };
 
 #endif

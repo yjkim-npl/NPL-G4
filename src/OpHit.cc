@@ -4,18 +4,23 @@ G4ThreadLocal G4Allocator<OpHit>* OpHitAllocator;
 
 OpHit::OpHit()
 	:G4VHit(),
+	nSteps(0),
 	trkID(0),
+	trkPDG(0),
 	detID(0),
-	size_vec(0)
+	EdepSum(0)
 {
 }
 
 OpHit::OpHit(const OpHit &right)
 	:G4VHit()
 {
+	nSteps = right.nSteps;
 	trkID = right.trkID;
+	trkPDG = right.trkPDG;
 	detID = right.detID;
-	size_vec = right.size_vec;
+	EdepSum = right.EdepSum;
+	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;
 	vec_procName = right.vec_procName;
 	vec_p = right.vec_p;
@@ -29,9 +34,12 @@ OpHit::~OpHit()
 
 const OpHit& OpHit::operator=(const OpHit &right)
 {
+	nSteps = right.nSteps;
 	trkID = right.trkID;
+	trkPDG = right.trkPDG;
 	detID = right.detID;
-	size_vec = right.size_vec;
+	EdepSum = right.EdepSum;
+	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;
 	vec_procName = right.vec_procName;
 	vec_p = right.vec_p;
@@ -41,19 +49,21 @@ const OpHit& OpHit::operator=(const OpHit &right)
 	return *this;
 }
 
-void OpHit::AddHit(G4int trackID, G4int detectorID)
+void OpHit::AddHit(G4int trackID, G4int trackPDG, G4int detectorID)
 {
 	trkID = trackID;
+	trkPDG = trackPDG;
 	detID = detectorID;
 }
-
-void OpHit::AddStep(G4int procID, G4String procName, G4ThreeVector p, G4ThreeVector v, G4double t)
-{
-//	G4cout << t << G4endl;
-	vec_procID.push_back(procID);
-	vec_procName.push_back(procName);
-	vec_p.push_back(p);
-	vec_v.push_back(v);
-	vec_t.push_back(t);
-	size_vec++;
-}
+//
+//void OpHit::AddStep(G4int procID, G4String procName, G4ThreeVector p, G4ThreeVector v, G4double t, G4double edep)
+//{
+//	vec_Edep.push_back(edep);
+//	EdepSum += edep;
+//	vec_procID.push_back(procID);
+//	vec_procName.push_back(procName);
+//	vec_p.push_back(p);
+//	vec_v.push_back(v);
+//	vec_t.push_back(t);
+//	nSteps++;
+//}

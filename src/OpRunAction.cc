@@ -41,8 +41,6 @@ OpRunAction::OpRunAction()
 
 OpRunAction::~OpRunAction()
 {
-	G4cout << "NOpticalPhotons : " << NOpticalPhotons << G4endl;
-	G4cout << "NOpBoundary : " << NOpBoundary << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "Destructor of OpRunAction" << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 1)

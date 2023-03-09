@@ -21,8 +21,8 @@ class OpSD : public G4VSensitiveDetector
 		virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
 
 	private:
-		OpHitsCollection* fHitsCollection;
 		G4OpBoundaryProcess* fOpProcess;
+		OpHitsCollection* fHitsCollection;
 		G4int fHCID;
 };
 #endif

@@ -34,15 +34,19 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 	G4double totenergy = track -> GetTotalEnergy();
 	G4double kinenergy = track -> GetKineticEnergy();
 
+	const G4VProcess* process = track -> GetCreatorProcess();
+//	G4ProcessType processType = process -> GetProcessType();
+	G4int processID = 0;
+	if(parentID != 0)
+	{
+		processID = process -> GetProcessSubType();
+		fRunAction -> SetProcess(processID, process -> GetProcessName());
+	}
+
 	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
 	{
-		const G4VProcess* process = track -> GetCreatorProcess();
-		G4ProcessType processType = process -> GetProcessType();
-		G4int processID = process -> GetProcessSubType();
-		fRunAction -> SetProcess(processID, process -> GetProcessName());
-//		G4cout << "Op pdg: " << track->GetDefinition()->GetPDGEncoding() << G4endl;
-		// Scintillation 22
-		// Cerenkov 21
+	// Scintillation 22
+	// Cerenkov 21
 		if(OpParameterContainer::GetInstance() -> GetParBool("OpTrack"))
 			fRunAction -> FillOpticalPhoton
 				(MCTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
@@ -68,14 +72,14 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	G4double totenergy = track -> GetStep() -> GetPreStepPoint() -> GetTotalEnergy();
 	G4double kinenergy = track -> GetStep() -> GetPreStepPoint() -> GetKineticEnergy();
 
+	const G4VProcess* process = track -> GetStep() -> GetPostStepPoint() -> GetProcessDefinedStep();
+//	G4ProcessType processType = process -> GetProcessType();
+	processID = process -> GetProcessSubType();
+	fRunAction -> SetProcess(processID, process -> GetProcessName());
+	// Transportation 91
+	// OpAbsorption 31
 	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
 	{
-		const G4VProcess* process = track -> GetStep() -> GetPostStepPoint() -> GetProcessDefinedStep();
-		G4ProcessType processType = process -> GetProcessType();
-		G4int processID = process -> GetProcessSubType();
-		fRunAction -> SetProcess(processID, process -> GetProcessName());
-		// Transportation 91
-		// OpAbsorption 31
 		if(OpParameterContainer::GetInstance() -> GetParBool("OpPostTrack"))
 			fRunAction -> FillOpticalPhoton
 				(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
