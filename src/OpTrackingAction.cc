@@ -26,6 +26,7 @@ OpTrackingAction::~OpTrackingAction()
 void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 {
 	G4int trkID = track -> GetTrackID();
+	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 	G4int parentID = track -> GetParentID();
 	G4int detID = track -> GetVolume() -> GetCopyNo();
 	G4double time = track -> GetGlobalTime();
@@ -43,24 +44,25 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 		fRunAction -> SetProcess(processID, process -> GetProcessName());
 	}
 
-	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
+		 OpParameterContainer::GetInstance() -> GetParBool("OpTrack"))
 	{
-	// Scintillation 22
-	// Cerenkov 21
-		if(OpParameterContainer::GetInstance() -> GetParBool("OpTrack"))
-			fRunAction -> FillOpticalPhoton
-				(MCTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
+		// Scintillation 22
+		// Cerenkov 21
+		fRunAction -> FillOpticalPhoton
+			(MCTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
 	}
-	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 
-	if(OpParameterContainer::GetInstance()->GetParBool("MCTrack"))
-		fRunAction -> FillTrack(MCTrack, trkID, parentID, pdg, detID, p, v, totenergy, kinenergy);
+	if(track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
+			OpParameterContainer::GetInstance()->GetParBool("MCTrack"))
+		fRunAction -> FillTrack(MCTrack, trkID, processID, parentID, pdg, detID, p, v, totenergy, kinenergy);
 }
 
 void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 {
 	G4int trkID = track -> GetTrackID();
 	G4int parentID = track -> GetParentID();
+	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 	G4int detID = track -> GetVolume() -> GetCopyNo();
 	G4ThreeVector p = track -> GetMomentum();
 	G4ThreeVector v = track -> GetPosition();
@@ -78,15 +80,16 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	fRunAction -> SetProcess(processID, process -> GetProcessName());
 	// Transportation 91
 	// OpAbsorption 31
-	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+	if(track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
+		 OpParameterContainer::GetInstance() -> GetParBool("OpPostTrack"))
 	{
-		if(OpParameterContainer::GetInstance() -> GetParBool("OpPostTrack"))
-			fRunAction -> FillOpticalPhoton
-				(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
+		fRunAction -> FillOpticalPhoton
+			(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
 	}
 
-	G4int pdg = track -> GetDefinition() -> GetPDGEncoding();
 
-	if(OpParameterContainer::GetInstance()->GetParBool("MCPostTrack"))
-		fRunAction -> FillTrack(MCPostTrack, trkID, parentID, pdg, detID, p, v, totenergy,kinenergy);
+	if(track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
+		 OpParameterContainer::GetInstance()->GetParBool("MCPostTrack"))
+		fRunAction -> FillTrack
+			(MCPostTrack, trkID, processID,parentID, pdg, detID, p, v, totenergy,kinenergy);
 }

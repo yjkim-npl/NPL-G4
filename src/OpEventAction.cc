@@ -41,7 +41,7 @@ void OpEventAction::BeginOfEventAction(const G4Event* event)
 			if(vec_fID[a] == -1 && PC ->GetParBool(vec_SDname[a]+"In"))
 			{
 				vec_fID[a] = SDman -> GetCollectionID(vec_HCname[a]);
-				G4cout << "fID of " << vec_SDname[a] << "loaded" << G4endl;
+//				G4cout << "fID of " << vec_SDname[a] << "loaded" << G4endl;
 			}
 		}
 	}
@@ -96,24 +96,30 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 					G4double EdepSum = hit -> GetEdepSum();
 					if(PC->GetParBool("SaveTrackSum"))
 					{
-						fRunAction -> FillStep(trackID, trackPDG, detID, detID, G4ThreeVector(), EdepSum);
+						fRunAction -> FillStep(false,trackID,0,trackPDG,detID, detID, G4ThreeVector(),EdepSum);
 					}
 					else
 					{
-//						G4cout << trackPDG << " " << nSteps << G4endl;
+//						if(trackPDG == -22)
+//							G4cout << trackPDG << " " << nSteps << G4endl;
 						for(G4int c=0; c<nSteps; c++)
 						{
+							G4int procID = hit -> GetProcID(c);
+							G4String procName = hit -> GetProcName(c);
 							G4ThreeVector mom = hit -> GetMomentum(c);
 							G4ThreeVector pos = hit -> GetPosition(c);
 							G4double time = hit -> GetTime(c);
 							G4double edep = hit -> GetEdep(c);
-//							if(PC->GetParBool("MCStep") && trackPDG != -22)
-//							{
-//								fRunAction -> FillStep(trackID, trackPDG, detID, detID, pos, edep);
-//							}
-//							G4int procID = hit -> GetProcID(c);
-//							if(PC->GetParBool("OpBoundary") && trackPDG == 22)
-//								fRunAction -> FillOpticalPhotonBoundary(trackID, procID, mom, pos, time);
+							if(PC->GetParBool("MCStep") && trackPDG != -22)
+							{
+								fRunAction -> FillStep(false,trackID,procID,trackPDG,detID,detID,pos,edep);
+								fRunAction -> SetProcess(procID,procName);
+							}
+							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
+							{
+								fRunAction -> SetProcess(procID,procName);
+								fRunAction -> FillOpticalPhotonBoundary(trackID, procID, mom, pos, time);
+							}
 						}
 					}
 				}

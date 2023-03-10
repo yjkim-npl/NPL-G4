@@ -42,7 +42,7 @@ class OpRunAction : public G4UserRunAction
 		void clear_data();
 
 		void FillTrack
-			(G4int opt, G4int trkID, G4int parentID, G4int pdg, G4int detID,
+			(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int pdg, G4int detID,
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
@@ -52,8 +52,8 @@ class OpRunAction : public G4UserRunAction
 			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t);
 
 		void FillStep
-			(G4int trkID, G4int pdg, G4int prev_detID, G4int post_detID,
-			 G4ThreeVector v, G4double edep);
+			(G4bool boundary, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID,
+			 G4ThreeVector v, G4double edep, G4double prevKE=0);
 
 		void update_Tree();
 
@@ -68,7 +68,7 @@ class OpRunAction : public G4UserRunAction
 		TList fInputParameters;
 		map<G4String, G4String> map_input_para;
 		TList fProcessTable;
-		map<G4int,G4String> map_process;
+		map<G4String,G4int> map_process;
 
 		G4int find_OpIndex(G4int trkID);
 		G4int find_StepIndex(G4int trkID);
@@ -76,9 +76,11 @@ class OpRunAction : public G4UserRunAction
 		TFile* F;
 		TTree* T;
 
+		set<G4int> set_procID;
 		// Track data
 		G4int nTrack;
 		G4int TrackID[max_tracks];
+		G4int TrackProcID[max_tracks];
 		G4int ParentID[max_tracks];
 		G4int TrackPDG[max_tracks];
 		G4int TrackDetID[max_tracks];
@@ -95,6 +97,7 @@ class OpRunAction : public G4UserRunAction
 		// PostTrack data
 		G4int nPostTrack;
 		G4int PostTrackID[max_tracks];
+		G4int PostTrackProcID[max_tracks];
 		G4int PostTrackPDG[max_tracks];
 		G4int PostTrackDetID[max_tracks];
 		G4double PostTrackPX[max_tracks];
@@ -109,8 +112,11 @@ class OpRunAction : public G4UserRunAction
 		// Step data
 		G4int nStep;
 		G4int StepTrackID[max_steps];
+		G4int StepProcID[max_steps];
 		G4int StepTrackPDG[max_steps];
 		G4int StepDetID[max_steps];
+		G4bool IsBoundary[max_steps];		// for SteppingAction
+		G4double StepPrevKE[max_steps];	// for SteppingAction
 		G4double StepVX[max_steps];
 		G4double StepVY[max_steps];
 		G4double StepVZ[max_steps];
@@ -147,7 +153,6 @@ class OpRunAction : public G4UserRunAction
 		G4double PostOpTime[max_opticalphotons];
 
 		G4int NOpBoundary;
-		map<G4int,G4int> map_trackID_procIDB;
 		G4int OpTrackIDBoundary[max_opticalphotons];
 		G4int OpProcIDBoundary[max_opticalphotons];
 		G4double OpPXBoundary[max_opticalphotons];

@@ -105,7 +105,8 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		logicSC2 = 
 			new G4LogicalVolume(solidSC2,mat,"SC2");
 
-		G4VPhysicalVolume* phySC2 =  new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
+//		G4VPhysicalVolume* phySC2 =  
+			new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
 
 		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
 		attSC -> SetVisibility(true);

@@ -7,6 +7,7 @@
 #include "G4OpBoundaryProcess.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
+#include "G4VProcess.hh"
 #include "G4ParticleTypes.hh"
 #include "G4SDManager.hh"
 #include "G4TrackVector.hh"
@@ -34,21 +35,44 @@ void OpSD::Initialize(G4HCofThisEvent* HCE)
 
 G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
+//	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition() && (
+//		 step->GetPreStepPoint()->GetStepStatus() == fWorldBoundary ||
+//		 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary))
+//		return true;
 	G4int trackID = step -> GetTrack() -> GetTrackID();
 	G4int trackPDG = step -> GetTrack() -> GetDefinition() -> GetPDGEncoding();
 	G4int prevNo = step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
+	G4double prevKE = step -> GetPreStepPoint() -> GetKineticEnergy();
+	G4int postNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
+	G4double postKE = step -> GetPostStepPoint() -> GetKineticEnergy();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
 	G4ThreeVector pos = step -> GetPreStepPoint() -> GetPosition();
 	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
 	G4double fedep = step -> GetTotalEnergyDeposit();
+	G4int procID = -10;
+	G4String procName = "";
 
-	if(step -> GetTrack() -> GetParentID() == 0)
+	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition())
 	{
-		G4cout << fedep << G4endl;
-		const G4TrackVector* secondary = step -> GetSecondary();
-		auto NSecondaryInStep = secondary -> size();
-//		auto NSecondaryInStep = step -> GetNumberOfSecondariesInCurrentStep();
-//		G4cout << trackID << " NSecondaryInStep: " << NSecondaryInStep << G4endl;
+		const G4VProcess* process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
+		procID = process -> GetProcessSubType();
+		procName = process -> GetProcessName();
+		G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
+		if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 1)
+		{
+			G4cout << "##########" <<G4endl;
+			G4cout << "OpSD::ProcessHit" << G4endl;
+			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
+			G4cout << "ProcID: " << procID << G4endl;
+			G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
+			G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
+			G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
+			const G4TrackVector* secondary = step -> GetSecondary();
+			auto NSecondaryInStep1 = secondary -> size();
+			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
+			G4cout << "NSecondaryInStep1: " << NSecondaryInStep1 << G4endl;
+			G4cout << "NSecondaryInStep2: " << NSecondaryInStep2 << G4endl << G4endl;
+		}
 	}
 	OpHit* hit = NULL;
 	G4int NofHits = fHitsCollection -> entries();
@@ -82,11 +106,13 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	{
 		hit -> CountStep();
 		hit -> AddMomentum(mom);
+		hit -> AddProcess(procID, procName);
 		hit -> AddPosition(pos);
 		hit -> AddTime(time);
 		hit -> AddEdep(fedep);
 	}
 	else if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
+		OpParameterContainer::GetInstance() -> GetParBool("OpticalPhysics") &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpBoundary"))
 	{
 		// Boundary process & step information
@@ -108,8 +134,6 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 					break;
 				}
 			}
-			G4int procID = -10;
-			G4String procName;
 			if       (status == 2){
 				procID = -2;
 				procName = "Transmission";

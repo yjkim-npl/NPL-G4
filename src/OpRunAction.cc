@@ -49,8 +49,8 @@ OpRunAction::~OpRunAction()
 	{
 		if(PC -> GetParInt("UserVerbosity") > 1)
 			G4cout << iter.first << " " << iter.second << G4endl;
-		G4int procID = iter.first;
-		G4String procName = iter.second;
+		G4int procID = iter.second;
+		G4String procName = iter.first;
 		TNamed* process = new TNamed(to_string(procID),procName);
 		fProcessTable.Add(process);
 	}
@@ -78,6 +78,7 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("nTrack",&nTrack);
 		T -> Branch("TrackID",TrackID,"TrackID[nTrack]/I");
+		T -> Branch("TrackProcID",TrackProcID,"TrackProcID[nTrack]/I");
 		T -> Branch("ParentID",ParentID,"ParentID[nTrack]/I");
 		T -> Branch("TrackPDG",TrackPDG,"TrackPDG[nTrack]/I");
 		T -> Branch("TrackDetID",TrackDetID,"TrackDetID[nTrack]/I");
@@ -95,6 +96,7 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("nPostTrack",&nPostTrack);
 		T -> Branch("PostTrackID",PostTrackID,"PostTrackID[nPostTrack]/I");
+		T -> Branch("PostTrackProcID",PostTrackProcID,"PostTrackProcID[nPostTrack]/I");
 		T -> Branch("PostTrackDetID",PostTrackDetID,"PostTrackDetID[nPostTrack]/I");
 
 		T -> Branch("PostTrackPX",PostTrackPX,"PostTrackPX[nPostTrack]/D");
@@ -110,8 +112,11 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("nStep",&nStep);
 		T -> Branch("StepTrackID",StepTrackID,"StepTrackID[nStep]/I");
+		T -> Branch("StepProcID",StepProcID,"StepProcID[nStep]/I");
 		T -> Branch("StepTrackPDG",StepTrackPDG,"StepTrackPDG[nStep]/I");
 		T -> Branch("StepDetID",StepDetID,"StepDetID[nStep]/I");
+		T -> Branch("IsBoundary",IsBoundary,"IsBoundary[nStep]/B");
+		T -> Branch("StepPrevKE",StepPrevKE,"StepPrevKE[nStep]/D");
 
 		T -> Branch("StepVX",StepVX,"StepVX[nStep]/D");
 		T -> Branch("StepVY",StepVY,"StepVY[nStep]/D");
@@ -180,10 +185,12 @@ void OpRunAction::EndOfRunAction(const G4Run* run)
 
 void OpRunAction::clear_data()
 {
+	set_procID.clear();
 	if(PC->GetParBool("MCTrack"))
 	{
 		nTrack = 0;
 		fill_n(TrackID,max_tracks,0);
+		fill_n(TrackProcID,max_tracks,0);
 		fill_n(ParentID,max_tracks,0);
 		fill_n(TrackPDG,max_tracks,0);
 		fill_n(TrackDetID,max_tracks,0);
@@ -200,6 +207,7 @@ void OpRunAction::clear_data()
 	{
 		nPostTrack = 0;
 		fill_n(PostTrackID,max_tracks,0);
+		fill_n(PostTrackProcID,max_tracks,0);
 		fill_n(PostTrackPDG,max_tracks,0);
 		fill_n(PostTrackDetID,max_tracks,0);
 		fill_n(PostTrackPX,max_tracks,0);
@@ -215,8 +223,11 @@ void OpRunAction::clear_data()
 	{
 		nStep = 0;
 		fill_n(StepTrackID,max_steps,0);
+		fill_n(StepProcID,max_steps,0);
 		fill_n(StepTrackPDG,max_steps,0);
 		fill_n(StepDetID,max_steps,0);
+		fill_n(IsBoundary,max_steps,0);
+		fill_n(StepPrevKE,max_steps,0);
 		fill_n(StepVX,max_steps,0);
 		fill_n(StepVY,max_steps,0);
 		fill_n(StepVZ,max_steps,0);
@@ -256,7 +267,6 @@ void OpRunAction::clear_data()
 	if(PC -> GetParBool("OpBoundary"))
 	{
 		NOpBoundary = 0;
-		map_trackID_procIDB.clear();
 		fill_n(OpTrackIDBoundary,max_opticalphotons,0);
 		fill_n(OpProcIDBoundary,max_opticalphotons,0);
 		fill_n(OpPXBoundary,max_opticalphotons,0);
@@ -270,13 +280,14 @@ void OpRunAction::clear_data()
 }
 
 void OpRunAction::FillTrack
-(G4int opt, G4int trkID, G4int parentID, G4int pdg, G4int detID,
+(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int pdg, G4int detID,
  G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy)
 	// invoked in TrackingAction
 {
 	if(opt == MCTrack)	// starting point, prev track
 	{
 		TrackID[nTrack] = trkID;
+		TrackProcID[nTrack] = procID;
 		ParentID[nTrack] = parentID;
 		TrackPDG[nTrack] = pdg;
 		TrackDetID[nTrack] = detID;
@@ -293,6 +304,7 @@ void OpRunAction::FillTrack
 	else if(opt == MCPostTrack)	// end point, post Track
 	{
 		PostTrackID[nPostTrack] = trkID;
+		PostTrackProcID[nPostTrack] = procID;
 		PostTrackDetID[nPostTrack] = detID;
 		PostTrackPX[nPostTrack] = p.x();
 		PostTrackPY[nPostTrack] = p.y();
@@ -311,7 +323,7 @@ void OpRunAction::FillTrack
 }
 
 void OpRunAction::FillOpticalPhoton
-(G4int opt, G4int trkID, G4int processID, G4int parentID, G4int detID, 
+(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int detID, 
  G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy)
 {
 	if(opt == MCTrack)
@@ -322,7 +334,7 @@ void OpRunAction::FillOpticalPhoton
 //		G4cout << creProcID << G4endl;
 //		G4cout << OpProcessID[idx] << G4endl;
 		OpTrackID[NOpticalPhotons] = trkID;
-		OpProcessID[NOpticalPhotons] = processID;
+		OpProcessID[NOpticalPhotons] = procID;
 		OpParentID[NOpticalPhotons] = parentID;
 		OpDetID[NOpticalPhotons] = detID;
 		OpPX[NOpticalPhotons] = p.x();
@@ -340,7 +352,7 @@ void OpRunAction::FillOpticalPhoton
 	{
 		G4int idx = find_OpIndex(trkID);
 		PostOpDetID[idx] = detID;
-		PostProcID[idx] = processID;
+		PostProcID[idx] = procID;
 		PostOpPX[idx] = p.x();
 		PostOpPY[idx] = p.y();
 		PostOpPZ[idx] = p.z();
@@ -356,11 +368,12 @@ void OpRunAction::FillOpticalPhoton
 void OpRunAction::FillOpticalPhotonBoundary
 (G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t)
 {
-//	if(map_trackID_procIDB.find(trkID) != map_trackID_procIDB.end())
-//	{
-//		return;
-//	}
-	map_trackID_procIDB.insert(make_pair(trkID,procID));
+	set_procID.insert(procID);
+	if(NOpBoundary == max_opticalphotons-1)
+	{
+		G4cout << "Number Of Optical Photon boundary steps exceed max_opticalphotons" << G4endl;
+		return;
+	}
 	OpTrackIDBoundary[NOpBoundary] = trkID;
 	OpProcIDBoundary[NOpBoundary] = procID;
 	OpPXBoundary[NOpBoundary] = p.x();
@@ -376,22 +389,28 @@ void OpRunAction::FillOpticalPhotonBoundary
 
 
 void OpRunAction::FillStep
-(G4int trkID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep)
+(G4bool boundary, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double prevKE)
 {
 //	G4int idx = find_StepIndex(trkID);
-
-	if(prev_detID != post_detID)	// at the boundary
-		StepDetID[nStep] = post_detID;	// mainly this case means particle track killed in a volume
-	else
-		StepDetID[nStep] = prev_detID;
+//	if(prev_detID != post_detID)	// at the boundary
+//		StepDetID[nStep] = post_detID;	// mainly this case means particle track killed in a volume
+//	else
+//		StepDetID[nStep] = prev_detID;
+	if(nStep == max_steps-1)
+	{
+		G4cout << "Number of steps exceed the maximum step(" << max_steps << ")" << G4endl;
+		return;
+	}
 	StepTrackID[nStep] = trkID;
+	StepProcID[nStep] = procID;
 	StepTrackPDG[nStep] = pdg;
+	StepDetID[nStep] = prev_detID;
+	IsBoundary[nStep] = boundary;
+	StepPrevKE[nStep] = prevKE;
 	StepVX[nStep] = v.x();
 	StepVY[nStep] = v.y();
 	StepVZ[nStep] = v.z();
 	StepEdep[nStep] = edep;
-//	StepEdepSum[nStep] += edep;
-
 	nStep++;
 }
 
@@ -490,7 +509,26 @@ void OpRunAction::PrintData(G4int opt)
 
 void OpRunAction::SetProcess(G4int procID, G4String processTypeName)
 {
-		map_process.insert(make_pair(procID,processTypeName));
+	if(map_process[processTypeName] == 0)
+	{
+		map_process[processTypeName] = procID;
+	}else if(map_process[processTypeName] == procID){
+		return;
+	}else{
+		G4cout << "process " << processTypeName << " is not matched to " << procID << G4endl;
+	}
+
+//	while(map_process[processTypeName] != procID)
+//	{
+//		G4cout << "Optimizing idx " << G4endl;//idx << " " << map_process[idx] << " " << processTypeName << G4endl;
+//		if(map_process[processTypeName] == 0)
+//			map_process[processTypeName] = procID;
+//		if(map_process[processTypeName] == procID)
+//		{
+//			break;
+//		}
+////		idx++;
+//	}
 }
 
 void OpRunAction::SetInputParameters(G4int nevnts)
