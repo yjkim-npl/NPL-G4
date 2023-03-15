@@ -27,11 +27,18 @@ OpRunAction::OpRunAction()
 : G4UserRunAction()
 { 
 	PC = OpParameterContainer::GetInstance();
+//	G4String beam_energy = to_string(PC->GetParDouble("Beam_energy"));
+//	if(beam_energy.contains("."))
+	G4String outName = "out_"+PC->GetParString("Beam_particle")+"_"+
+		to_string((int)PC->GetParDouble("Beam_energy"))+"MeV.root";
+	G4cout << "#######################" << G4endl;
+	G4cout << "outName: " << outName << G4endl;
+	G4cout << "#######################" << G4endl << G4endl;
 
 	if(PC -> GetParBool("UserOutputName"))
 		F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
 	else
-		F = new TFile(("out_"+PC->GetParString("Beam_particle")+"_"+to_string(PC->GetParInt("Beam_energy"))+"MeV.root").c_str(),"recreate");
+		F = new TFile(outName,"recreate");
 	T = new TTree("Opsim","Opsim");
 
 	init_Tree();
@@ -112,10 +119,12 @@ void OpRunAction::init_Tree()
 	{
 		T -> Branch("nStep",&nStep);
 		T -> Branch("StepTrackID",StepTrackID,"StepTrackID[nStep]/I");
+		T -> Branch("StepFromHit",StepFromHit,"StepFromHit[nStep]/I");
 		T -> Branch("StepProcID",StepProcID,"StepProcID[nStep]/I");
 		T -> Branch("StepTrackPDG",StepTrackPDG,"StepTrackPDG[nStep]/I");
-		T -> Branch("StepDetID",StepDetID,"StepDetID[nStep]/I");
-		T -> Branch("IsBoundary",IsBoundary,"IsBoundary[nStep]/B");
+		T -> Branch("StepPrevDetID",StepPrevDetID,"StepPrevDetID[nStep]/I");
+		T -> Branch("StepPostDetID",StepPostDetID,"StepPostDetID[nStep]/I");
+		T -> Branch("IsBoundary",IsBoundary,"IsBoundary[nStep]/I");
 		T -> Branch("StepPrevKE",StepPrevKE,"StepPrevKE[nStep]/D");
 
 		T -> Branch("StepVX",StepVX,"StepVX[nStep]/D");
@@ -223,9 +232,11 @@ void OpRunAction::clear_data()
 	{
 		nStep = 0;
 		fill_n(StepTrackID,max_steps,0);
+		fill_n(StepFromHit,max_steps,0);
 		fill_n(StepProcID,max_steps,0);
 		fill_n(StepTrackPDG,max_steps,0);
-		fill_n(StepDetID,max_steps,0);
+		fill_n(StepPrevDetID,max_steps,0);
+		fill_n(StepPostDetID,max_steps,0);
 		fill_n(IsBoundary,max_steps,0);
 		fill_n(StepPrevKE,max_steps,0);
 		fill_n(StepVX,max_steps,0);
@@ -389,7 +400,7 @@ void OpRunAction::FillOpticalPhotonBoundary
 
 
 void OpRunAction::FillStep
-(G4bool boundary, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double prevKE)
+(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double prevKE)
 {
 //	G4int idx = find_StepIndex(trkID);
 //	if(prev_detID != post_detID)	// at the boundary
@@ -401,10 +412,12 @@ void OpRunAction::FillStep
 		G4cout << "Number of steps exceed the maximum step(" << max_steps << ")" << G4endl;
 		return;
 	}
+	StepFromHit[nStep] = fromHit;
 	StepTrackID[nStep] = trkID;
 	StepProcID[nStep] = procID;
 	StepTrackPDG[nStep] = pdg;
-	StepDetID[nStep] = prev_detID;
+	StepPrevDetID[nStep] = prev_detID;
+	StepPostDetID[nStep] = post_detID;
 	IsBoundary[nStep] = boundary;
 	StepPrevKE[nStep] = prevKE;
 	StepVX[nStep] = v.x();

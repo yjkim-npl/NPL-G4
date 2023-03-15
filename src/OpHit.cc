@@ -8,6 +8,7 @@ OpHit::OpHit()
 	trkID(0),
 	trkPDG(0),
 	detID(0),
+	post_DetID(0),
 	EdepSum(0)
 {
 }
@@ -19,7 +20,10 @@ OpHit::OpHit(const OpHit &right)
 	trkID = right.trkID;
 	trkPDG = right.trkPDG;
 	detID = right.detID;
+	post_DetID = right.post_DetID;
 	EdepSum = right.EdepSum;
+	vec_IsBoundary = right.vec_IsBoundary;
+	vec_prevKE = right.vec_prevKE;
 	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;
 	vec_procName = right.vec_procName;
@@ -38,7 +42,10 @@ const OpHit& OpHit::operator=(const OpHit &right)
 	trkID = right.trkID;
 	trkPDG = right.trkPDG;
 	detID = right.detID;
+	post_DetID = right.post_DetID;
 	EdepSum = right.EdepSum;
+	vec_IsBoundary = right.vec_IsBoundary;
+	vec_prevKE = right.vec_prevKE;
 	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;
 	vec_procName = right.vec_procName;

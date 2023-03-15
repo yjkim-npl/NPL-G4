@@ -1,7 +1,10 @@
 #ifndef OpSteppingAction_h
 #define OpSteppingAction_h 1
 
+#include "OpParameterContainer.hh"
+
 #include "G4UserSteppingAction.hh"
+#include "G4ThreeVector.hh"
 #include "globals.hh"
 
 class OpRunAction;
@@ -19,6 +22,9 @@ class OpSteppingAction : public G4UserSteppingAction
 
   private:
 		OpRunAction* fRunAction;
+		OpParameterContainer* PC;
+
+		G4int CalculatePostNo(G4ThreeVector pos);
 		G4OpBoundaryProcess* fOpProcess;
 };
 

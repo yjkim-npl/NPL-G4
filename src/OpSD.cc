@@ -35,10 +35,22 @@ void OpSD::Initialize(G4HCofThisEvent* HCE)
 
 G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
-//	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition() && (
-//		 step->GetPreStepPoint()->GetStepStatus() == fWorldBoundary ||
-//		 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary))
-//		return true;
+	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition() && (
+		 step->GetPreStepPoint()->GetStepStatus() == fWorldBoundary))
+	{
+		return true;
+	}
+	G4int boundary = 0;
+	if(step->GetPreStepPoint() -> GetStepStatus() == fGeomBoundary)
+	{
+//		G4cout << "ProcessHit::PreStepStatus is GeomBoundary" << G4endl;
+		boundary = 1;
+	}
+	if(step->GetPostStepPoint()->GetStepStatus()==fGeomBoundary)
+	{
+		boundary = 2;
+	}
+	
 	G4int trackID = step -> GetTrack() -> GetTrackID();
 	G4int trackPDG = step -> GetTrack() -> GetDefinition() -> GetPDGEncoding();
 	G4int prevNo = step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
@@ -47,6 +59,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4double postKE = step -> GetPostStepPoint() -> GetKineticEnergy();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
 	G4ThreeVector pos = step -> GetPreStepPoint() -> GetPosition();
+	G4ThreeVector post_pos = step -> GetPostStepPoint() -> GetPosition();
 	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
 	G4double fedep = step -> GetTotalEnergyDeposit();
 	G4int procID = -10;
@@ -59,14 +72,19 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		procName = process -> GetProcessName();
 		G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
 		if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 1)
+//			&&
+//			 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary)
 		{
 			G4cout << "##########" <<G4endl;
 			G4cout << "OpSD::ProcessHit" << G4endl;
 			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
+			G4cout << "Boundary: " << boundary << G4endl;
 			G4cout << "ProcID: " << procID << G4endl;
 			G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
 			G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
 			G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
+			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
+			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
 			const G4TrackVector* secondary = step -> GetSecondary();
 			auto NSecondaryInStep1 = secondary -> size();
 			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
@@ -79,6 +97,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4bool SaveTrackSum = OpParameterContainer::GetInstance() -> GetParBool("SaveTrackSum");
 	for(G4int a=0; a<NofHits; a++)
 	{
+		// for optical photon hit
 		if((*fHitsCollection)[a] -> GetTrackID() == trackID &&
 			 (*fHitsCollection)[a] -> GetTrackPDG() == -22 &&
 			 (*fHitsCollection)[a] -> GetDetID() == prevNo)
@@ -86,11 +105,13 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 			hit = (*fHitsCollection)[a];
 			break;
 		}
+		// for other particle hit
+		// save hit with detector
 		else if((*fHitsCollection)[a] -> GetTrackID() == trackID &&
 			      (*fHitsCollection)[a] -> GetDetID() == prevNo &&
 			      SaveTrackSum)
 		{
-			G4cout << "hit from HC" << G4endl;
+//			G4cout << "hit from HC" << G4endl;
 			hit = (*fHitsCollection)[a];
 			break;
 		}
@@ -101,6 +122,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddHit(trackID,trackPDG,prevNo);
 		fHitsCollection -> insert(hit);
 	}
+	// new hit of other particles 
 	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
 		 OpParameterContainer::GetInstance() -> GetParBool("MCStep"))
 	{
@@ -110,7 +132,12 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddPosition(pos);
 		hit -> AddTime(time);
 		hit -> AddEdep(fedep);
+		hit -> AddBoundary(boundary);
+		hit -> AddKE(prevKE);
+		if(boundary)
+			hit -> AddPostDetID(postNo);
 	}
+	// new hit of optical photon
 	else if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpticalPhysics") &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpBoundary"))

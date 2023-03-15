@@ -23,6 +23,8 @@ OpDetectorConstruction::OpDetectorConstruction()
 {
 	PC = OpParameterContainer::GetInstance();
 	fMaterials = new OpMaterials();
+	G4double max_step_length = 1*mm;
+	fStepLimit = new G4UserLimits(max_step_length);
 
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpDetectorConstruction" << G4endl;
@@ -56,7 +58,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		new G4PVPlacement(0,G4ThreeVector(),logicWorld,"World",0,false,worldID,checkOverlaps);  
 
 	// to translate the center of SC1 at Z=0
-	G4double translation = PC -> GetParDouble("Translation");
+	G4double trans = PC -> GetParDouble("Translation");
 
 	// SC
 	if(PC -> GetParBool("SC1In"))
@@ -78,7 +80,8 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			new G4Box("SC1",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 		logicSC1 = 
 			new G4LogicalVolume(solidSC1,mat,"SC1");
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC1,"SC1",logicWorld,false,ID+1,checkOverlaps);
+		logicSC1 -> SetUserLimits(fStepLimit);
+		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC1,"SC1",logicWorld,false,ID+1,checkOverlaps);
 
 		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
 		attSC -> SetVisibility(true);
@@ -104,9 +107,15 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			new G4Box("SC2",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 		logicSC2 = 
 			new G4LogicalVolume(solidSC2,mat,"SC2");
+		logicSC2 -> SetUserLimits(fStepLimit);
 
 //		G4VPhysicalVolume* phySC2 =  
-			new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC2,"SC2",logicWorld,false,ID+1,checkOverlaps);
+
+//		G4cout << "########" << G4endl;
+//		G4cout << "SC2 x: " << -0.5*sizeX << " ~ " << 0.5*sizeX << G4endl;
+//		G4cout << "SC2 y: " << -0.5*sizeY << " ~ " << 0.5*sizeY << G4endl;
+//		G4cout << "SC2 z: " << ZOffset-trans-0.5*sizeZ << " ~ " << ZOffset-trans+0.5*sizeZ << G4endl;
 
 		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
 		attSC -> SetVisibility(true);
@@ -132,7 +141,8 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			new G4Box("SC3",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 		logicSC3 = 
 			new G4LogicalVolume(solidSC3,mat,"SC3");
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicSC3,"SC3",logicWorld,false,ID+1,checkOverlaps);
+		logicSC3 -> SetUserLimits(fStepLimit);
+		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC3,"SC3",logicWorld,false,ID+1,checkOverlaps);
 
 		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
 		attSC -> SetVisibility(true);
@@ -167,18 +177,18 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 				new G4LogicalVolume(solid_area,fMaterials->GetMaterial("G4_AIR"),"logic_Sensor_area");
 			if(PC -> GetParBool("SC1In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-translation),logic_area,"Area1L",logicWorld,false,SensorID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-translation),logic_area,"Area1R",logicWorld,false,SensorID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1L",logicWorld,false,SensorID+1,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1R",logicWorld,false,SensorID+2,checkOverlaps);
 			}
 			if(PC -> GetParBool("SC2In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-translation),logic_area,"Area2L",logicWorld,false,SensorID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-translation),logic_area,"Area2R",logicWorld,false,SensorID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2L",logicWorld,false,SensorID+3,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2R",logicWorld,false,SensorID+4,checkOverlaps);
 			}
 			if(PC -> GetParBool("SC3In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-translation),logic_area,"Area2L",logicWorld,false,SensorID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-translation),logic_area,"Area2R",logicWorld,false,SensorID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2L",logicWorld,false,SensorID+5,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2R",logicWorld,false,SensorID+6,checkOverlaps);
 			}
 
 			G4Box* solid_sensor = 
@@ -195,18 +205,18 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 				new G4LogicalVolume(solid_sensor,mat_Sensor,"logic_Sensor");
 			if(PC->GetParBool("SC1In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-translation),logic_sensor,"SensorL",logicWorld,false,SensorID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-translation),logic_sensor,"SensorR",logicWorld,false,SensorID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+1,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+2,checkOverlaps);
 			}
 			if(PC->GetParBool("SC2In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*SC2_sizeX+sizeX,0,SC2ZOffset-translation),logic_sensor,"SensorL",logicWorld,false,SensorID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-translation),logic_sensor,"SensorR",logicWorld,false,SensorID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*SC2_sizeX+sizeX,0,SC2ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+3,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+4,checkOverlaps);
 			}
 			if(PC->GetParBool("SC3In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*SC3_sizeX+sizeX,0,SC3ZOffset-translation),logic_sensor,"SensorL",logicWorld,false,SensorID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-translation),logic_sensor,"SensorR",logicWorld,false,SensorID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*SC3_sizeX+sizeX,0,SC3ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+5,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+6,checkOverlaps);
 			}
 		}
 	}
@@ -221,9 +231,10 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 
 		G4Box* solidBDC = 
 			new G4Box("solidBDC",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		G4LogicalVolume* logicBDC = 
+		logicBDC = 
 			new G4LogicalVolume(solidBDC,mat,"logicBDC");
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-translation),logicBDC,"BDC",logicWorld,false,ID+1,checkOverlaps);
+		logicBDC -> SetUserLimits(fStepLimit);
+		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicBDC,"BDC",logicWorld,false,ID+1,checkOverlaps);
 
 		G4VisAttributes* attBDC = new G4VisAttributes(G4Colour(G4Colour::Brown()));
 		attBDC -> SetVisibility(true);
@@ -248,8 +259,9 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 				new G4Box("solidBTOF",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 			logicBTOF = 
 				new G4LogicalVolume(solidBTOF,mat,"logicBTOF");
-			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset1-translation)),logicBTOF,"BTOF1",logicWorld,false,ID+1,checkOverlaps);
-			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset2-translation)),logicBTOF,"BTOF2",logicWorld,false,ID+2,checkOverlaps);
+			logicBTOF -> SetUserLimits(fStepLimit);
+			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset1-trans)),logicBTOF,"BTOF1",logicWorld,false,ID+1,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,0,(ZOffset2-trans)),logicBTOF,"BTOF2",logicWorld,false,ID+2,checkOverlaps);
 
 			G4VisAttributes* attBTOF = new G4VisAttributes(G4Colour(G4Colour::Grey()));
 			attBTOF -> SetVisibility(true);
@@ -280,6 +292,12 @@ void OpDetectorConstruction::ConstructSDandField()
 		OpSD* SC3SD = new OpSD("SC3","SC3C");
 		SDman -> AddNewDetector(SC3SD);
 		logicSC3 -> SetSensitiveDetector(SC3SD);
+	}
+	if(PC -> GetParBool("BDCIn"))
+	{
+		OpSD* BDCSD = new OpSD("BDC","BDCC");
+		SDman -> AddNewDetector(BDCSD);
+		logicBDC -> SetSensitiveDetector(BDCSD);
 	}
 	if(PC -> GetParBool("BTOFIn")) 
 	{

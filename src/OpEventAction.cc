@@ -16,9 +16,9 @@ OpEventAction::OpEventAction(OpRunAction* runAction)
   fRunAction(runAction)
 {
 	PC = OpParameterContainer::GetInstance();
-	vec_fID = {-1,-1,-1,-1};
-	vec_HCname = {"SC1C","SC2C","SC3C","BTOFC"};
-	vec_SDname = {"SC1","SC2","SC3","BTOF"};
+	vec_fID = {-1,-1,-1,-1,-1};
+	vec_HCname = {"SC1C","SC2C","SC3C","BDCC","BTOFC"};
+	vec_SDname = {"SC1","SC2","SC3","BDC","BTOF"};
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpEventAction" << G4endl;
 } 
@@ -93,11 +93,16 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 					G4int trackID = hit -> GetTrackID();
 					G4int trackPDG = hit -> GetTrackPDG();
 					G4int detID = hit -> GetDetID();
+					G4int postDetID = hit -> GetPostDetID();
 					G4double EdepSum = hit -> GetEdepSum();
+					// save edepsum of particle species
+					// do not save optical photon data
 					if(PC->GetParBool("SaveTrackSum"))
 					{
-						fRunAction -> FillStep(false,trackID,0,trackPDG,detID, detID, G4ThreeVector(),EdepSum);
+						fRunAction -> FillStep
+							(false,1,trackID,0,trackPDG,detID, detID, G4ThreeVector(),EdepSum);
 					}
+					// save all steps which contains optical photon data
 					else
 					{
 //						if(trackPDG == -22)
@@ -106,18 +111,20 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 						{
 							G4int procID = hit -> GetProcID(c);
 							G4String procName = hit -> GetProcName(c);
+							G4bool boundary = hit -> GetIsBoundary(c);
 							G4ThreeVector mom = hit -> GetMomentum(c);
 							G4ThreeVector pos = hit -> GetPosition(c);
 							G4double time = hit -> GetTime(c);
 							G4double edep = hit -> GetEdep(c);
+							G4double prevKE = hit -> GetKE(c);
+							fRunAction -> SetProcess(procID,procName);
 							if(PC->GetParBool("MCStep") && trackPDG != -22)
 							{
-								fRunAction -> FillStep(false,trackID,procID,trackPDG,detID,detID,pos,edep);
-								fRunAction -> SetProcess(procID,procName);
+								fRunAction -> FillStep
+									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,edep,prevKE);
 							}
 							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
 							{
-								fRunAction -> SetProcess(procID,procName);
 								fRunAction -> FillOpticalPhotonBoundary(trackID, procID, mom, pos, time);
 							}
 						}

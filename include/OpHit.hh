@@ -21,10 +21,14 @@ class OpHit : public G4VHit
 		G4bool operator==(const OpHit &right);
 
 		void AddHit(G4int trackID, G4int trackPDG, G4int detectorID);
+		void AddPostDetID(G4int postDetID)
+			{post_DetID = postDetID;}
 		void CountStep()
 			{nSteps++;}
 		void AddProcess(G4int procID, G4String procName)
 			{vec_procID.push_back(procID); vec_procName.push_back(procName);}
+		void AddBoundary(G4int boundary)
+			{vec_IsBoundary.push_back(boundary);}
 		void AddMomentum(G4ThreeVector p)
 			{vec_p.push_back(p);}
 		void AddPosition(G4ThreeVector v)
@@ -33,6 +37,8 @@ class OpHit : public G4VHit
 			{vec_t.push_back(t);}
 		void AddEdep(G4double edep)
 			{vec_Edep.push_back(edep); EdepSum+=edep;}
+		void AddKE(G4double KE)
+			{vec_prevKE.push_back(KE);}
 
 
 		G4int GetNSteps()
@@ -43,6 +49,10 @@ class OpHit : public G4VHit
 			{return trkPDG;}
 		G4int GetDetID()
 			{return detID;}
+		G4int GetPostDetID()
+			{return post_DetID;}
+		G4int GetIsBoundary(G4int idx)
+			{return vec_IsBoundary[idx];}
 		G4int GetProcID(G4int idx)
 			{return vec_procID[idx];}
 		G4String GetProcName(G4int idx) 
@@ -57,13 +67,18 @@ class OpHit : public G4VHit
 			{return vec_Edep[idx];}
 		G4double GetEdepSum() 
 			{return EdepSum;}
+		G4double GetKE(G4int idx)
+			{return vec_prevKE[idx];}
 
 	private:
 		G4int nSteps;
 		G4int trkID;
 		G4int trkPDG;
-		G4int detID;
-		G4double EdepSum; 
+		G4int detID;	// prev det ID
+		G4int post_DetID;
+		G4double EdepSum;
+		vector<G4int> vec_IsBoundary;
+		vector<G4double> vec_prevKE;
 		vector<G4double> vec_Edep;
 		vector<G4int> vec_procID;
 		vector<G4String> vec_procName;

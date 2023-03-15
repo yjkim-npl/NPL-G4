@@ -52,7 +52,7 @@ class OpRunAction : public G4UserRunAction
 			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t);
 
 		void FillStep
-			(G4bool boundary, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID,
+			(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep, G4double prevKE=0);
 
 		void update_Tree();
@@ -111,11 +111,13 @@ class OpRunAction : public G4UserRunAction
 
 		// Step data
 		G4int nStep;
+		G4int StepFromHit[max_steps];
 		G4int StepTrackID[max_steps];
 		G4int StepProcID[max_steps];
 		G4int StepTrackPDG[max_steps];
-		G4int StepDetID[max_steps];
-		G4bool IsBoundary[max_steps];		// for SteppingAction
+		G4int StepPrevDetID[max_steps];
+		G4int StepPostDetID[max_steps];
+		G4int IsBoundary[max_steps];		// for SteppingAction
 		G4double StepPrevKE[max_steps];	// for SteppingAction
 		G4double StepVX[max_steps];
 		G4double StepVY[max_steps];

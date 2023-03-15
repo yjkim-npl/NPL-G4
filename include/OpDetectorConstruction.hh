@@ -3,6 +3,7 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "OpMaterials.hh"
+#include "G4UserLimits.hh"
 #include "globals.hh"
 
 class G4VPhysicalVolume;
@@ -21,12 +22,14 @@ class OpDetectorConstruction : public G4VUserDetectorConstruction
 		virtual void ConstructSDandField();
 
 	private:
+		G4UserLimits* fStepLimit;
 		OpParameterContainer* PC;
 		OpMaterials* fMaterials;
 
 		G4LogicalVolume* logicSC1;
 		G4LogicalVolume* logicSC2;
 		G4LogicalVolume* logicSC3;
+		G4LogicalVolume* logicBDC;
 		G4LogicalVolume* logicBTOF;
 };
 
