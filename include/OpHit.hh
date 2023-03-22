@@ -39,6 +39,8 @@ class OpHit : public G4VHit
 			{vec_Edep.push_back(edep); EdepSum+=edep;}
 		void AddKE(G4double KE)
 			{vec_prevKE.push_back(KE);}
+		void AddStepLength(G4double length)
+			{vec_length.push_back(length);}
 
 
 		G4int GetNSteps()
@@ -69,6 +71,8 @@ class OpHit : public G4VHit
 			{return EdepSum;}
 		G4double GetKE(G4int idx)
 			{return vec_prevKE[idx];}
+		G4double GetStepLength(G4int idx)
+			{return vec_length[idx];}
 
 	private:
 		G4int nSteps;
@@ -85,6 +89,7 @@ class OpHit : public G4VHit
 		vector<G4ThreeVector> vec_p;
 		vector<G4ThreeVector> vec_v;
 		vector<G4double> vec_t;
+		vector<G4double> vec_length;
 };
 typedef G4THitsCollection<OpHit> OpHitsCollection;
 #endif

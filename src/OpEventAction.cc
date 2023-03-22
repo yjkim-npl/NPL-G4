@@ -100,7 +100,11 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 					if(PC->GetParBool("SaveTrackSum"))
 					{
 						fRunAction -> FillStep
-							(false,1,trackID,0,trackPDG,detID, detID, G4ThreeVector(),EdepSum);
+							(false,1,trackID,0,trackPDG,detID, detID, G4ThreeVector(),EdepSum,0,0);
+//						G4cout << "#########" << G4endl;
+//						G4cout << "TrkID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
+//						G4cout << "DetID: " << detID << G4endl;
+//						G4cout << "EdepSum: " << EdepSum << G4endl;
 					}
 					// save all steps which contains optical photon data
 					else
@@ -117,11 +121,13 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 							G4double time = hit -> GetTime(c);
 							G4double edep = hit -> GetEdep(c);
 							G4double prevKE = hit -> GetKE(c);
+							G4double length = hit -> GetStepLength(c);
 							fRunAction -> SetProcess(procID,procName);
 							if(PC->GetParBool("MCStep") && trackPDG != -22)
 							{
 								fRunAction -> FillStep
-									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,edep,prevKE);
+									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
+									 edep,length,0,prevKE);
 							}
 							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
 							{

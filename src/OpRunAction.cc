@@ -29,11 +29,15 @@ OpRunAction::OpRunAction()
 	PC = OpParameterContainer::GetInstance();
 //	G4String beam_energy = to_string(PC->GetParDouble("Beam_energy"));
 //	if(beam_energy.contains("."))
-	G4String outName = "out_"+PC->GetParString("Beam_particle")+"_"+
-		to_string((int)PC->GetParDouble("Beam_energy"))+"MeV.root";
-	G4cout << "#######################" << G4endl;
-	G4cout << "outName: " << outName << G4endl;
-	G4cout << "#######################" << G4endl << G4endl;
+	G4String outName;
+	if(PC->GetParBool("UserOutputName"))
+	{
+		outName = "out_"+PC->GetParString("Beam_particle")+"_"+
+			to_string((int)PC->GetParDouble("Beam_energy"))+"MeV.root";
+		G4cout << "#######################" << G4endl;
+		G4cout << "outName: " << outName << G4endl;
+		G4cout << "#######################" << G4endl << G4endl;
+	}
 
 	if(PC -> GetParBool("UserOutputName"))
 		F = new TFile(PC -> GetParString("OutName").c_str(),"recreate");
@@ -61,6 +65,7 @@ OpRunAction::~OpRunAction()
 		TNamed* process = new TNamed(to_string(procID),procName);
 		fProcessTable.Add(process);
 	}
+	map_input_para = PC -> GetInputParameters(nevnts);
 	for(auto iter : map_input_para)
 	{
 		if(PC -> GetParInt("UserVerbosity") > 1)
@@ -131,6 +136,11 @@ void OpRunAction::init_Tree()
 		T -> Branch("StepVY",StepVY,"StepVY[nStep]/D");
 		T -> Branch("StepVZ",StepVZ,"StepVZ[nStep]/D");
 		T -> Branch("StepEdep",StepEdep,"StepEdep[nStep]/D");
+		T -> Branch("StepLength",StepLength,"StepLength[nStep]/D");
+		if(PC->GetParBool("OpticalPhysics"))
+		{
+			T -> Branch("StepNSecondaryOP",StepNSecondaryOP,"StepNSecondaryOP[nStep]/I");
+		}
 	}
 	if(PC -> GetParBool("OpTrack"))
 	{
@@ -180,14 +190,15 @@ void OpRunAction::init_Tree()
 
 void OpRunAction::BeginOfRunAction(const G4Run* run)
 {
+	nevnts = 0;
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "Begin of OpRunAction" << G4endl;
 }
 
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
-	G4int Nevents = run -> GetNumberOfEvent();
-	SetInputParameters(Nevents);
+	nevnts = run -> GetNumberOfEvent();
+//	SetInputParameters(nevnts);
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 		G4cout << "End of OpRunAction" << G4endl;
 }
@@ -243,6 +254,8 @@ void OpRunAction::clear_data()
 		fill_n(StepVY,max_steps,0);
 		fill_n(StepVZ,max_steps,0);
 		fill_n(StepEdep,max_steps,0);
+		fill_n(StepLength,max_steps,0);
+		fill_n(StepNSecondaryOP,max_steps,0);
 	}
 	if(PC->GetParBool("OpTrack"))
 	{
@@ -400,7 +413,7 @@ void OpRunAction::FillOpticalPhotonBoundary
 
 
 void OpRunAction::FillStep
-(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double prevKE)
+(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double length, G4int nSecondaries, G4double prevKE)
 {
 //	G4int idx = find_StepIndex(trkID);
 //	if(prev_detID != post_detID)	// at the boundary
@@ -424,6 +437,8 @@ void OpRunAction::FillStep
 	StepVY[nStep] = v.y();
 	StepVZ[nStep] = v.z();
 	StepEdep[nStep] = edep;
+	StepLength[nStep] = length;
+	StepNSecondaryOP[nStep] = nSecondaries;
 	nStep++;
 }
 
@@ -544,104 +559,3 @@ void OpRunAction::SetProcess(G4int procID, G4String processTypeName)
 //	}
 }
 
-void OpRunAction::SetInputParameters(G4int nevnts)
-{
-	map_input_para.insert(make_pair("PhysicsList",PC->GetParString("PhysicsList")));
-	map_input_para.insert(make_pair("RandomSeed",to_string(PC->GetParInt("RandomSeed"))));
-	map_input_para.insert(make_pair("MacroFile",PC->GetParString("MacroFile")));
-	map_input_para.insert(make_pair("Beam_particle",PC->GetParString("Beam_particle")));
-	if(PC->GetParString("Beam_particle")=="ion")
-	{
-		map_input_para.insert(make_pair("InputIonID",to_string(PC->GetParInt("InputIonID"))));
-		map_input_para.insert(make_pair("InputCharge",to_string(PC->GetParInt("InputCharge"))));
-	}
-	map_input_para.insert(make_pair("Beam_energy",to_string(PC->GetParInt("Beam_energy"))));
-	map_input_para.insert(make_pair("NperEvent",to_string(PC->GetParInt("NperEvent"))));
-	map_input_para.insert(make_pair("NEvents",to_string(nevnts)));
-	map_input_para.insert(make_pair("Beam_shape",to_string(PC->GetParInt("Beam_shape"))));
-	if(PC->GetParInt("Beam_shape") == 1)
-	{
-		map_input_para.insert(make_pair("Beam_x0",to_string(PC->GetParDouble("Beam_x0"))));
-		map_input_para.insert(make_pair("Beam_dx",to_string(PC->GetParDouble("Beam_dx"))));
-		map_input_para.insert(make_pair("Beam_y0",to_string(PC->GetParDouble("Beam_y0"))));
-		map_input_para.insert(make_pair("Beam_dy",to_string(PC->GetParDouble("Beam_dy"))));
-		map_input_para.insert(make_pair("Beam_z0",to_string(PC->GetParDouble("Beam_z0"))));
-		map_input_para.insert(make_pair("Beam_dz",to_string(PC->GetParDouble("Beam_dz"))));
-	}
-	else if(PC->GetParInt("Beam_shape") == 2)
-	{
-		map_input_para.insert(make_pair("Beam_r0",to_string(PC->GetParDouble("Beam_r0"))));
-	}
-	map_input_para.insert(make_pair("MCTrack",PC->GetParBool("MCTrack")?"true":"false"));
-	map_input_para.insert(make_pair("MCPostTrack",PC->GetParBool("MCPostTrack")?"true":"false"));
-	map_input_para.insert(make_pair("MCStep",PC->GetParBool("MCStep")?"true":"false"));
-	map_input_para.insert(make_pair("OpTrack",PC->GetParBool("OpTrack")?"true":"false"));
-	map_input_para.insert(make_pair("OpPostTrack",PC->GetParBool("OpPostTrack")?"true":"false"));
-	map_input_para.insert(make_pair("OpBoundary",PC->GetParBool("OpBoundary")?"true":"false"));
-	map_input_para.insert(make_pair("SC1In",PC->GetParBool("SC1In")?"true":"false"));
-	map_input_para.insert(make_pair("SC2In",PC->GetParBool("SC2In")?"true":"false"));
-	map_input_para.insert(make_pair("SC3In",PC->GetParBool("SC2In")?"true":"false"));
-	map_input_para.insert(make_pair("WorldID",to_string(PC->GetParInt("WorldID"))));
-	map_input_para.insert(make_pair("World_sizeX",to_string(PC->GetParDouble("World_sizeX"))));
-	map_input_para.insert(make_pair("World_sizeY",to_string(PC->GetParDouble("World_sizeY"))));
-	map_input_para.insert(make_pair("World_sizeZ",to_string(PC->GetParDouble("World_sizeZ"))));
-	if(PC->GetParBool("SC1In"))
-	{
-		map_input_para.insert(make_pair("SC1ID",to_string(PC->GetParInt("SC1ID"))));
-		map_input_para.insert(make_pair("SC1_sizeX",to_string(PC->GetParDouble("SC1_sizeX"))));
-		map_input_para.insert(make_pair("SC1_sizeY",to_string(PC->GetParDouble("SC1_sizeY"))));
-		map_input_para.insert(make_pair("SC1_sizeZ",to_string(PC->GetParDouble("SC1_sizeZ"))));
-		map_input_para.insert(make_pair("SC1_ZOffset",to_string(PC->GetParDouble("SC1_ZOffset"))));
-		map_input_para.insert(make_pair("SC1matOpt",PC->GetParInt("SC1matOpt")==0?"PS":"PVT"));
-	}
-	if(PC->GetParBool("SC2In"))
-	{
-		map_input_para.insert(make_pair("SC2ID",to_string(PC->GetParInt("SC2ID"))));
-		map_input_para.insert(make_pair("SC2_sizeX",to_string(PC->GetParDouble("SC2_sizeX"))));
-		map_input_para.insert(make_pair("SC2_sizeY",to_string(PC->GetParDouble("SC2_sizeY"))));
-		map_input_para.insert(make_pair("SC2_sizeZ",to_string(PC->GetParDouble("SC2_sizeZ"))));
-		map_input_para.insert(make_pair("SC2_ZOffset",to_string(PC->GetParDouble("SC2_ZOffset"))));
-		map_input_para.insert(make_pair("SC2matOpt",PC->GetParInt("SC2matOpt")==0?"PS":"PVT"));
-	}
-	if(PC->GetParBool("SC3In"))
-	{
-		map_input_para.insert(make_pair("SC3ID",to_string(PC->GetParInt("SC3ID"))));
-		map_input_para.insert(make_pair("SC3_sizeX",to_string(PC->GetParDouble("SC3_sizeX"))));
-		map_input_para.insert(make_pair("SC3_sizeY",to_string(PC->GetParDouble("SC3_sizeY"))));
-		map_input_para.insert(make_pair("SC3_sizeZ",to_string(PC->GetParDouble("SC3_sizeZ"))));
-		map_input_para.insert(make_pair("SC3_ZOffset",to_string(PC->GetParDouble("SC3_ZOffset"))));
-		map_input_para.insert(make_pair("SC3matOpt",PC->GetParInt("SC3matOpt")==0?"PS":"PVT"));
-	}
-	if(PC->GetParBool("BDCIn"))
-	{
-		map_input_para.insert(make_pair("BDCID",to_string(PC->GetParInt("BDCID"))));
-		map_input_para.insert(make_pair("BDC_sizeX",to_string(PC->GetParDouble("BDC_sizeX"))));
-		map_input_para.insert(make_pair("BDC_sizeY",to_string(PC->GetParDouble("BDC_sizeY"))));
-		map_input_para.insert(make_pair("BDC_sizeZ",to_string(PC->GetParDouble("BDC_sizeZ"))));
-		map_input_para.insert(make_pair("BDC_ZOffset",to_string(PC->GetParDouble("BDC_ZOffset"))));
-	}
-	if(PC->GetParBool("BTOFIn"))
-	{
-		map_input_para.insert(make_pair("BTOFID",to_string(PC->GetParInt("BTOFID"))));
-		map_input_para.insert(make_pair("BTOF_sizeX",to_string(PC->GetParDouble("BTOF_sizeX"))));
-		map_input_para.insert(make_pair("BTOF_sizeY",to_string(PC->GetParDouble("BTOF_sizeY"))));
-		map_input_para.insert(make_pair("BTOF_sizeZ",to_string(PC->GetParDouble("BTOF_sizeZ"))));
-		map_input_para.insert(make_pair("BTOF_ZOffset",to_string(PC->GetParDouble("BTOF_ZOffset1"))));
-		map_input_para.insert(make_pair("BTOF_ZOffset",to_string(PC->GetParDouble("BTOF_ZOffset2"))));
-	}
-	if(PC->GetParBool("SensorIn"))
-	{
-		map_input_para.insert(make_pair("SensorID",to_string(PC->GetParInt("SensorID"))));
-		map_input_para.insert(make_pair("Sensor_sizeX",to_string(PC->GetParDouble("Sensor_sizeX"))));
-		map_input_para.insert(make_pair("Sensor_sizeY",to_string(PC->GetParDouble("Sensor_sizeY"))));
-		map_input_para.insert(make_pair("Sensor_totX",to_string(PC->GetParDouble("Sensor_totY"))));
-		map_input_para.insert(make_pair("Sensor_sizeZ",to_string(PC->GetParDouble("Sensor_sizeZ"))));
-		map_input_para.insert(make_pair("Sensor_ZOffset",to_string(PC->GetParDouble("Sensor_ZOffset"))));
-		map_input_para.insert(make_pair("Sensor_gapIn",PC->GetParBool("Sensor_gapIn")?"true":"false"));
-		if(PC->GetParBool("Sensor_gapIn"))
-			map_input_para.insert(make_pair("Sensor_gap",to_string(PC->GetParDouble("Sensor_gap"))));
-	}
-//	map_input_para.insert(make_pair(
-//	map_input_para.insert(make_pair(
-//	map_input_para.insert(make_pair(
-}

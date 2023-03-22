@@ -62,6 +62,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4ThreeVector post_pos = step -> GetPostStepPoint() -> GetPosition();
 	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
 	G4double fedep = step -> GetTotalEnergyDeposit();
+	G4double length = step -> GetStepLength();
 	G4int procID = -10;
 	G4String procName = "";
 
@@ -71,7 +72,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		procID = process -> GetProcessSubType();
 		procName = process -> GetProcessName();
 		G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
-		if(OpParameterContainer::GetInstance() -> GetParInt("UserVerbosity") > 1)
+		if(OpParameterContainer::GetInstance() -> GetParInt("SDVerbosity") > 0)
 //			&&
 //			 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary)
 		{
@@ -134,6 +135,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddEdep(fedep);
 		hit -> AddBoundary(boundary);
 		hit -> AddKE(prevKE);
+		hit -> AddStepLength(length);
 		if(boundary)
 			hit -> AddPostDetID(postNo);
 	}

@@ -2,6 +2,7 @@
 #define OpParameterContainer_h
 
 #include "globals.hh"
+#include "TList.h"
 
 #include <iostream>
 #include <fstream>
@@ -26,6 +27,7 @@ class OpParameterContainer
 			{return par_double[name];}
 		G4String GetParString(G4String name)
 			{return par_string[name];}
+		map<G4String,G4String> GetInputParameters(G4int nevnts);
 
 	private:
 		static OpParameterContainer* fInstance;

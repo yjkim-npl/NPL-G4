@@ -97,10 +97,14 @@ void OpMaterials::CreateMaterials()
 
 	// Create materials with complex component
 	G4Material* fPVT = new G4Material("PVT", density=1.023*g/cm3, ncompo=2, kStateSolid);
+	G4double nH_per_cm3 = 5.15;
+	G4double nC_per_cm3 = 4.69;
+//	fPVT -> AddElement(H,nH_per_cm3/(nH_per_cm3+nC_per_cm3));
+//	fPVT -> AddElement(C,nC_per_cm3/(nH_per_cm3+nC_per_cm3));
 	fPVT -> AddElement(H,natoms=9);
 	fPVT -> AddElement(C,natoms=9);
 		map_mat.insert(make_pair("Scintillator",fPVT));
-		G4cout << "Density of PVT: " << fPVT -> GetDensity() << G4endl;
+//		G4cout << "Density of PVT: " << fPVT -> GetDensity() << G4endl;
 //		G4cout << "Density of G4PVT: " << fNistMan->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE")->GetDensity() << G4endl;
 
 	G4double CH4GasD = 0.717 * mg/cm3 * fSTPTemp/fLabTemp;
@@ -142,7 +146,6 @@ void OpMaterials::ApplyMaterialProperties()
 		1.37760*eV, 1.41696*eV, 1.45864*eV, 1.50284*eV, 1.54980*eV, 1.59980*eV, 1.65312*eV, 1.71013*eV,
 		1.77120*eV, 1.83680*eV, 1.90745*eV, 1.98375*eV, 2.06640*eV, 2.15625*eV, 2.25426*eV, 2.36160*eV,
 		2.47968*eV, 2.61019*eV, 2.75520*eV, 2.91728*eV, 3.09960*eV, 3.30625*eV, 3.54241*eV, 3.81490*eV,     4.13281*eV};
-//	vector<G4double> opEn_PVT;
 
 	// Air
 	G4Material* fAir = map_mat["Air"];
@@ -177,9 +180,12 @@ void OpMaterials::ApplyMaterialProperties()
 	mp_PVT -> AddConstProperty("SCINTILLATIONYIELD",10./MeV); // need to optimize at 1MeV e-
 	mp_PVT -> AddConstProperty("RESOLUTIONSCALE",1.0);
 	mp_PVT -> AddConstProperty("FASTTIMECONSTANT",1.5*ns);
-//	mp_PVT -> AddConstProperty("FASTCINTILLATIONRISETIME",0.5*ns);
+	mp_PVT -> AddConstProperty("FASTCINTILLATIONRISETIME",0.5*ns);
 	fScint -> SetMaterialPropertiesTable(mp_PVT);
+//	fScint -> GetIonisation() -> SetBirksConstant(0.252*mm/MeV);
 	fScint -> GetIonisation() -> SetBirksConstant(0.126*mm/MeV);
+	map_mat["Scintillator"] = fScint;
+
 	// PS
 	G4Material* fPS = map_mat["Polystyrene"];
 	vector<G4double> RI_PS = {
@@ -188,9 +194,12 @@ void OpMaterials::ApplyMaterialProperties()
 		1.60251, 1.60824, 1.61229, 1.62032, 1.62858, 1.63886, 1.65191, 1.66888, 1.69165
 	};
 	vector<G4double> ABS_PS = {
-		2.714*m, 3.102*m, 3.619*m, 4.343*m, 5.791*m, 7.896*m, 4.343*m, 7.896*m,
-		5.429*m, 36.19*m, 17.37*m, 36.19*m, 5.429*m, 28.95*m, 21.71*m, 14.48*m,
-		12.41*m, 8.686*m, 7.238*m, 1.200*m, 0.200*m, 0.500*m, 0.200*m, 0.100*m, 0.100*m
+		100*m,100*m,100*m,100*m,100*m,100*m,100*m,100*m,
+		100*m,100*m,100*m,100*m,100*m,100*m,100*m,100*m,
+		100*m,100*m,100*m,100*m,100*m,100*m,100*m,100*m,100*m
+//		2.714*m, 3.102*m, 3.619*m, 4.343*m, 5.791*m, 7.896*m, 4.343*m, 7.896*m,
+//		5.429*m, 36.19*m, 17.37*m, 36.19*m, 5.429*m, 28.95*m, 21.71*m, 14.48*m,
+//		12.41*m, 8.686*m, 7.238*m, 1.200*m, 0.200*m, 0.500*m, 0.200*m, 0.100*m, 0.100*m
 	};
 	vector<G4double> ScintFast_PS = {
 		0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,

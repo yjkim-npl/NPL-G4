@@ -113,16 +113,26 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	G4ThreeVector post_pos = step -> GetPostStepPoint() -> GetPosition();
 	G4int postNo = CalculatePostNo(post_pos); // segmentation error while extract copyNo directly
 	G4double postKE = step -> GetPostStepPoint() -> GetKineticEnergy();
-//	G4double postKE = -1;
-//	if(prevNo != postNo && boundary > 0)
-	if(PC->GetParInt("UserVerbosity")>0 && false)
-		//&& (postNo == 501 || prevNo == 501) && false)
+	G4double length = step -> GetStepLength();
+
+	// Secondary Tracking 
+	G4int NSecondaryOP = 0;
+	const vector<const G4Track*>* pvec_secondaries = step -> GetSecondaryInCurrentStep();
+	for(G4int a=0; a<pvec_secondaries->size(); a++)
 	{
-		G4cout << "prevB: " << prev_boundary << " postB: " << post_boundary << G4endl; 
-		G4cout << "prevNo: "<<step -> GetPreStepPoint() ->GetPhysicalVolume() -> GetCopyNo() << G4endl;
-		G4cout << "postNo: "<<postNo << G4endl << G4endl;
-//		G4cout << "postNo: "<<step-> GetPostStepPoint() ->GetPhysicalVolume() -> GetCopyNo() << G4endl;
+		const G4Track* strack = pvec_secondaries->at(a);
+		const G4int sTrkID = strack -> GetTrackID();
+		const G4int sTrkPDG = strack -> GetDefinition() -> GetPDGEncoding();
+		if(sTrkPDG != -22)
+			continue;
+		NSecondaryOP++;
+		if(PC->GetParInt("StepVerbosity") > 0)
+		{
+			G4cout << "sTrackID(PDG): " << sTrkID << "(" << sTrkPDG << ")" << 
+				" vz: " << strack -> GetPosition().z() << G4endl;
+		}
 	}
+//	G4cout << "NSecondaryOP: " << NSecondaryOP << G4endl << G4endl;
 
 	const G4VProcess *process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
 	G4int procID = process -> GetProcessSubType();
@@ -131,10 +141,10 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
 
 //	if(boundary)// &&prevNo == 201 || postNo == 201)
-//	if(prevNo == 201 || postNo == 201)
-	if(true)
+	if(prevNo == 201 || postNo == 201)
+//	if(true)
 	{
-		if(PC -> GetParInt("UserVerbosity") > 1)
+		if(PC -> GetParInt("StepVerbosity") > 0)
 		{
 			G4cout << "##########" <<G4endl;
 			G4cout << "OpSteppingAction::UserSteppingAction" << G4endl;
@@ -147,14 +157,11 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 			G4cout << "Edep: " << fedep << G4endl;
 			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
 			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
-			const G4TrackVector* secondary = step -> GetSecondary();
-			auto NSecondaryInStep1 = secondary -> size();
-			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
-			G4cout << "NSecondaryInStep1: " << NSecondaryInStep1 << G4endl;
-			G4cout << "NSecondaryInStep2: " << NSecondaryInStep2 << G4endl << G4endl;
 		}
+
 		fRunAction -> FillStep
-			(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,fedep,prevKE);
+			(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
+			 fedep,length,NSecondaryOP,prevKE);
 	}
 //	G4int trkID = step -> GetTrack() -> GetTrackID();
 //	G4int trkPDG = step -> GetTrack() -> GetDefinition() -> GetPDGEncoding();

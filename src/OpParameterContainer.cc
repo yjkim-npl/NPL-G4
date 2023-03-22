@@ -1,5 +1,8 @@
 #include "OpParameterContainer.hh"
 
+#include "TObject.h"
+#include "TNamed.h"
+
 #include "globals.hh"
 #include <sstream>
 
@@ -110,4 +113,35 @@ void OpParameterContainer::PrintParameter(G4String par)
 		else
 			G4cout << "yjkim in Parameter Container" << G4endl;
 	}
+}
+
+map<G4String,G4String> OpParameterContainer::GetInputParameters(G4int nevnts)
+{
+	map<G4String,G4String> map_input_para;
+	map_input_para.insert(make_pair("Nevents",to_string(nevnts)));
+	for(auto iter : par_bool)
+	{
+		G4String paraName = iter.first;
+		G4String paraValue = iter.second==1?"true":"false";
+		map_input_para.insert(make_pair(paraName.data(),paraValue.data()));
+	}
+	for(auto iter : par_int)
+	{
+		G4String paraName = iter.first;
+		G4String paraValue = to_string(iter.second);
+		map_input_para.insert(make_pair(paraName.data(),paraValue.data()));
+	}
+	for(auto iter : par_double)
+	{
+		G4String paraName = iter.first;
+		G4String paraValue = to_string(iter.second);
+		map_input_para.insert(make_pair(paraName.data(),paraValue.data()));
+	}
+	for(auto iter : par_string)
+	{
+		G4String paraName = iter.first;
+		G4String paraValue = iter.second;
+		map_input_para.insert(make_pair(paraName.data(),paraValue.data()));
+	}
+	return map_input_para;
 }

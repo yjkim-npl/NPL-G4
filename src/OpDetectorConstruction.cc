@@ -9,6 +9,8 @@
 #include "G4Orb.hh"
 #include "G4Sphere.hh"
 #include "G4Trd.hh"
+#include "G4Trap.hh"
+#include "G4Tubs.hh"
 #include "G4VSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4SDManager.hh"
@@ -268,6 +270,48 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			attBTOF -> SetForceWireframe(true);
 			logicBTOF -> SetVisAttributes(attBTOF);
 		}
+		else if(PC->GetParInt("BTOFopt") == 1)
+		{
+			G4Box* solidBTOF = 
+				new G4Box("solidBTOF",0.5*sizeY,0.5*sizeZ,0.5*sizeX);
+			logicBTOF = 
+				new G4LogicalVolume(solidBTOF,mat,"logicBTOF");
+			new G4PVPlacement(0,G4ThreeVector(0,0.5*sizeY+30*mm,(ZOffset1-trans)),logicBTOF,"BTOFL",logicWorld,false,ID+1,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,-0.5*sizeY-30*mm,(ZOffset2-trans)),logicBTOF,"BTOFR",logicWorld,false,ID+2,checkOverlaps);
+		}
+		G4VisAttributes* attBTOF = new G4VisAttributes(G4Colour(G4Colour::Grey()));
+		attBTOF -> SetVisibility(true);
+		attBTOF -> SetForceWireframe(true);
+		logicBTOF -> SetVisAttributes(attBTOF);
+	}
+
+	if(PC -> GetParBool("TargetIn"))
+	{
+		G4int ID = PC -> GetParInt("TargetID");
+		G4double sizeX = PC -> GetParDouble("Target_sizeX");
+		G4double sizeY = PC -> GetParDouble("Target_sizeY");
+		G4double sizeZ = PC -> GetParDouble("Target_sizeZ");
+		G4double ZOffset = PC -> GetParDouble("Target_ZOffset");
+		G4int opt = PC -> GetParInt("Targetopt");
+		G4Material* mat = nullptr;
+		if(opt == 0)
+		{
+			mat = fMaterials -> GetMaterial("Air");
+		}
+		G4cout << "done" << G4endl;
+//		else if (opt == 1)
+//		{
+//		}
+		G4VSolid* solidTG = 
+			new G4Box("solidTG",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
+		G4LogicalVolume* logicTG = 
+			new G4LogicalVolume(solidTG,mat,"logicTG");
+		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans-0.5*sizeZ),logicTG,"TG",logicWorld,false,ID+1,checkOverlaps);
+
+		G4VisAttributes* attTG = new G4VisAttributes(G4Colour(G4Colour::Red()));
+		attTG -> SetVisibility(true);
+		attTG -> SetForceWireframe(true);
+		logicTG -> SetVisAttributes(attTG);
 	}
 	return physWorld;
 }

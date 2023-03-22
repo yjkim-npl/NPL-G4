@@ -52,8 +52,9 @@ class OpRunAction : public G4UserRunAction
 			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t);
 
 		void FillStep
-			(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID,
-			 G4ThreeVector v, G4double edep, G4double prevKE=0);
+			(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, 
+			 G4int prev_detID, G4int post_detID,
+			 G4ThreeVector v, G4double edep, G4double length, G4int nSecondaries, G4double prevKE=0);
 
 		void update_Tree();
 
@@ -61,7 +62,8 @@ class OpRunAction : public G4UserRunAction
 
 		void SetProcess(G4int procID, G4String procTypeName);
 
-		void SetInputParameters(G4int nevnts);
+		void CountEvent()
+			{nevnts++;}
 
 	private:
 		OpParameterContainer* PC;
@@ -75,6 +77,8 @@ class OpRunAction : public G4UserRunAction
 
 		TFile* F;
 		TTree* T;
+
+		G4int nevnts;
 
 		set<G4int> set_procID;
 		// Track data
@@ -123,6 +127,8 @@ class OpRunAction : public G4UserRunAction
 		G4double StepVY[max_steps];
 		G4double StepVZ[max_steps];
 		G4double StepEdep[max_steps];
+		G4double StepLength[max_steps];
+		G4int StepNSecondaryOP[max_steps];
 
 		G4double EdepSumBox;
 
