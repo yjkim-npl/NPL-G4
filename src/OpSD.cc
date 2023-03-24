@@ -65,6 +65,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4double length = step -> GetStepLength();
 	G4int procID = -10;
 	G4String procName = "";
+	G4int NSecondaryInStep = 0;
 
 	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition())
 	{
@@ -87,10 +88,12 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
 			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
 			const G4TrackVector* secondary = step -> GetSecondary();
-			auto NSecondaryInStep1 = secondary -> size();
-			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
-			G4cout << "NSecondaryInStep1: " << NSecondaryInStep1 << G4endl;
-			G4cout << "NSecondaryInStep2: " << NSecondaryInStep2 << G4endl << G4endl;
+			NSecondaryInStep = step -> GetSecondaryInCurrentStep() -> size();
+
+//			auto NSecondaryInStep1 = secondary -> size();
+//			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
+//			G4cout << "NSecondaryInStep1: " << NSecondaryInStep1 << G4endl;
+//			G4cout << "NSecondaryInStep2: " << NSecondaryInStep2 << G4endl << G4endl;
 		}
 	}
 	OpHit* hit = NULL;
@@ -136,6 +139,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddBoundary(boundary);
 		hit -> AddKE(prevKE);
 		hit -> AddStepLength(length);
+		hit -> AddNSecondaryOP(NSecondaryInStep);
 		if(boundary)
 			hit -> AddPostDetID(postNo);
 	}

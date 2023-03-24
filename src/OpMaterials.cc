@@ -173,17 +173,21 @@ void OpMaterials::ApplyMaterialProperties()
 		0.00366, 0.01466, 0.02871, 0.04328, 0.06822, 0.11101, 0.18534, 0.28374,
 		0.42875, 0.64257, 0.90365, 0.99851, 0.81198, 0.24271, 0.04360, 0.00132
 	};
+	G4double PVT_SY = OpParameterContainer::GetInstance() -> GetParDouble("PVT_ScintYield");
+	G4double PVT_RS = OpParameterContainer::GetInstance() -> GetParDouble("PVT_ResScale");
+	G4double PVT_FC = OpParameterContainer::GetInstance() -> GetParDouble("PVT_FastConst");
+	G4double PVT_BC = OpParameterContainer::GetInstance() -> GetParDouble("PVT_BirksConst");
 	G4MaterialPropertiesTable* mp_PVT = new G4MaterialPropertiesTable();
 	mp_PVT -> AddProperty("RINDEX",opEn_PVT,RI_PVT);
 	mp_PVT -> AddProperty("ABSLENGTH",opEn_PVT,ABS_PVT);
 	mp_PVT -> AddProperty("FASTCOMPONENT",opEn_PVT,ScintFast_PVT);
-	mp_PVT -> AddConstProperty("SCINTILLATIONYIELD",10./MeV); // need to optimize at 1MeV e-
-	mp_PVT -> AddConstProperty("RESOLUTIONSCALE",1.0);
-	mp_PVT -> AddConstProperty("FASTTIMECONSTANT",1.5*ns);
+	mp_PVT -> AddConstProperty("SCINTILLATIONYIELD",PVT_SY/MeV); // need to optimize at 1MeV e-
+	mp_PVT -> AddConstProperty("RESOLUTIONSCALE",PVT_RS);
+	mp_PVT -> AddConstProperty("FASTTIMECONSTANT",PVT_FC*ns);
 	mp_PVT -> AddConstProperty("FASTCINTILLATIONRISETIME",0.5*ns);
 	fScint -> SetMaterialPropertiesTable(mp_PVT);
 //	fScint -> GetIonisation() -> SetBirksConstant(0.252*mm/MeV);
-	fScint -> GetIonisation() -> SetBirksConstant(0.126*mm/MeV);
+	fScint -> GetIonisation() -> SetBirksConstant(PVT_BC*mm/MeV);
 	map_mat["Scintillator"] = fScint;
 
 	// PS
@@ -206,14 +210,18 @@ void OpMaterials::ApplyMaterialProperties()
 		0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.07, 0.13,
 		0.33, 0.63, 1.00, 0.50, 0.00, 0.00, 0.00, 0.00, 0.00
 	};
+	G4double PS_SY = OpParameterContainer::GetInstance() -> GetParDouble("PS_ScintYield");
+	G4double PS_RS = OpParameterContainer::GetInstance() -> GetParDouble("PS_ResScale");
+	G4double PS_FC = OpParameterContainer::GetInstance() -> GetParDouble("PS_FastConst");
+	G4double PS_BC = OpParameterContainer::GetInstance() -> GetParDouble("PS_BirksConst");
 	G4MaterialPropertiesTable* mp_PS = new G4MaterialPropertiesTable();
 	mp_PS -> AddProperty("RINDEX",opEn_PS,RI_PS);
 	mp_PS -> AddProperty("ABSLENGTH",opEn_PS,ABS_PS);
 	mp_PS -> AddProperty("FASTCOMPONENT",opEn_PS,ScintFast_PS);
-	mp_PS -> AddConstProperty("SCINTILLATIONYIELD",10./MeV);
-	mp_PS -> AddConstProperty("RESOLUTIONSCALE",1.0);
-	mp_PS -> AddConstProperty("FASTTIMECONSTANT",2.8*ns);
+	mp_PS -> AddConstProperty("SCINTILLATIONYIELD",PS_SY/MeV);
+	mp_PS -> AddConstProperty("RESOLUTIONSCALE",PS_RS);
+	mp_PS -> AddConstProperty("FASTTIMECONSTANT",PS_FC*ns);
 	fPS -> SetMaterialPropertiesTable(mp_PS);
-	fPS -> GetIonisation() -> SetBirksConstant(0.126*mm/MeV);
+	fPS -> GetIonisation() -> SetBirksConstant(PS_BC*mm/MeV);
 	map_mat["Polystyrene"] = fPS;
 }

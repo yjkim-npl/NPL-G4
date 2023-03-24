@@ -41,6 +41,8 @@ class OpHit : public G4VHit
 			{vec_prevKE.push_back(KE);}
 		void AddStepLength(G4double length)
 			{vec_length.push_back(length);}
+		void AddNSecondaryOP(G4int NSecondaryOP)
+			{vec_NSecondaryOP.push_back(NSecondaryOP);}
 
 
 		G4int GetNSteps()
@@ -57,6 +59,8 @@ class OpHit : public G4VHit
 			{return vec_IsBoundary[idx];}
 		G4int GetProcID(G4int idx)
 			{return vec_procID[idx];}
+		G4int GetNSecondaryOP(G4int idx)
+			{return vec_NSecondaryOP[idx];}
 		G4String GetProcName(G4int idx) 
 			{return vec_procName[idx];}
 		G4ThreeVector GetMomentum(G4int idx) 
@@ -81,6 +85,7 @@ class OpHit : public G4VHit
 		G4int detID;	// prev det ID
 		G4int post_DetID;
 		G4double EdepSum;
+		vector<G4int> vec_NSecondaryOP;
 		vector<G4int> vec_IsBoundary;
 		vector<G4double> vec_prevKE;
 		vector<G4double> vec_Edep;

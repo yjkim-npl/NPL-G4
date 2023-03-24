@@ -23,6 +23,7 @@ OpHit::OpHit(const OpHit &right)
 	post_DetID = right.post_DetID;
 	EdepSum = right.EdepSum;
 	vec_IsBoundary = right.vec_IsBoundary;
+	vec_NSecondaryOP = right.vec_NSecondaryOP;
 	vec_prevKE = right.vec_prevKE;
 	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;
@@ -45,6 +46,7 @@ const OpHit& OpHit::operator=(const OpHit &right)
 	post_DetID = right.post_DetID;
 	EdepSum = right.EdepSum;
 	vec_IsBoundary = right.vec_IsBoundary;
+	vec_NSecondaryOP = right.vec_NSecondaryOP;
 	vec_prevKE = right.vec_prevKE;
 	vec_Edep = right.vec_Edep;
 	vec_procID = right.vec_procID;

@@ -114,6 +114,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 						for(G4int c=0; c<nSteps; c++)
 						{
 							G4int procID = hit -> GetProcID(c);
+							G4int nSecondaryOP = hit -> GetNSecondaryOP(c);
 							G4String procName = hit -> GetProcName(c);
 							G4bool boundary = hit -> GetIsBoundary(c);
 							G4ThreeVector mom = hit -> GetMomentum(c);
@@ -127,7 +128,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 							{
 								fRunAction -> FillStep
 									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
-									 edep,length,0,prevKE);
+									 edep,length,nSecondaryOP,prevKE);
 							}
 							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
 							{
