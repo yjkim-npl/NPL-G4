@@ -1,5 +1,6 @@
 #include "OpDetectorConstruction.hh"
 #include "OpSD.hh"
+#include "OpSiPMSD.hh"
 #include "OpParameterContainer.hh"
 
 #include "G4RunManager.hh"
@@ -15,6 +16,7 @@
 #include "G4SubtractionSolid.hh"
 #include "G4SDManager.hh"
 #include "G4LogicalVolume.hh"
+#include "G4LogicalSkinSurface.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
@@ -153,14 +155,14 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	}
 
 
-	if(PC -> GetParBool("SensorIn"))
+	if(PC -> GetParBool("SiPMIn"))
 	{
-		G4int SensorID = PC -> GetParInt("SensorID");
-		G4double sizeX = PC -> GetParDouble("Sensor_sizeX");
-		G4double sizeY = PC -> GetParDouble("Sensor_sizeY");
-		G4double sizeZ = PC -> GetParDouble("Sensor_sizeZ");
-		G4double totY  = PC -> GetParDouble("Sensor_totY");
-		G4double gap   = PC -> GetParDouble("Sensor_gap");
+		G4int SiPMID = PC -> GetParInt("SiPMID");
+		G4double sizeX = PC -> GetParDouble("SiPM_sizeX");
+		G4double sizeY = PC -> GetParDouble("SiPM_sizeY");
+		G4double sizeZ = PC -> GetParDouble("SiPM_sizeZ");
+		G4double totY  = PC -> GetParDouble("SiPM_totY");
+		G4double gap   = PC -> GetParDouble("SiPM_gap");
 		G4double SC1_sizeX = PC -> GetParDouble("SC1_sizeX");
 		G4double SC2_sizeX = PC -> GetParDouble("SC2_sizeX");
 		G4double SC3_sizeX = PC -> GetParDouble("SC3_sizeX");
@@ -169,58 +171,67 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4double SC3ZOffset = PC -> GetParDouble("SC3_ZOffset");
 		G4int nReplica = 21;	// 96.85 = 3.85*21+0.8*20
 		G4double width_Replica = 0.8 * mm;
-		G4Material* mat_Sensor = fMaterials -> GetMaterial("Silicon");
+		G4Material* mat_SiPM = fMaterials -> GetMaterial("Silicon");
 
-		if(PC -> GetParBool("Sensor_gapIn"))
+		if(PC -> GetParBool("SiPM_gapIn"))
 		{
 			G4Box* solid_area = 
-				new G4Box("solid_Sensor_area",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
+				new G4Box("solid_SiPM_area",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 			G4LogicalVolume* logic_area = 
-				new G4LogicalVolume(solid_area,fMaterials->GetMaterial("G4_AIR"),"logic_Sensor_area");
+				new G4LogicalVolume(solid_area,fMaterials->GetMaterial("G4_AIR"),"logic_SiPM_area");
 			if(PC -> GetParBool("SC1In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1L",logicWorld,false,SensorID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1R",logicWorld,false,SensorID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1L",logicWorld,false,SiPMID+1,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1R",logicWorld,false,SiPMID+2,checkOverlaps);
 			}
 			if(PC -> GetParBool("SC2In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2L",logicWorld,false,SensorID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2R",logicWorld,false,SensorID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2L",logicWorld,false,SiPMID+3,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2R",logicWorld,false,SiPMID+4,checkOverlaps);
 			}
 			if(PC -> GetParBool("SC3In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2L",logicWorld,false,SensorID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2R",logicWorld,false,SensorID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2L",logicWorld,false,SiPMID+5,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2R",logicWorld,false,SiPMID+6,checkOverlaps);
 			}
 
 			G4Box* solid_sensor = 
-				new G4Box("solid_Sensor",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-			G4LogicalVolume* logic_sensor = 
-				new G4LogicalVolume(solid_sensor,mat_Sensor,"logic_Sensor");
-			new G4PVReplica("Sensor",logic_sensor,logic_area,kYAxis,nReplica,width_Replica+sizeY,0);
+				new G4Box("solid_SiPM",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
+			logicSiPM = 
+				new G4LogicalVolume(solid_sensor,mat_SiPM,"logic_SiPM");
+			new G4PVReplica("SiPM",logicSiPM,logic_area,kYAxis,nReplica,width_Replica+sizeY,0);
 		}
-		else
+		else // unified one silicon column
 		{
 			G4Box*solid_sensor = 
-				new G4Box("solid_Sensor",0.5*sizeX,0.5*totY,0.5*sizeZ);
-			G4LogicalVolume* logic_sensor = 
-				new G4LogicalVolume(solid_sensor,mat_Sensor,"logic_Sensor");
+				new G4Box("solid_SiPM",0.5*sizeX,0.5*totY,0.5*sizeZ);
+			logicSiPM = 
+				new G4LogicalVolume(solid_sensor,mat_SiPM,"logicSiPM");
+			if(PC->GetParBool("OpticalPhysics"))
+			{
+				G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
+				new G4LogicalSkinSurface("SiPM_surf",logicSiPM,surf_SiPM);
+			}
 			if(PC->GetParBool("SC1In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+1,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+2,checkOverlaps);
 			}
 			if(PC->GetParBool("SC2In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*SC2_sizeX+sizeX,0,SC2ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+3,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+4,checkOverlaps);
 			}
 			if(PC->GetParBool("SC3In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*SC3_sizeX+sizeX,0,SC3ZOffset-trans),logic_sensor,"SensorL",logicWorld,false,SensorID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_sensor,"SensorR",logicWorld,false,SensorID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*SC3_sizeX+sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+5,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+6,checkOverlaps);
 			}
 		}
+		G4VisAttributes* attSiPM = new G4VisAttributes(G4Colour(G4Colour::Grey()));
+		attSiPM -> SetVisibility(true);
+		attSiPM -> SetForceWireframe(true);
+		logicSiPM -> SetVisAttributes(attSiPM);
 	}
 	if(PC -> GetParBool("BDCIn"))
 	{
@@ -288,16 +299,24 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	if(PC -> GetParBool("TargetIn"))
 	{
 		G4int ID = PC -> GetParInt("TargetID");
+		G4int opt = PC -> GetParInt("Targetopt");
 		G4double sizeX = PC -> GetParDouble("Target_sizeX");
 		G4double sizeY = PC -> GetParDouble("Target_sizeY");
-		G4double sizeZ = PC -> GetParDouble("Target_sizeZ");
+		G4double sizeZ1 = PC -> GetParDouble("Target_sizeZ1");
+		G4double sizeZ2 = PC -> GetParDouble("Target_sizeZ2");
+		G4double sizeZ;
+		if(opt == 0 || opt == 1)
+			sizeZ = sizeZ1;
+		else
+			sizeZ = sizeZ2;
 		G4double ZOffset = PC -> GetParDouble("Target_ZOffset");
-		G4int opt = PC -> GetParInt("Targetopt");
 		G4Material* mat = nullptr;
-		if(opt == 0)
-		{
+		if(opt == 0)	// empty box
 			mat = fMaterials -> GetMaterial("Air");
-		}
+		else if (opt == 1)
+			mat = fMaterials -> GetMaterial("G4_POLYETHYLENE");
+		else if (opt == 2)
+			mat = fMaterials -> GetMaterial("Graphite");
 		G4cout << "done" << G4endl;
 //		else if (opt == 1)
 //		{
@@ -330,6 +349,12 @@ void OpDetectorConstruction::ConstructSDandField()
 		OpSD* SC2SD = new OpSD("SC2","SC2C");
 		SDman -> AddNewDetector(SC2SD);
 		logicSC2 -> SetSensitiveDetector(SC2SD);
+		if(PC->GetParBool("SiPMIn"))
+		{
+			OpSiPMSD* SC2SiPMSD = new OpSiPMSD("SC2SiPM","SC2SiPMC");
+			SDman -> AddNewDetector(SC2SiPMSD);
+			logicSiPM -> SetSensitiveDetector(SC2SiPMSD);
+		}
 	}
 	if(PC -> GetParBool("SC3In"))
 	{

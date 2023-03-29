@@ -80,6 +80,7 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	G4int processID = -999;
 	G4double totenergy = track -> GetStep() -> GetPreStepPoint() -> GetTotalEnergy();
 	G4double kinenergy = track -> GetStep() -> GetPreStepPoint() -> GetKineticEnergy();
+	G4double trkLength = track -> GetTrackLength();
 
 	const G4VProcess* process = track -> GetStep() -> GetPostStepPoint() -> GetProcessDefinedStep();
 //	G4ProcessType processType = process -> GetProcessType();
@@ -91,7 +92,7 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 		 OpParameterContainer::GetInstance() -> GetParBool("OpPostTrack"))
 	{
 		fRunAction -> FillOpticalPhoton
-			(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy);
+			(MCPostTrack, trkID, processID, parentID, detID, p, v, time, totenergy, kinenergy,trkLength);
 	}
 
 

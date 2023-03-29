@@ -16,8 +16,8 @@
 #include <utility>
 #include <set>
 
-#define max_tracks 10000
-#define max_steps 10000
+#define max_tracks 100000
+#define max_steps 1000000
 #define max_opticalphotons 1000000
 using namespace std;
 
@@ -46,7 +46,7 @@ class OpRunAction : public G4UserRunAction
 			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
-			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy);
+			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy,G4double length=0);
 
 		void FillOpticalPhotonBoundary
 			(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t);
@@ -55,6 +55,10 @@ class OpRunAction : public G4UserRunAction
 			(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, 
 			 G4int prev_detID, G4int post_detID,
 			 G4ThreeVector v, G4double edep, G4double length, G4int nSecondaries, G4double prevKE=0);
+
+		void FillSiPM
+			(G4int detID, G4int procID, G4String procName,
+			 G4ThreeVector pos, G4ThreeVector mom, G4double time, G4double Energy);
 
 		void update_Tree();
 
@@ -150,6 +154,7 @@ class OpRunAction : public G4UserRunAction
 
 		G4int PostOpDetID[max_opticalphotons];
 		G4int PostProcID[max_opticalphotons];
+		G4double OpTrackLength[max_opticalphotons];
 		G4double PostOpPX[max_opticalphotons];
 		G4double PostOpPY[max_opticalphotons];
 		G4double PostOpPZ[max_opticalphotons];
@@ -170,6 +175,20 @@ class OpRunAction : public G4UserRunAction
 		G4double OpVYBoundary[max_opticalphotons];
 		G4double OpVZBoundary[max_opticalphotons];
 		G4double OpTBoundary[max_opticalphotons];
+
+		// for SiPM readout
+		G4int NOpSiPM;
+		G4int OpSiPMProcID[max_opticalphotons];
+		G4int OpSiPMDetID[max_opticalphotons];
+		G4double OpSiPMVX[max_opticalphotons];
+		G4double OpSiPMVY[max_opticalphotons];
+		G4double OpSiPMVZ[max_opticalphotons];
+		G4double OpSiPMPX[max_opticalphotons];
+		G4double OpSiPMPY[max_opticalphotons];
+		G4double OpSiPMPZ[max_opticalphotons];
+		G4double OpSiPMTime[max_opticalphotons];
+		G4double OpSiPMEnergy[max_opticalphotons];
+		G4String OpSiPMProcName[max_opticalphotons];
 
 		// temp
 		G4int Ntemp;

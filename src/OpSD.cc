@@ -69,6 +69,8 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 
 	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition())
 	{
+		const G4TrackVector* secondary = step -> GetSecondary();
+		NSecondaryInStep = step -> GetSecondaryInCurrentStep() -> size();
 		const G4VProcess* process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
 		procID = process -> GetProcessSubType();
 		procName = process -> GetProcessName();
@@ -81,14 +83,14 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 			G4cout << "OpSD::ProcessHit" << G4endl;
 			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
 			G4cout << "Boundary: " << boundary << G4endl;
+			G4cout << "Edep: " << fedep << G4endl;
 			G4cout << "ProcID: " << procID << G4endl;
 			G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
 			G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
 			G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
 			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
 			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
-			const G4TrackVector* secondary = step -> GetSecondary();
-			NSecondaryInStep = step -> GetSecondaryInCurrentStep() -> size();
+			G4cout << "NSecondaryInStep in ProcessHit: " << NSecondaryInStep << G4endl << G4endl;;
 
 //			auto NSecondaryInStep1 = secondary -> size();
 //			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();

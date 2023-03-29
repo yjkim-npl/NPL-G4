@@ -1,6 +1,7 @@
 #include "OpEventAction.hh"
 #include "OpRunAction.hh"
 #include "OpHit.hh"
+#include "OpSiPMHit.hh"
 
 #include "G4GenericAnalysisManager.hh"
 #include "G4Event.hh"
@@ -17,6 +18,7 @@ OpEventAction::OpEventAction(OpRunAction* runAction)
 {
 	PC = OpParameterContainer::GetInstance();
 	vec_fID = {-1,-1,-1,-1,-1};
+	fSiPMID = -1;
 	vec_HCname = {"SC1C","SC2C","SC3C","BDCC","BTOFC"};
 	vec_SDname = {"SC1","SC2","SC3","BDC","BTOF"};
 	if(PC -> GetParInt("UserVerbosity") > 0)
@@ -44,17 +46,9 @@ void OpEventAction::BeginOfEventAction(const G4Event* event)
 //				G4cout << "fID of " << vec_SDname[a] << "loaded" << G4endl;
 			}
 		}
+		if(fSiPMID == -1 && PC -> GetParBool("SiPMIn"))
+			fSiPMID = SDman -> GetCollectionID("SC2SiPMC");
 	}
-//	if(PC -> GetParBool("OpticalPhysics") && PC -> GetParBool("OpTrack"))
-//	{
-//		for(G4int a=0; a<vec_fOpID.size(); a++)
-//		{
-//			if(vec_fOpID[a] == -1 && PC -> GetParBool(vec_SDname[a]+"In"))
-//			{
-//				vec_fOpID[a] = SDman -> GetCollectionID("Op"+vec_HCname[a]);
-//			}
-//		}
-//	}
 	fRunAction -> clear_data();
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		if(event -> GetEventID() == 0)
@@ -63,7 +57,6 @@ void OpEventAction::BeginOfEventAction(const G4Event* event)
 
 void OpEventAction::EndOfEventAction(const G4Event* event)
 {
-//	G4cout << "done" << G4endl;
 	G4HCofThisEvent* HCE = event -> GetHCofThisEvent();
 	if(!HCE)
 	{
@@ -96,7 +89,6 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 					G4int postDetID = hit -> GetPostDetID();
 					G4double EdepSum = hit -> GetEdepSum();
 					// save edepsum of particle species
-					// do not save optical photon data
 					if(PC->GetParBool("SaveTrackSum"))
 					{
 						fRunAction -> FillStep
@@ -115,6 +107,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 						{
 							G4int procID = hit -> GetProcID(c);
 							G4int nSecondaryOP = hit -> GetNSecondaryOP(c);
+//							G4cout << "nSecondaryOP: " << nSecondaryOP << G4endl;
 							G4String procName = hit -> GetProcName(c);
 							G4bool boundary = hit -> GetIsBoundary(c);
 							G4ThreeVector mom = hit -> GetMomentum(c);
@@ -126,14 +119,42 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 							fRunAction -> SetProcess(procID,procName);
 							if(PC->GetParBool("MCStep") && trackPDG != -22)
 							{
-								fRunAction -> FillStep
-									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
-									 edep,length,nSecondaryOP,prevKE);
+//								fRunAction -> FillStep
+//									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
+//									 edep,length,nSecondaryOP,prevKE);
 							}
 							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
 							{
 								fRunAction -> FillOpticalPhotonBoundary(trackID, procID, mom, pos, time);
 							}
+						}
+					}
+				}
+			}
+		}
+		if(PC->GetParBool("OpticalPhysics") && PC->GetParBool("SiPMIn"))
+		{
+			OpSiPMHitsCollection* HC_SiPM = 
+				static_cast<OpSiPMHitsCollection*>(HCE->GetHC(fSiPMID));
+			if(HC_SiPM != nullptr)
+			{
+				G4cout << "HCs: " << HC_SiPM->entries() << G4endl;
+				for(G4int b=0; b<HC_SiPM->entries(); b++)
+				{
+					OpSiPMHit* hit = (*HC_SiPM)[b];
+					G4int NOpSiPM = hit -> GetPhotonCount();
+					G4int detID = hit -> GetDetectorID();
+					for(G4int c=0; c<NOpSiPM; c++)
+					{
+						G4int procID = hit -> GetProcID(c);
+						G4String procName = hit -> GetProcName(c);
+						G4ThreeVector pos = hit -> GetPosition(c);
+						G4ThreeVector mom = hit -> GetMomentum(c);
+						G4double time = hit -> GetTime(c);
+						G4double energy = hit -> GetEnergy(c);
+						if(PC->GetParBool("OpSiPM"))
+						{
+							fRunAction -> FillSiPM(detID,procID,procName,pos,mom,time,energy);
 						}
 					}
 				}
@@ -179,6 +200,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 //		}
 //	}
 	fRunAction -> update_Tree();
+	G4cout << "EndofEventAction" << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 0)
 	{
 		if(event -> GetEventID() == 0)

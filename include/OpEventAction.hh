@@ -37,5 +37,6 @@ class OpEventAction : public G4UserEventAction
 		G4int fOpSC2ID;
 		G4int fSC3ID;
 		G4int fBTOFID;
+		G4int fSiPMID;
 };
 #endif

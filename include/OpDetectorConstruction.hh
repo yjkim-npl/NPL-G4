@@ -31,6 +31,7 @@ class OpDetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* logicSC3;
 		G4LogicalVolume* logicBDC;
 		G4LogicalVolume* logicBTOF;
+		G4LogicalVolume* logicSiPM;
 };
 
 #endif

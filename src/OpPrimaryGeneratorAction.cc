@@ -5,6 +5,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
+#include "G4OpticalPhoton.hh"
 #include "G4RunManager.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
@@ -21,6 +22,10 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 {
 	PC = OpParameterContainer::GetInstance();
 	fParticleGun  = new G4ParticleGun();
+	if(PC->GetParInt("Beam_InputMode") == 1){
+		fInputName = PC->GetParString("InputFile");
+		ReadInputFile();
+	}
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpPrimaryGeneratorAction" << G4endl;
 }
@@ -34,6 +39,19 @@ OpPrimaryGeneratorAction::~OpPrimaryGeneratorAction()
 
 void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
+	if(PC->GetParInt("Beam_InputMode")==0)
+		GeneratePrimariesMode0(anEvent);
+	else if (PC->GetParInt("Beam_InputMode")==1){
+		GeneratePrimariesMode1(anEvent);
+	} else {
+		G4ExceptionDescription out;
+		out << "OpParameterContainer::Beam_InputMode should be 0 or 1";
+		G4Exception("OpPrimaryGeneratorAction::GeneratePrimaries","",FatalException,out);
+	}
+}
+
+void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
+{
 	fPolarized = true;
 	fPolarization = 30.;
 
@@ -46,16 +64,37 @@ void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 			G4IonTable::GetIonTable()->GetIon(PC->GetParInt("InputIonID"));
 		fParticleGun->SetParticleDefinition(particle);
 		fParticleGun->SetParticleCharge(PC->GetParInt("InputCharge"));
+		fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
+	}
+	else if (particleName=="opticalphoton")
+	{
+		G4ParticleDefinition* particle
+			= G4OpticalPhoton::OpticalPhotonDefinition();
+		fParticleGun -> SetParticleDefinition(particle);	// particle
+		G4double OpE = 1.2398e-3/PC->GetParDouble("OpWavlen") * MeV;
+		fParticleGun -> SetParticleEnergy(OpE);	// and its energy
+//		G4cout << "OpE: " << OpE*1e6 << G4endl;
+		// for optical photon beam, the polarization must be defined
+		if(fPolarized)
+		{
+//			  	G4cout << "yjkim" << G4endl;
+			SetOptPhotonPolar(fPolarization);
+		}else{
+			SetOptPhotonPolar();
+		}
 	}
 	else
 	{
 		G4ParticleDefinition* particle
 			= particleTable->FindParticle(particleName);
 		fParticleGun -> SetParticleDefinition(particle);	// particle
+		fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
 	}
 	fParticleGun -> SetParticleTime(0.0 * ns);	// generated time
-	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));	// with momentum dir
-	fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
+	G4double px = PC -> GetParDouble("Beam_px");
+	G4double py = PC -> GetParDouble("Beam_py");
+	G4double pz = PC -> GetParDouble("Beam_pz");
+	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(px,py,pz));	// with momentum dir
 
 	G4int n_particle = PC -> GetParInt("NperEvent");
 
@@ -88,22 +127,62 @@ void OpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 			if(PC->GetParInt("Beam_shape") == 2)
 				fParticleGun->SetParticlePosition(G4ThreeVector(rx,ry,z0-trans));
 			fParticleGun->GeneratePrimaryVertex(anEvent);
-			// for optical photon beam, the polarization must be defined
-			if(fParticleGun -> GetParticleDefinition() ==
-					G4OpticalPhoton::OpticalPhotonDefinition())
-			{
-				if(fPolarized)
-				{
-//			  	G4cout << "yjkim" << G4endl;
-					SetOptPhotonPolar(fPolarization);
-				}else{
-					SetOptPhotonPolar();
-				}
-			}
 		}
 	}
 }
 
+void OpPrimaryGeneratorAction::GeneratePrimariesMode1(G4Event* anEvent)
+{
+	// find event number(ID)
+	for(G4int a=0; a<vec_eventID.size(); a++)
+	{
+		if(a == anEvent -> GetEventID())
+		{
+			G4ParticleDefinition* particle;
+			if(vec_PDG[a] > 1000000000)
+				particle = G4IonTable::GetIonTable()->GetIon(vec_PDG[a]);
+			else
+				particle = G4ParticleTable::GetParticleTable()->FindParticle(vec_PDG[a]);
+			fParticleGun -> SetParticleDefinition(particle);
+			G4ThreeVector mom(vec_px[a],vec_py[a],vec_pz[a]);
+			G4ThreeVector pos(vec_vx[a],vec_vy[a],vec_vz[a]);
+			fParticleGun -> SetParticleMomentumDirection(mom.unit());
+			fParticleGun -> SetParticleMomentum(mom.mag()*MeV);
+			fParticleGun -> SetParticlePosition(pos);
+			fParticleGun -> GeneratePrimaryVertex(anEvent);
+			break;
+		}
+	}
+}
+
+void OpPrimaryGeneratorAction::ReadInputFile()
+{
+	fInputFile.open(fInputName.data());
+	G4int nEvents;
+	fInputFile >> nEvents;
+	G4cout << "Input: " << fInputName << " contains " << nEvents << " events" << G4endl;
+	G4String line1, line2;
+	G4int eventID, nTracks, pdg;
+	G4double vx, vy, vz, px, py, pz;
+	getline(fInputFile,line1);	// dummy line
+	for(G4int a=0; a<nEvents; a++)
+	{
+		getline(fInputFile,line1);
+		getline(fInputFile,line2);
+		stringstream ss1(line1);
+		stringstream ss2(line2);
+		ss1 >> eventID >> nTracks >> vx >> vy >> vz;
+		ss2 >> pdg >> px >> py >> pz;
+		vec_eventID.push_back(eventID);
+		vec_PDG.push_back(pdg);
+		vec_vx.push_back(vx);
+		vec_vy.push_back(vy);
+		vec_vz.push_back(vz);
+		vec_px.push_back(px);
+		vec_py.push_back(py);
+		vec_pz.push_back(pz);
+	}
+}
 void OpPrimaryGeneratorAction::SetOptPhotonPolar()
 {
 	G4double angle = G4UniformRand() * 360.0 * deg;
@@ -135,5 +214,5 @@ void OpPrimaryGeneratorAction::SetOptPhotonPolar(G4double angle)	// Zero polariz
 	G4ThreeVector polar = 
 		std::cos(angle) * e_paralle + std::sin(angle) * e_perpend;
 	fParticleGun -> SetParticlePolarization(polar);
-	G4cout << "yjkim invoked from SetOptPhotonPolar" << G4endl;
+//	G4cout << "yjkim invoked from SetOptPhotonPolar" << G4endl;
 }

@@ -30,10 +30,15 @@ OpRunAction::OpRunAction()
 //	G4String beam_energy = to_string(PC->GetParDouble("Beam_energy"));
 //	if(beam_energy.contains("."))
 	G4String outName;
-	if(PC->GetParBool("UserOutputName"))
+	if(PC->GetParBool("UserOutputName") == false)
 	{
-		outName = "out_"+PC->GetParString("Beam_particle")+"_"+
-			to_string((int)PC->GetParDouble("Beam_energy"))+"MeV.root";
+		if(PC->GetParString("Beam_particle") == "opticalphoton"){
+			outName = "out_"+PC->GetParString("Beam_particle")+"_"+
+				to_string((G4int)PC->GetParDouble("OpWavlen"))+"nm.root";
+		}else{
+			outName = "out_"+PC->GetParString("Beam_particle")+"_"+
+				to_string((G4int)PC->GetParDouble("Beam_energy"))+"MeV.root";
+		}
 		G4cout << "#######################" << G4endl;
 		G4cout << "outName: " << outName << G4endl;
 		G4cout << "#######################" << G4endl << G4endl;
@@ -162,6 +167,7 @@ void OpRunAction::init_Tree()
 	if(PC -> GetParBool("OpPostTrack"))
 	{
 		T -> Branch("PostOpDetID",PostOpDetID,"PostOpDetID[NOpticalPhotons]/I");
+		T -> Branch("OpTrackLength",OpTrackLength,"OpTrackLength[NOpticalPhotons]/D");
 		T -> Branch("PostProcID",PostProcID,"PostProcID[NOpticalPhotons]/I");
 		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[NOpticalPhotons]/D");
 		T -> Branch("PostOpPY",PostOpPY,"PostOpPY[NOpticalPhotons]/D");
@@ -185,6 +191,20 @@ void OpRunAction::init_Tree()
 		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
 		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
 		T -> Branch("OpTBoundary",OpTBoundary,"OpTBoundary[NOpBoundary]/D");
+	}
+	if(PC->GetParBool("OpSiPM"))
+	{
+		T -> Branch("NOpSiPM",&NOpSiPM);
+		T -> Branch("OpSiPMProcID",OpSiPMProcID,"OpSiPMProcID[NOpSiPM]/I");
+		T -> Branch("OpSiPMDetID",OpSiPMDetID,"OpSiPMDetID[NOpSiPM]/I");
+		T -> Branch("OpSiPMVX",OpSiPMVX,"OpSiPMVX[NOpSiPM]/D");
+		T -> Branch("OpSiPMVY",OpSiPMVY,"OpSiPMVY[NOpSiPM]/D");
+		T -> Branch("OpSiPMVZ",OpSiPMVZ,"OpSiPMVZ[NOpSiPM]/D");
+		T -> Branch("OpSiPMPX",OpSiPMPX,"OpSiPMPX[NOpSiPM]/D");
+		T -> Branch("OpSiPMPY",OpSiPMPY,"OpSiPMPY[NOpSiPM]/D");
+		T -> Branch("OpSiPMPZ",OpSiPMPZ,"OpSiPMPZ[NOpSiPM]/D");
+		T -> Branch("OpSiPMTime",OpSiPMTime,"OpSiPMTime[NOpSiPM]/D");
+		T -> Branch("OpSiPMEnergy",OpSiPMEnergy,"OpSiPMEnergy[NOpSiPM]/D");
 	}
 }
 
@@ -278,6 +298,7 @@ void OpRunAction::clear_data()
 	{
 		fill_n(PostOpDetID,max_opticalphotons,0);
 		fill_n(PostProcID,max_opticalphotons,0);
+		fill_n(OpTrackLength,max_opticalphotons,0);
 		fill_n(PostOpPX,max_opticalphotons,0);
 		fill_n(PostOpPY,max_opticalphotons,0);
 		fill_n(PostOpPZ,max_opticalphotons,0);
@@ -300,6 +321,20 @@ void OpRunAction::clear_data()
 		fill_n(OpVYBoundary,max_opticalphotons,0);
 		fill_n(OpVZBoundary,max_opticalphotons,0);
 		fill_n(OpTBoundary,max_opticalphotons,0);
+	}
+	if(PC->GetParBool("OpSiPM"))
+	{
+		NOpSiPM = 0;
+		fill_n(OpSiPMProcID,max_opticalphotons,0);
+		fill_n(OpSiPMDetID,max_opticalphotons,0);
+		fill_n(OpSiPMVX,max_opticalphotons,0);
+		fill_n(OpSiPMVY,max_opticalphotons,0);
+		fill_n(OpSiPMVZ,max_opticalphotons,0);
+		fill_n(OpSiPMPX,max_opticalphotons,0);
+		fill_n(OpSiPMPY,max_opticalphotons,0);
+		fill_n(OpSiPMPZ,max_opticalphotons,0);
+		fill_n(OpSiPMTime,max_opticalphotons,0);
+		fill_n(OpSiPMEnergy,max_opticalphotons,0);
 	}
 }
 
@@ -347,8 +382,8 @@ void OpRunAction::FillTrack
 }
 
 void OpRunAction::FillOpticalPhoton
-(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int detID, 
- G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy)
+(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int detID, G4ThreeVector p,
+ G4ThreeVector v, G4double time, G4double energy, G4double kenergy, G4double length)
 {
 	if(opt == MCTrack)
 	{
@@ -376,6 +411,7 @@ void OpRunAction::FillOpticalPhoton
 	{
 		G4int idx = find_OpIndex(trkID);
 		PostOpDetID[idx] = detID;
+		OpTrackLength[idx] = length;
 		PostProcID[idx] = procID;
 		PostOpPX[idx] = p.x();
 		PostOpPY[idx] = p.y();
@@ -442,7 +478,23 @@ void OpRunAction::FillStep
 	nStep++;
 }
 
-
+void OpRunAction::FillSiPM
+(G4int detID, G4int procID, G4String procName,
+ G4ThreeVector pos, G4ThreeVector mom, G4double time, G4double energy)
+{
+	OpSiPMDetID[NOpSiPM] = detID;
+	OpSiPMProcID[NOpSiPM] = procID;
+	OpSiPMVX[NOpSiPM] = pos.x();
+	OpSiPMVY[NOpSiPM] = pos.y();
+	OpSiPMVZ[NOpSiPM] = pos.z();
+	OpSiPMPX[NOpSiPM] = mom.x();
+	OpSiPMPY[NOpSiPM] = mom.y();
+	OpSiPMPZ[NOpSiPM] = mom.z();
+	OpSiPMTime[NOpSiPM] = time;
+	OpSiPMEnergy[NOpSiPM] = energy;
+	NOpSiPM++;
+	SetProcess(procID,procName);
+}
 G4int OpRunAction::find_OpIndex(G4int trkID)
 {
 	for(G4int idx=0; idx<max_opticalphotons; idx++)

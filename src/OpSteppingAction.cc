@@ -141,8 +141,8 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
 
 //	if(boundary)// &&prevNo == 201 || postNo == 201)
-	if(prevNo == 201 || postNo == 201)
-//	if(true)
+//	if(prevNo == 201 || postNo == 201)
+	if(true)
 	{
 		if(PC -> GetParInt("StepVerbosity") > 0)
 		{

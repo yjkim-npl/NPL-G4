@@ -9,7 +9,8 @@ OpMaterials::OpMaterials()
 {
 	fNistMan = G4NistManager::Instance();
 	CreateMaterials();
-	ApplyMaterialProperties();
+	if(OpParameterContainer::GetInstance()->GetParBool("OptialPhysics"))
+		ApplyMaterialProperties();
 	if(OpParameterContainer::GetInstance()->GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpMaterials" << G4endl;
 }
@@ -40,10 +41,9 @@ G4Material* OpMaterials::GetMaterial(G4String matName)
 	return mat;
 }
 
-G4OpticalSurface* OpMaterials::GetOpticalSurface(const G4String surfName)
+G4OpticalSurface* OpMaterials::GetOpticalSurface(G4String surfName)
 {
-//	G4OpticalSurface* surf = map_surf[surfName];
-	G4OpticalSurface* surf = NULL;
+	G4OpticalSurface* surf = map_surf[surfName];
 	if(!surf)
 	{
 		G4ExceptionDescription out;
@@ -107,6 +107,14 @@ void OpMaterials::CreateMaterials()
 //		G4cout << "Density of PVT: " << fPVT -> GetDensity() << G4endl;
 //		G4cout << "Density of G4PVT: " << fNistMan->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE")->GetDensity() << G4endl;
 
+	G4Material* fC2H4 = G4Material::GetMaterial("G4_POLYETHYLENE");
+		map_mat.insert(make_pair("G4_POLYTEHTYLENE",fC2H4));
+	
+//	G4Material* fGraphite = G4Material::GetMaterial("G4_GRAPHITE");
+	G4Material* fGraphite = new G4Material("Graphite",density=1.95*g/cm3,ncompo=1,kStateSolid);
+	fGraphite -> AddElement(C,natoms = 6);
+		map_mat.insert(make_pair("Graphite",fGraphite));
+
 	G4double CH4GasD = 0.717 * mg/cm3 * fSTPTemp/fLabTemp;
 	G4Material* fCH4 = new G4Material("CH4Gas", CH4GasD, ncompo=2,kStateGas, fLabTemp);
 	fCH4 -> AddElement(H,natoms=1);
@@ -136,10 +144,15 @@ void OpMaterials::ApplyMaterialProperties()
 	// photon energy spectrum
 //	G4bool PSmat = OpParameterContainer->GetParInt("");
 	vector<G4double> opEn_PVT = {
-		// from 500mm to 350mm with 10 nm step
-		2.4796*eV, 2.5320*eV, 2.5829*eV, 2.6379*eV, 2.6952*eV, 2.7551*eV, 2.8177*eV, 2.8833*eV, 
-		2.9519*eV, 3.0239*eV,	3.0995*eV, 3.1790*eV, 3.2626*eV, 3.3508*eV, 3.4439*eV, 3.5423*eV
-	};
+		// from 900mm to 310mm with 10 nm step
+		1.3776*eV, 1.3930*eV, 1.4089*eV, 1.4251*eV, 1.4416*eV, 1.4586*eV, 1.4760*eV, 1.4937*eV, 
+		1.5120*eV, 1.5306*eV, 1.5497*eV, 1.5694*eV, 1.5895*eV, 1.6101*eV, 1.6313*eV, 1.6531*eV, 
+		1.6754*eV, 1.6984*eV, 1.7219*eV, 1.7462*eV, 1.7711*eV, 1.7968*eV, 1.8232*eV, 1.8504*eV, 
+		1.8785*eV, 1.9074*eV, 1.9372*eV, 1.9679*eV, 1.9997*eV, 2.0325*eV, 2.0663*eV, 2.1014*eV, 
+		2.1376*eV, 2.1751*eV, 2.2139*eV, 2.2542*eV, 2.2959*eV, 2.3392*eV, 2.3842*eV, 2.4310*eV, 
+		2.4796*eV, 2.5302*eV, 2.5829*eV, 2.6379*eV, 2.6952*eV, 2.7551*eV, 2.8177*eV, 2.8833*eV, 
+		2.9519*eV, 3.0239*eV, 3.0995*eV, 3.1790*eV, 3.2626*eV, 3.3508*eV, 3.4439*eV, 3.5423*eV, 
+		3.6465*eV, 3.7570*eV, 3.8744*eV, 3.9994*eV};
 		
 	vector<G4double> opEn_PS = {
 		// from 900nm to 300 nm with 24 nm step
@@ -170,8 +183,14 @@ void OpMaterials::ApplyMaterialProperties()
 	ABS_PVT.assign(opEn_PVT.size(),1.2*m);
 	RI_PVT.assign(opEn_PVT.size(),1.58);
 	vector<G4double> ScintFast_PVT = {
-		0.00366, 0.01466, 0.02871, 0.04328, 0.06822, 0.11101, 0.18534, 0.28374,
-		0.42875, 0.64257, 0.90365, 0.99851, 0.81198, 0.24271, 0.04360, 0.00132
+		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
+		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
+		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
+		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
+		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
+		0.00336, 0.01466, 0.02871, 0.04328, 0.00000, 0.11101, 0.18534, 0.28374, 
+		0.42875, 0.00000, 0.90365, 0.99851, 0.81198, 0.24271, 0.04360, 0.00132, 
+		0.00000, 0.00000, 0.00000, 0.00000
 	};
 	G4double PVT_SY = OpParameterContainer::GetInstance() -> GetParDouble("PVT_ScintYield");
 	G4double PVT_RS = OpParameterContainer::GetInstance() -> GetParDouble("PVT_ResScale");
@@ -224,4 +243,23 @@ void OpMaterials::ApplyMaterialProperties()
 	fPS -> SetMaterialPropertiesTable(mp_PS);
 	fPS -> GetIonisation() -> SetBirksConstant(PS_BC*mm/MeV);
 	map_mat["Polystyrene"] = fPS;
+
+	// applying surface properties PVT
+	vector<G4double> refl_SiPM; refl_SiPM.assign(opEn_PVT.size(),0);
+	vector<G4double> eff_SiPM = {
+		0.03,0.04,0.04,0.05,0.05,0.06,0.06,0.07,
+		0.07,0.08,0.08,0.09,0.09,0.10,0.11,0.11,
+		0.12,0.13,0.14,0.14,0.15,0.16,0.17,0.18,
+		0.19,0.20,0.21,0.22,0.24,0.25,0.26,0.28,
+		0.29,0.30,0.32,0.33,0.34,0.36,0.37,0.38,
+		0.39,0.39,0.40,0.40,0.40,0.40,0.39,0.39,
+		0.38,0.37,0.35,0.33,0.30,0.27,0.24,0.21,
+		0.14,0.06,0.02,0.00
+	};
+	G4MaterialPropertiesTable* mp_SiPM = new G4MaterialPropertiesTable();
+	mp_SiPM -> AddProperty("REFLECIVITY",opEn_PVT,refl_SiPM);
+	mp_SiPM -> AddProperty("EFFICIENCY",opEn_PVT,eff_SiPM);
+	G4OpticalSurface* fSiPMSurf = new G4OpticalSurface("SiPMSurf",glisur,polished,dielectric_metal);	
+	fSiPMSurf -> SetMaterialPropertiesTable(mp_SiPM);
+	map_surf["SiPMSurf"] = fSiPMSurf;
 }

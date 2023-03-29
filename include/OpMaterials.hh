@@ -16,7 +16,7 @@ class OpMaterials
 		OpMaterials();
 		virtual ~OpMaterials();
 		G4Material* GetMaterial(G4String);
-		G4OpticalSurface* GetOpticalSurface(const G4String);
+		G4OpticalSurface* GetOpticalSurface(G4String);
 
 	private:
 		void CreateMaterials();
@@ -24,12 +24,7 @@ class OpMaterials
 
 		G4NistManager* fNistMan;
 
-//		G4Material* fVac;
-//		G4Material* fAir;
-//		G4Material* fPMMA;
-//		G4Material* fPS;
-//		G4Material* fSi;
-
 		map<G4String, G4Material*> map_mat;
+		map<G4String, G4OpticalSurface*> map_surf;
 };
 #endif
