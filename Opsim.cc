@@ -39,9 +39,13 @@ int main(int argc,char** argv)
 		G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
 		auto opticalParams = G4OpticalParameters::Instance();
 		opticalParams -> SetProcessActivation("Cerenkov",true);
+		// verbose level of optical params (default : 0)
+		opticalParams -> SetVerboseLevel(0);
 		opticalParams -> SetProcessActivation("Scintillation",true);
 		opticalParams -> SetCerenkovTrackSecondariesFirst(true);
 		opticalParams -> SetScintTrackSecondariesFirst(true);
+		opticalParams -> SetBoundaryInvokeSD(true);
+//		G4cout << "InvokeSD: " << opticalParams->GetBoundaryInvokeSD() << G4endl;
 		physicsList -> RegisterPhysics(opticalPhysics);
 	}
 	if(PC -> GetParBool("StepLimiter") == true)

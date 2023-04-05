@@ -9,7 +9,7 @@ OpMaterials::OpMaterials()
 {
 	fNistMan = G4NistManager::Instance();
 	CreateMaterials();
-	if(OpParameterContainer::GetInstance()->GetParBool("OptialPhysics"))
+//	if(OpParameterContainer::GetInstance()->GetParBool("OptialPhysics"))
 		ApplyMaterialProperties();
 	if(OpParameterContainer::GetInstance()->GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpMaterials" << G4endl;
@@ -58,6 +58,7 @@ void OpMaterials::CreateMaterials()
 	// Define default material: Vac, Air
 	fNistMan -> FindOrBuildMaterial("G4_Galactic");
 	fNistMan -> FindOrBuildMaterial("G4_AIR");
+	fNistMan -> FindOrBuildMaterial("G4_POLYETHYLENE");
 //	fNistMan -> FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
 	G4String symbol;
@@ -137,6 +138,9 @@ void OpMaterials::CreateMaterials()
 	fPS -> AddElement(C,natoms=8);
 	fPS -> AddElement(H,natoms=8);
 		map_mat.insert(make_pair("Polystyrene",fPS));
+
+	G4OpticalSurface* fSiPMSurf = nullptr;	
+	map_surf["SiPMSurf"] = fSiPMSurf;
 }
 
 void OpMaterials::ApplyMaterialProperties()
@@ -144,6 +148,16 @@ void OpMaterials::ApplyMaterialProperties()
 	// photon energy spectrum
 //	G4bool PSmat = OpParameterContainer->GetParInt("");
 	vector<G4double> opEn_PVT = {
+		// from 900mm to 310mm with 10 nm step
+		1.3776*eV, 1.3930*eV, 1.4089*eV, 1.4251*eV, 1.4416*eV, 1.4586*eV, 1.4760*eV, 1.4937*eV, 
+		1.5120*eV, 1.5306*eV, 1.5497*eV, 1.5694*eV, 1.5895*eV, 1.6101*eV, 1.6313*eV, 1.6531*eV, 
+		1.6754*eV, 1.6984*eV, 1.7219*eV, 1.7462*eV, 1.7711*eV, 1.7968*eV, 1.8232*eV, 1.8504*eV, 
+		1.8785*eV, 1.9074*eV, 1.9372*eV, 1.9679*eV, 1.9997*eV, 2.0325*eV, 2.0663*eV, 2.1014*eV, 
+		2.1376*eV, 2.1751*eV, 2.2139*eV, 2.2542*eV, 2.2959*eV, 2.3392*eV, 2.3842*eV, 2.4310*eV, 
+		2.4796*eV, 2.5302*eV, 2.5829*eV, 2.6379*eV, 2.6952*eV, 2.7551*eV, 2.8177*eV, 2.8833*eV, 
+		2.9519*eV, 3.0239*eV, 3.0995*eV, 3.1790*eV, 3.2626*eV, 3.3508*eV, 3.4439*eV, 3.5423*eV, 
+		3.6465*eV, 3.7570*eV, 3.8744*eV, 3.9994*eV};
+	G4double opEn_PVT_arr[] = {
 		// from 900mm to 310mm with 10 nm step
 		1.3776*eV, 1.3930*eV, 1.4089*eV, 1.4251*eV, 1.4416*eV, 1.4586*eV, 1.4760*eV, 1.4937*eV, 
 		1.5120*eV, 1.5306*eV, 1.5497*eV, 1.5694*eV, 1.5895*eV, 1.6101*eV, 1.6313*eV, 1.6531*eV, 
@@ -188,8 +202,8 @@ void OpMaterials::ApplyMaterialProperties()
 		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
 		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
 		0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
-		0.00336, 0.01466, 0.02871, 0.04328, 0.00000, 0.11101, 0.18534, 0.28374, 
-		0.42875, 0.00000, 0.90365, 0.99851, 0.81198, 0.24271, 0.04360, 0.00132, 
+		0.00336, 0.01466, 0.02871, 0.04328, 0.06822, 0.11101, 0.18534, 0.28374, 
+		0.42875, 0.64257, 0.90365, 0.99851, 0.81198, 0.24271, 0.04360, 0.00132, 
 		0.00000, 0.00000, 0.00000, 0.00000
 	};
 	G4double PVT_SY = OpParameterContainer::GetInstance() -> GetParDouble("PVT_ScintYield");
@@ -252,12 +266,13 @@ void OpMaterials::ApplyMaterialProperties()
 		0.12,0.13,0.14,0.14,0.15,0.16,0.17,0.18,
 		0.19,0.20,0.21,0.22,0.24,0.25,0.26,0.28,
 		0.29,0.30,0.32,0.33,0.34,0.36,0.37,0.38,
-		0.39,0.39,0.40,0.40,0.40,0.40,0.39,0.39,
+		0.39,0.39,0.40,0.40,0.40,0.40,0.39,0.39,	// 450 nm modified to 1 default:0.4
 		0.38,0.37,0.35,0.33,0.30,0.27,0.24,0.21,
 		0.14,0.06,0.02,0.00
 	};
+
 	G4MaterialPropertiesTable* mp_SiPM = new G4MaterialPropertiesTable();
-	mp_SiPM -> AddProperty("REFLECIVITY",opEn_PVT,refl_SiPM);
+	mp_SiPM -> AddProperty("REFLECTIVITY",opEn_PVT,refl_SiPM);
 	mp_SiPM -> AddProperty("EFFICIENCY",opEn_PVT,eff_SiPM);
 	G4OpticalSurface* fSiPMSurf = new G4OpticalSurface("SiPMSurf",glisur,polished,dielectric_metal);	
 	fSiPMSurf -> SetMaterialPropertiesTable(mp_SiPM);

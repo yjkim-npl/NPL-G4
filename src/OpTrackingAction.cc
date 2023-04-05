@@ -80,7 +80,11 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	G4int processID = -999;
 	G4double totenergy = track -> GetStep() -> GetPreStepPoint() -> GetTotalEnergy();
 	G4double kinenergy = track -> GetStep() -> GetPreStepPoint() -> GetKineticEnergy();
-	G4double trkLength = track -> GetTrackLength();
+	G4double trkLength;
+	if(detID != 0)
+		trkLength = track -> GetTrackLength();
+	else
+		trkLength = 0;
 
 	const G4VProcess* process = track -> GetStep() -> GetPostStepPoint() -> GetProcessDefinedStep();
 //	G4ProcessType processType = process -> GetProcessType();

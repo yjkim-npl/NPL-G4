@@ -2,7 +2,7 @@
 void OpMake
 (
  const char* particle = "proton",
- const char* energy = "300MeV",
+ const char* energy = "200MeV",
  const char* suffix = ""
 )
 {
@@ -11,23 +11,30 @@ void OpMake
 			to check the property "SCINTILLATIONYIELD"
 		1: 1-D creator process of generated optical photons 
 			to check scint/cheren ratio of electron
-		2: 2-D wavelength(energy) - # of photons
+		2: 1-D wavelength(energy) - # of photons
 		3: 1-D time when o.p created and o.p died
 			to check "ABSLENGTH" effect
 		4: momentum profile with boundary process
 		5: 2-D L/x - Edep/x 
 		6: 2-D dL/dx - dE/dx
 		7: 1-D parentID(particle) of optical photon
+		8: 1-D histogram of total track length of optical photon
+		   to check attenuation(absorption)
+		9: 1-D Time distribution at each side of SiPM
+		10: 1-D histogram of Number of optical photons reached at each side of SiPM
 	*/
-	bool Opt[8];
+	bool Opt[11];
 	Opt[0] = 1;
 	Opt[1] = 1;
 	Opt[2] = 1;
-	Opt[3] = 1;
+	Opt[3] = 1; // segmenation error
 	Opt[4] = 0; // not working
 	Opt[5] = 1;
 	Opt[6] = 0; // not working
 	Opt[7] = 1;
+	Opt[8] = 1;	// segmentation error
+	Opt[9] = 1;
+	Opt[10] = 1;
 	const int StepFromHit = 1;
 
 	char* infile;
@@ -92,14 +99,21 @@ void OpMake
 
 	// OpTrack data
 	int NOp;
-	int o_TrackID[max], o_ProcID[max], o_ParentID[max], o_DetID[max];
-	double o_px[max], o_py[max], o_pz[max], o_vx[max], o_vy[max], o_vz[max];
-	double o_KE[max], o_Time[max];
+	vector<int> *o_TrackID, *o_ProcID, *o_ParentID, *o_DetID;
+	vector<double> *o_px, *o_py, *o_pz, *o_vx, *o_vy, *o_vz;
+	vector<double> *o_KE, *o_Time;
 
 	// OpPostTrackdata
-	int op_DetID[max], op_ProcID[max];
-	double op_px[max], op_py[max], op_pz[max], op_vx[max], op_vy[max], op_vz[max];
-	double op_KE[max], op_Time[max];
+	int PostNOp;
+	vector<int> *op_DetID, *op_ProcID;
+	vector<double> *op_TrackLength;
+	vector<double> *op_px, *op_py, *op_pz, *op_vx, *op_vy, *op_vz;
+	vector<double> *op_KE, *op_Time;
+
+	// OpSiPM data
+	int NOpSiPM;
+	vector<int> *os_ProcID, *os_DetID;
+	vector<double> *os_vx, *os_vy, *os_vz, *os_px, *os_py, *os_pz, *os_Time, *os_E;
 
 	// Link container
 	if(map_parameters["MCTrack"] == "true")
@@ -156,44 +170,70 @@ void OpMake
 	if(map_parameters["OpTrack"] == "true")
 	{
 		cout << "OpTrack was called" << endl;
-		T -> SetBranchAddress("NOpticalPhotons",&NOp);
-		T -> SetBranchAddress("OpTrackID",o_TrackID);
-		T -> SetBranchAddress("OpProcessID",o_ProcID);
-		T -> SetBranchAddress("OpParentID",o_ParentID);
-		T -> SetBranchAddress("OpDetID",o_DetID);
-		T -> SetBranchAddress("OpPX",o_px);
-		T -> SetBranchAddress("OpPY",o_py);
-		T -> SetBranchAddress("OpPZ",o_pz);
-		T -> SetBranchAddress("OpVX",o_vx);
-		T -> SetBranchAddress("OpVY",o_vy);
-		T -> SetBranchAddress("OpVZ",o_vz);
-		T -> SetBranchAddress("OpKEnergy",o_KE);
-		T -> SetBranchAddress("OpTime",o_Time);
+		T -> SetBranchAddress("NOp",&NOp);
+		T -> SetBranchAddress("OpTrackID",&o_TrackID);
+		T -> SetBranchAddress("OpProcessID",&o_ProcID);
+		T -> SetBranchAddress("OpParentID",&o_ParentID);
+		T -> SetBranchAddress("OpDetID",&o_DetID);
+		T -> SetBranchAddress("OpPX",&o_px);
+		T -> SetBranchAddress("OpPY",&o_py);
+		T -> SetBranchAddress("OpPZ",&o_pz);
+		T -> SetBranchAddress("OpVX",&o_vx);
+		T -> SetBranchAddress("OpVY",&o_vy);
+		T -> SetBranchAddress("OpVZ",&o_vz);
+		T -> SetBranchAddress("OpKEnergy",&o_KE);
+		T -> SetBranchAddress("OpTime",&o_Time);
 	}
-	if(map_parameters["OpTrack"] == "true" && map_parameters["OpPostTrack"] == "true");
+	if(map_parameters["OpTrack"] == "true" && map_parameters["OpPostTrack"] == "true")
 	{
-		T -> SetBranchAddress("PostOpDetID",op_DetID);
-		T -> SetBranchAddress("PostProcID",op_ProcID);
-		T -> SetBranchAddress("PostOpPX",op_px);
-		T -> SetBranchAddress("PostOpPY",op_py);
-		T -> SetBranchAddress("PostOpPZ",op_pz);
-		T -> SetBranchAddress("PostOpVX",op_vx);
-		T -> SetBranchAddress("PostOpVY",op_vy);
-		T -> SetBranchAddress("PostOpVZ",op_vz);
-		T -> SetBranchAddress("PostOpKEnergy",op_KE);
-		T -> SetBranchAddress("PostOpTime",op_Time);
+		cout << "OpPostTrack was called" << endl;
+		T -> SetBranchAddress("PostNOp",&PostNOp);
+		T -> SetBranchAddress("PostOpDetID",&op_DetID);
+		T -> SetBranchAddress("OpTrackLength",&op_TrackLength);
+		T -> SetBranchAddress("PostProcID",&op_ProcID);
+		T -> SetBranchAddress("PostOpPX",&op_px);
+		T -> SetBranchAddress("PostOpPY",&op_py);
+		T -> SetBranchAddress("PostOpPZ",&op_pz);
+		T -> SetBranchAddress("PostOpVX",&op_vx);
+		T -> SetBranchAddress("PostOpVY",&op_vy);
+		T -> SetBranchAddress("PostOpVZ",&op_vz);
+		T -> SetBranchAddress("PostOpKEnergy",&op_KE);
+		T -> SetBranchAddress("PostOpTime",&op_Time);
+	}
+	if(map_parameters["OpSiPM"]=="true")
+	{
+		cout << "OpSiPM was called" << endl;
+		T -> SetBranchAddress("NOpSiPM",&NOpSiPM);
+		T -> SetBranchAddress("OpSiPMProcID",&os_ProcID);
+		T -> SetBranchAddress("OpSiPMDetID",&os_DetID);
+		T -> SetBranchAddress("OpSiPMVX",&os_vx);
+		T -> SetBranchAddress("OpSiPMVY",&os_vy);
+		T -> SetBranchAddress("OpSiPMVZ",&os_vz);
+		T -> SetBranchAddress("OpSiPMPX",&os_px);
+		T -> SetBranchAddress("OpSiPMPY",&os_py);
+		T -> SetBranchAddress("OpSiPMPZ",&os_pz);
+		T -> SetBranchAddress("OpSiPMTime",&os_Time);
+		T -> SetBranchAddress("OpSiPMEnergy",&os_E);
 	}
 	
 	
 	// define output histrogram container
 	TFile* G = new TFile(Form("out_root/H_Op_%s",infile),"recreate");
 	// HIST 0
-	TH1D* H1_NOp_dist = new TH1D("H1_NOp_dist","",150,0,150);
+	TH1D* H1_NOp_dist = new TH1D("H1_NOp_dist","",300,0,300);
 	// HIST 1
 	TH1F* H1_OpProcID = new TH1F("H1_OpProcID","",4,20.5,24.5);
 	// HIST 2
-	TH1F* H1_OpWav = new TH1F("H1_OpWav","",600,300,900);
-	TH1F* H1_OpE = new TH1F("H1_OpE","",350,1,4.5);
+	enum {Total,Scint,Cheren,Att,Forward,Backward,SiPM};
+	const char* cre_opt[] = {"Total","Scint","Cheren","Attenuation","Forward","Backward","SiPM"};
+	const int n_opt = sizeof(cre_opt)/sizeof(cre_opt[0]);
+	TH1F* H1_OpWav[n_opt];
+	TH1F* H1_OpE[n_opt];
+	for(int a=0; a<n_opt; a++)
+	{
+		H1_OpWav[a] = new TH1F(Form("H1_OpWav_%s",cre_opt[a]),"",600,300,900);
+		H1_OpE[a] = new TH1F(Form("H1_OpE_%s",cre_opt[a]),"",350,1,4.5);
+	}
 //	TH2F* H2_Wav_OP = new TH2F("H2_Wav_OP",600,300,900,100,0,100);
 	// HIST 3
 	TH1F* H1_OpTime = new TH1F("H1_OpTime","",200,0,20);
@@ -207,6 +247,14 @@ void OpMake
 	TH2F* H2_dEdx_dLdx = new TH2F("H2_dEdx_dLdx","",50,0,50,50,0,50);
 	// HIST 7 w/ step
 	TH2F* H2_LY_OpParentID = new TH2F("H2_LY_OpParentID","",100,0,100,1e5,0,1e5);
+	// HIST 8 w/ OpPostTrack
+	TH1F* H1_TrackLength = new TH1F("H1_TrackLength","",2500,0,2500);
+	// HIST 9 w/ OpSiPM
+	TH1F* H1_Time_Left = new TH1F("H1_Time_Left","",200,0,20);
+	TH1F* H1_Time_Right = new TH1F("H1_Time_Right","",200,0,20);
+	// HIST 10 w/ OpSiPM
+	TH1F* H1_NOp_Left = new TH1F("H1_NOp_Left","",100,0,100);
+	TH1F* H1_NOp_Right = new TH1F("H1_NOp_Right","",100,0,100);
 
 	// event loop
 	for(int a=0; a<T->GetEntriesFast(); a++)
@@ -219,28 +267,90 @@ void OpMake
 		map<int,int> map_TrkID_PDG;	// for HIST 7
 		map<int,double> map_TrkID_Edep; // for HIST 5
 		map<int,int> map_TrkID_LY;      // for HIST 5
+		int NOp_Left = 0;
+		int NOp_Right = 0;
+		for(int b=0; b<NOpSiPM; b++)
+		{
+			if(Opt[9])
+			{
+				if(os_vx->at(b) < 0){
+					H1_Time_Left -> Fill(os_Time->at(b));
+					NOp_Left++;
+				}else if (os_vx->at(b) > 0){
+					H1_Time_Right-> Fill(os_Time->at(b));
+					NOp_Right++;
+				}else{
+					continue;
+				}
+			}
+			if(Opt[2])
+			{
+				double wav = 1.2398e-3/os_E->at(b);
+				H1_OpE[SiPM] -> Fill(os_E->at(b)*1e6);
+				H1_OpWav[SiPM] -> Fill(wav);
+			}
+		}
+		if(Opt[10])
+		{
+			H1_NOp_Left -> Fill(NOp_Left);
+			H1_NOp_Right -> Fill(NOp_Right);
+		}
 		for(int b=0; b<NOp; b++)
 		{
+//			if(NOp > max)
+//				break;
 			if(Opt[1])
 			{
-				if(o_ProcID[b] == 21 || o_ProcID[b] == 22)
-					H1_OpProcID -> Fill(o_ProcID[b]);
+				if(o_ProcID->at(b) == 21 || o_ProcID->at(b) == 22)
+					H1_OpProcID -> Fill(o_ProcID->at(b));
 				else
 					H1_OpProcID -> Fill(23);
 			}
 			if(Opt[2]){
 //				cout << o_KE[b] << endl;
-				H1_OpE -> Fill(o_KE[b]*1e6);
-				double wav = 1.2398e-3/o_KE[b];
-				H1_OpWav -> Fill(wav);
+				double wav = 1.2398e-3/o_KE->at(b);
+				H1_OpE[Total] -> Fill(o_KE->at(b)*1e6);
+				H1_OpWav[Total] -> Fill(wav);
+				if(o_ProcID->at(b) == 21){ // Cherenkov
+					H1_OpE[Cheren] -> Fill(o_KE->at(b)*1e6);
+					H1_OpWav[Cheren] -> Fill(wav);
+				}else if(o_ProcID->at(b) == 22){ // Scintillation
+					H1_OpE[Scint] -> Fill(o_KE->at(b)*1e6);
+					H1_OpWav[Scint] -> Fill(wav);
+				}else{
+					cout << "other process: " << o_ProcID->at(b) << endl;
+				}
 			}
 			if(Opt[3]){
-				H1_OpTime -> Fill(o_Time[b]);
-				H1_PostOpTime -> Fill(op_Time[b]);
+				if(map_parameters["OpTrack"]=="true")
+					H1_OpTime -> Fill(o_Time->at(b));
+				if(map_parameters["OpPostTrack"]=="true")
+					H1_PostOpTime -> Fill(op_Time->at(b));
 			}
 			int pdg = (int)s_PDG[b] % 100000;
 			map_TrkID_PDG.insert(make_pair(s_TrackID[b],pdg));
 		}// each optical photon
+		for(int b=0; b<PostNOp;b++)
+		{
+			if(Opt[8] && op_TrackLength->at(b) != 0 && map_parameters["OpPostTrack"]=="true"){
+				H1_TrackLength -> Fill(op_TrackLength->at(b));
+			}
+			if(Opt[2]){
+				double wav = 1.2398e-3/op_KE->at(b);
+				if(op_DetID->at(b) == 201){
+					H1_OpE[Att] -> Fill(op_KE->at(b)*1e6);
+					H1_OpWav[Att] -> Fill(wav);
+			}
+				// not exactly goes through forward/backward plane
+				else if (op_vz->at(b) > 0){
+					H1_OpE[Forward] -> Fill(op_KE->at(b)*1e6);
+					H1_OpWav[Forward] -> Fill(wav);
+				}else if (op_vz->at(b) < 0){
+					H1_OpE[Backward] -> Fill(op_KE->at(b)*1e6);
+					H1_OpWav[Backward] -> Fill(wav);
+				}
+			}
+		}
 		for(int b=0; b<nStep; b++)
 		{
 			if(Opt[5] && s_FromHit[b]==StepFromHit && s_PDG[b] > 100)
@@ -262,7 +372,7 @@ void OpMake
 			{
 //				cout << "PDG: " << s_PDG[b] << endl;
 //				cout << "Edep: " << s_Edep << endl;
-				H2_LY_OpParentID -> Fill(s_NSecondOP[b],map_TrkID_PDG[o_ParentID[b]]);
+				H2_LY_OpParentID -> Fill(s_NSecondOP[b],map_TrkID_PDG[o_ParentID->at(b)]);
 			}
 		}// each step
 		if(Opt[5])
@@ -277,8 +387,11 @@ void OpMake
 		H1_OpProcID -> Write();
 	if(Opt[2])
 	{
-		H1_OpWav -> Write();
-		H1_OpE -> Write();
+		for(int a=0; a<n_opt; a++)
+		{
+			H1_OpWav[a] -> Write();
+			H1_OpE[a] -> Write();
+		}
 	}
 	if(Opt[3])
 	{
@@ -293,4 +406,17 @@ void OpMake
 	{}
 	if(Opt[7])
 		H2_LY_OpParentID -> Write();
+	if(Opt[8])
+		H1_TrackLength -> Write();
+	if(Opt[9])
+	{
+		H1_Time_Left -> Write();
+		H1_Time_Right -> Write();
+	}
+	if(Opt[10])
+	{
+		H1_NOp_Left -> Write();
+		H1_NOp_Right -> Write();
+	}
+	F -> Close();
 }

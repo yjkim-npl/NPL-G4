@@ -18,6 +18,7 @@ OpSiPMSD::OpSiPMSD(const G4String &name, const G4String &HCname)
 	fHCID(-1)
 {
 	collectionName.insert(HCname);
+	G4cout << "OpSiPMSD: " << name << " " << HCname << G4endl;
 }
 
 OpSiPMSD::~OpSiPMSD()
@@ -38,15 +39,14 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition())
 		//&& ( step->GetPreStepPoint()->GetStepStatus() == fWorldBoundary))
 	{
-		return true;
+		return false;
 	}
 	G4int prevNo = step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
-	G4cout << "yjkim in OpSiPMSD::ProcessHit" << G4endl;
-	G4cout << "prevNo: " << prevNo << G4endl;
 	G4double prevKE = step -> GetPreStepPoint() -> GetKineticEnergy();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
 	G4ThreeVector pos = step -> GetPreStepPoint() -> GetPosition();
-	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
+//	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
+	G4double time = step -> GetTrack() -> GetGlobalTime();
 	G4int procID = -10;
 	G4String procName = "";
 
@@ -68,10 +68,14 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddHit(prevNo);
 		fHitsCollection -> insert(hit);
 	}
+//		G4cout << "###############" << G4endl;
+//		G4cout << "Create new hit" << G4endl;
+//		G4cout << "###############" << G4endl;
 	// new hit of optical photon
 	if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpticalPhysics") &&
-		OpParameterContainer::GetInstance() -> GetParBool("OpBoundary"))
+		OpParameterContainer::GetInstance() -> GetParBool("OpSiPM") &&
+		OpParameterContainer::GetInstance() -> GetParBool("SiPMIn"))
 	{
 		// Boundary process & step information
 		G4OpBoundaryProcessStatus status = Undefined;

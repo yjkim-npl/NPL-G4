@@ -36,18 +36,19 @@ void OpEventAction::BeginOfEventAction(const G4Event* event)
 {
 	G4SDManager* SDman = G4SDManager::GetSDMpointer();
 	if(PC->GetParBool("MCStep") ||
-		(PC->GetParBool("OpticalPhysics") && PC -> GetParBool("OpBoundary")))
+		(PC->GetParBool("OpticalPhysics") && PC -> GetParBool("SiPMIn")))
 	{
 		for(G4int a=0; a<vec_fID.size(); a++)
 		{
 			if(vec_fID[a] == -1 && PC ->GetParBool(vec_SDname[a]+"In"))
 			{
 				vec_fID[a] = SDman -> GetCollectionID(vec_HCname[a]);
-//				G4cout << "fID of " << vec_SDname[a] << "loaded" << G4endl;
 			}
 		}
 		if(fSiPMID == -1 && PC -> GetParBool("SiPMIn"))
+		{
 			fSiPMID = SDman -> GetCollectionID("SC2SiPMC");
+		}
 	}
 	fRunAction -> clear_data();
 	if(PC -> GetParInt("UserVerbosity") > 0)
@@ -67,7 +68,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 	}
 
 	if(PC->GetParBool("MCStep") ||
-		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("OpBoundary")))
+		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("SiPMIn")))
 	{
 		for(G4int a=0; a<vec_fID.size(); a++)
 		{
@@ -119,9 +120,9 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 							fRunAction -> SetProcess(procID,procName);
 							if(PC->GetParBool("MCStep") && trackPDG != -22)
 							{
-//								fRunAction -> FillStep
-//									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
-//									 edep,length,nSecondaryOP,prevKE);
+								fRunAction -> FillStep
+									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
+									 edep,length,nSecondaryOP,prevKE);
 							}
 							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
 							{
@@ -136,9 +137,9 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 		{
 			OpSiPMHitsCollection* HC_SiPM = 
 				static_cast<OpSiPMHitsCollection*>(HCE->GetHC(fSiPMID));
+//			if(HC_SiPM == nullptr)
 			if(HC_SiPM != nullptr)
 			{
-				G4cout << "HCs: " << HC_SiPM->entries() << G4endl;
 				for(G4int b=0; b<HC_SiPM->entries(); b++)
 				{
 					OpSiPMHit* hit = (*HC_SiPM)[b];
@@ -155,6 +156,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 						if(PC->GetParBool("OpSiPM"))
 						{
 							fRunAction -> FillSiPM(detID,procID,procName,pos,mom,time,energy);
+//							G4cout << "Filling"
 						}
 					}
 				}
@@ -200,7 +202,6 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 //		}
 //	}
 	fRunAction -> update_Tree();
-	G4cout << "EndofEventAction" << G4endl;
 	if(PC -> GetParInt("UserVerbosity") > 0)
 	{
 		if(event -> GetEventID() == 0)

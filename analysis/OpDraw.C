@@ -33,16 +33,23 @@ void OpDraw
 		5: 2-D L/x - Edep/x 
 		6: 2-D dL/dx - dE/dx
 		7: 1-D parentID(particle) of optical photon
+		8: 1-D histrogram of total track length of optical photon
+		   to check attenuation(absorption)
+		9: 1-D Time distribution at each side of SiPM
+		10: 1-D histogram of Number of optical photons reached at each side of SiPM
 	 */
-	bool Opt[8];
+	bool Opt[11];
 	Opt[0] = 0;
 	Opt[1] = 1;
-	Opt[2] = 0;
+	Opt[2] = 1;
 	Opt[3] = 0;
 	Opt[4] = 0; // not working
-	Opt[5] = 1;
+	Opt[5] = 0;
 	Opt[6] = 0; // not working
 	Opt[7] = 0; // wierd 
+	Opt[8] = 0;
+	Opt[9] = 0;
+	Opt[10] = 0;
 
 	char* in_pref = "out_root/H_Op_out";
 	int name_opt = 0;
@@ -68,14 +75,22 @@ void OpDraw
 	}
 	TH1D* H1_NOp_dist;  // HIST 0
 	TH1F* H1_OpProcID;  // HIST 1
-	TH1F* H1_OpWav;     // HIST 2
-	TH1F* H1_OpE;       // HIST 2
+	enum {Total,Scint,Cheren,Att,Forward,Backward,SiPM};
+	const char* cre_opt[] = {"Total","Scint","Cheren","Attenuation","Forward","Backward","SiPM"};
+	const int n_opt = sizeof(cre_opt)/sizeof(cre_opt[0]);
+	TH1F* H1_OpWav[n_opt];     // HIST 2
+	TH1F* H1_OpE[n_opt];       // HIST 2
 	TH1F* H1_OpTime;    // HIST 3
 	TH1F* H1_PostOpTime;// HIST 3
 //	TH2F* H2_p;         // HIST 4
 	TH2F* H2_Edep_L;    // HIST 5
 	TH2F* H2_dEdx_dLdx; // HIST 6
 	TH2F* H2_LY_OpParentID;// HIST 7
+	TH1F* H1_TrackLength;	// HIST 8
+	TH1F* H1_Time_Left;		// HIST 9
+	TH1F* H1_Time_Right;	// HIST 9
+	TH1F* H1_NOp_Left;		// HIST 10
+	TH1F* H1_NOp_Right;		
 
 	if(Opt[0])
 	{
@@ -108,7 +123,7 @@ void OpDraw
 		H1_OpProcID -> SetStats(false);
 		const int max = H1_OpProcID -> GetMaximum();
 		gPad -> SetLogy();
-		H1_OpProcID -> GetYaxis() -> SetRangeUser(0.9,20*max);
+		H1_OpProcID -> GetYaxis() -> SetRangeUser(0.9,100*max);
 		H1_OpProcID -> GetXaxis() -> SetRangeUser(21,23);
 		H1_OpProcID -> GetXaxis() -> SetLabelSize(0.05);
 		H1_OpProcID -> GetXaxis() -> SetBinLabel(H1_OpProcID->FindBin(21),"Cherenkov");
@@ -116,11 +131,13 @@ void OpDraw
 		H1_OpProcID -> GetXaxis() -> SetBinLabel(H1_OpProcID->FindBin(23),"others");
 		H1_OpProcID -> Draw("hist");
 
-		TLegend* leg = new TLegend(0.55,0.75,0.9,0.75+0.045*3);
+		double SY = stod(map_MatProp["PVT_ScintYield"]);
+		TLegend* leg = new TLegend(0.55,0.70,0.9,0.70+0.045*4);
 		leg -> SetBorderSize(0);
 		leg -> SetFillStyle(0);
 		leg -> SetTextSize(0.038);
 		leg -> AddEntry((TObject*)0, Form("%s %s simulation",particle,energy),"h");
+		leg -> AddEntry((TObject*)0, Form("SY: %.0f / MeV",SY),"h");
 		const int ceren = H1_OpProcID -> GetBinContent(H1_OpProcID->FindBin(21));
 		const int scint = H1_OpProcID -> GetBinContent(H1_OpProcID->FindBin(22));
 		leg -> AddEntry((TObject*)0, Form("\tCherenkov: %d",ceren),"h");
@@ -133,38 +150,72 @@ void OpDraw
 	}
 	if(Opt[2])
 	{
-		TCanvas* c3 = new TCanvas("c3","c3",1.2*600*2,600);
-		H1_OpWav = (TH1F*)F -> Get("H1_OpWav");
-		H1_OpWav -> SetStats(false);
-		H1_OpWav -> GetXaxis() -> SetTitle("#lambda [nm]");
-		H1_OpE = (TH1F*) F -> Get("H1_OpE");
-		H1_OpE -> SetStats(false);
-		H1_OpE -> GetYaxis() -> SetRangeUser(0,1.2*H1_OpE -> GetMaximum());
-		H1_OpE -> GetXaxis() -> SetTitle("Energy[eV]");
+		int max_E=0;
+		int max_wav = 0;
+		for(int a=0; a<n_opt; a++)
+		{
+			H1_OpWav[a] = (TH1F*)F -> Get(Form("H1_OpWav_%s",cre_opt[a]));
+			H1_OpE[a] = (TH1F*) F -> Get(Form("H1_OpE_%s",cre_opt[a]));
+			H1_OpWav[a] -> SetStats(false);
+			H1_OpWav[a] -> GetXaxis() -> SetTitle("#lambda [nm]");
+			H1_OpWav[a] -> SetLineColor(a==3?46:a>=2?a+2:a+1);
+			H1_OpE[a] -> SetStats(false);
+			if(max_E < H1_OpE[a]->GetMaximum())
+				max_E = H1_OpE[a] ->GetMaximum();
+			if(max_wav < H1_OpWav[a] -> GetMaximum())
+				max_wav = H1_OpWav[a] -> GetMaximum();
+			H1_OpE[a] -> GetYaxis() -> SetRangeUser(0,1.2*max_E);
+			H1_OpWav[a] -> GetYaxis() -> SetRangeUser(0,1.2*max_wav);
+			H1_OpE[a] -> GetXaxis() -> SetTitle("Energy[eV]");
+			H1_OpE[a] -> SetLineColor(a==3?46:a>=2?a+2:a+1);
+		}
+		TCanvas* c3 = new TCanvas("c3","c3",1.2*600*2,600*2);
+		c3 -> Divide(2,2);
+		TH1F* H1_wav_ratio = new TH1F("H1_wav_ratio","",600,300,900);
+		TH1F* H1_E_ratio = new TH1F("H1_E_ratio","",350,1,4.5);
+
+		H1_wav_ratio = H1_OpWav[SiPM];
+		H1_E_ratio = H1_OpE[SiPM];
+		H1_wav_ratio -> Divide(H1_OpWav[Total]);
+		H1_E_ratio -> Divide(H1_OpE[Total]);
+		H1_wav_ratio -> GetYaxis() -> SetRangeUser(0,0.6);
+		H1_wav_ratio -> SetLineColor(1);
+		H1_E_ratio -> GetYaxis() -> SetRangeUser(0,0.6);
+		H1_E_ratio -> SetLineColor(1);
+
+		c3 -> cd(3);
+		H1_wav_ratio -> Draw();
+		c3 -> cd(4);
+		H1_E_ratio -> Draw();
 
 //		cout << "SC2matOpt: " << map_MatProp["SC2matOpt"] << endl;
 		const int SC2mat = stoi(map_MatProp["SC2matOpt"]);
-		TLegend* leg1 = new TLegend(0.45,0.7,0.9,0.7+0.05*3);
+		TLegend* leg1 = new TLegend(0.45,0.5-0.05*3,0.9,0.5+0.05*6);
 		leg1 -> SetBorderSize(0);
 		leg1 -> SetFillStyle(0);
 		leg1 -> SetTextSize(0.04);
 		leg1 -> AddEntry((TObject*)0,"Emission spectra(wavelength)","h");
 		leg1 -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
 		leg1 -> AddEntry((TObject*)0,Form("Scintillator: %s",SC2mat==0?"PS":"PVT"),"h");
-		TLegend* leg2 = new TLegend(0.15,0.7,0.6,0.7+0.05*3);
+		TLegend* leg2 = new TLegend(0.15,0.5-0.05*3,0.6,0.5+0.05*6);
 		leg2 -> SetBorderSize(0);
 		leg2 -> SetFillStyle(0);
 		leg2 -> SetTextSize(0.04);
 		leg2 -> AddEntry((TObject*)0,"Emission spectra(Energy)","h");
 		leg2 -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
 		leg2 -> AddEntry((TObject*)0,Form("Scintillator: %s",SC2mat==0?"PS":"PVT"),"h");
-		c3 -> Divide(2);
-		c3 -> cd(1);
-		H1_OpWav -> Draw("hist");
-		leg1 -> Draw();
-		c3 -> cd(2);
-		H1_OpE -> Draw("hist");
+		for(int a=0; a<n_opt-1; a++)
+		{
+			leg1 -> AddEntry(H1_OpWav[a],Form("%s",cre_opt[a]),"l");
+			leg2 -> AddEntry(H1_OpE[a],Form("%s",cre_opt[a]),"l");
+			c3 -> cd(1);
+			H1_OpWav[a] -> Draw("hist same");
+			leg1 -> Draw();
+			c3 -> cd(2);
+			H1_OpE[a] -> Draw("hist same");
+		}
 		leg2 -> Draw();
+		c3 -> cd(3);
 
 		char* pref = "fig/fig_OpWavE";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
@@ -223,6 +274,14 @@ void OpDraw
 		H2_Edep_L -> GetYaxis() -> SetTitle("LightYield");
 		H2_Edep_L -> Draw("colz");
 
+		TLegend* leg = new TLegend(0.15,0.75,0.5,0.75+0.05*2);
+		leg -> SetBorderSize(0);
+		leg -> SetFillStyle(0);
+		leg -> SetTextSize(0.04);
+		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
+		leg -> AddEntry((TObject*)0,"Total Edep - Total LY","h");
+		leg -> Draw();
+
 		char* pref = "fig/fig_Edep_L";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c6 -> SaveAs(outname);
@@ -247,5 +306,78 @@ void OpDraw
 		gPad -> SetLogy();
 		H1_ParentPDG -> Draw("hist");
 //		H1_OpParentID -> GetXaxis() -> SetBinContent()
+	}
+	if(Opt[8])
+	{
+		H1_TrackLength = (TH1F*) F -> Get("H1_TrackLength");
+		H1_TrackLength -> Rebin(5);
+		H1_TrackLength -> GetXaxis() -> SetTitle("Total length [mm]");
+		H1_TrackLength -> GetYaxis() -> SetTitle("Number of photons");
+		TCanvas* c9 = new TCanvas("c9","c9",1.2*600,600);
+		gPad -> SetLogy();
+		H1_TrackLength -> Draw("hist");
+	}
+	if(Opt[9])
+	{
+		H1_Time_Left = (TH1F*) F -> Get("H1_Time_Left");
+		H1_Time_Right = (TH1F*) F -> Get("H1_Time_Right");
+		TCanvas* c10 = new TCanvas("c10","c10",1.2*600,600);
+		gPad -> SetLogy();
+		H1_Time_Left -> SetStats(false);
+		H1_Time_Left -> GetXaxis() -> SetTitle("Time[ns]");
+		H1_Time_Right -> SetStats(false);
+		H1_Time_Left -> SetLineColor(2);
+		H1_Time_Right -> SetLineColor(4);
+		H1_Time_Left -> Draw("hist");
+		H1_Time_Right -> Draw("hist same");
+		TLegend* leg = new TLegend(0.45,0.65,0.9,0.65+0.045*4);
+		double SY = stod(map_MatProp["PVT_ScintYield"]);
+		leg -> SetBorderSize(0);
+		leg -> SetFillColor(0);
+		leg -> SetFillStyle(0);
+		leg -> SetTextSize(0.038);
+		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
+		leg -> AddEntry((TObject*)0,Form("Scintillation Yield: %.0f /MeV",SY),"h");
+		leg -> AddEntry(H1_Time_Left,"Left SiPM","l");
+		leg -> AddEntry(H1_Time_Right,"Right SiPM","l");
+		leg -> Draw();
+
+		char* pref = "fig/fig_SiPMTime_LR";
+		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
+		c10 -> SaveAs(outname);
+	}
+	if(Opt[10])
+	{
+		H1_NOp_Left = (TH1F*) F -> Get("H1_NOp_Left");
+		H1_NOp_Right = (TH1F*) F -> Get("H1_NOp_Right");
+		H1_NOp_Left -> SetStats(false);
+		H1_NOp_Left -> GetXaxis() -> SetTitle("# of photons");
+		H1_NOp_Right -> SetStats(false);
+		TCanvas* c11 = new TCanvas("c11","c11",1.2*600,600);
+		H1_NOp_Left -> SetLineColor(2);
+		H1_NOp_Right -> SetLineColor(4);
+
+		H1_NOp_Left -> Draw("hist");
+		H1_NOp_Right -> Draw("hist same");
+
+		double SY = stod(map_MatProp["PVT_ScintYield"]);
+		TLegend* leg = new TLegend(0.4,0.5,0.9,0.6+0.045*4);
+		leg -> SetBorderSize(0);
+		leg -> SetFillColor(0);
+		leg -> SetFillStyle(0);
+		leg -> SetTextSize(0.038);
+		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
+		leg -> AddEntry((TObject*)0,Form("Scintillation Yield: %.1f /MeV",SY),"h");
+		leg -> AddEntry(H1_NOp_Left,"Left SiPM","l");
+		leg -> AddEntry((TObject*)0,
+				Form("Mean: %.1f, StdDeV: %.1f",H1_NOp_Left->GetMean(),H1_NOp_Left->GetStdDev()),"");
+		leg -> AddEntry(H1_NOp_Right,"Right SiPM","l");
+		leg -> AddEntry((TObject*)0,
+				Form("Mean: %.1f, StdDeV: %.1f",H1_NOp_Right->GetMean(),H1_NOp_Right->GetStdDev()),"");
+		leg -> Draw();
+
+		char* pref = "fig/fig_NOp_LR";
+		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
+		c11 -> SaveAs(outname);
 	}
 }

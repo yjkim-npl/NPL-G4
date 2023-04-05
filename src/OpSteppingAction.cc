@@ -75,7 +75,7 @@ G4int OpSteppingAction::CalculatePostNo(G4ThreeVector pos)
 void OpSteppingAction::UserSteppingAction(const G4Step* step)
 {
 	// information of GeomBoundary(not o.p)
-	if(step->GetTrack()->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition() ||
+	if(//step->GetTrack()->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition() ||
 	   step -> GetPostStepPoint() -> GetStepStatus() == fWorldBoundary || 
 		 PC->GetParBool("MCStep")==false)
 		return;
@@ -142,27 +142,24 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 
 //	if(boundary)// &&prevNo == 201 || postNo == 201)
 //	if(prevNo == 201 || postNo == 201)
-	if(true)
+	if(PC -> GetParInt("StepVerbosity") > 0)
 	{
-		if(PC -> GetParInt("StepVerbosity") > 0)
-		{
-			G4cout << "##########" <<G4endl;
-			G4cout << "OpSteppingAction::UserSteppingAction" << G4endl;
-			G4cout << "PrevBoundary : " << prev_boundary << " PostBoundary: " << post_boundary << G4endl;
-			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
-			G4cout << "ProcID: " << procID << G4endl;
-			G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
-			G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
-			G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
-			G4cout << "Edep: " << fedep << G4endl;
-			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
-			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
-		}
-
-		fRunAction -> FillStep
-			(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
-			 fedep,length,NSecondaryOP,prevKE);
+		G4cout << "##########" <<G4endl;
+		G4cout << "OpSteppingAction::UserSteppingAction" << G4endl;
+		G4cout << "PrevBoundary : " << prev_boundary << " PostBoundary: " << post_boundary << G4endl;
+		G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
+		G4cout << "ProcID: " << procID << G4endl;
+		G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
+		G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
+		G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
+		G4cout << "Edep: " << fedep << G4endl;
+		G4cout << "posX: " << pos.x() << " -> " << post_pos.x() << G4endl;
+		G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
 	}
+
+	fRunAction -> FillStep
+		(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
+		 fedep,length,NSecondaryOP,prevKE);
 //	G4int trkID = step -> GetTrack() -> GetTrackID();
 //	G4int trkPDG = step -> GetTrack() -> GetDefinition() -> GetPDGEncoding();
 //	G4double fedep = step -> GetTotalEnergyDeposit();

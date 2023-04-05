@@ -32,4 +32,6 @@ void Birk(const char* particle = "proton")
 	htemp -> GetXaxis() -> SetTitle("<Edep>[MeV]");
 	htemp -> GetYaxis() -> SetTitle("<LY>");
 	g_Birk -> Draw("p");
+
+	c1 -> SaveAs("fig/fig_Birk.pdf");
 }
