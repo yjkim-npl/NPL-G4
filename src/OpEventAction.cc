@@ -68,18 +68,24 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 	}
 
 	if(PC->GetParBool("MCStep") ||
-		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("SiPMIn")))
+		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("OpBoundary")))
 	{
+		G4cout << "EndOfEventAction " << G4endl;
 		for(G4int a=0; a<vec_fID.size(); a++)
 		{
+			if(vec_fID.at(a) == -1)
+				continue;
 //			G4cout << vec_SDname[a]+"In" << G4endl;
 			if(PC -> GetParBool(vec_SDname[a]+"In"))
 			{
+//				G4cout << a << " : " << vec_fID.at(a) << G4endl;
+//				G4cout << a << " : " << vec_SDname.at(a) << G4endl;
 				OpHitsCollection* HC_SCn = 
 					static_cast<OpHitsCollection*>(HCE->GetHC(vec_fID[a]));
 				if(HC_SCn == nullptr)
 					continue;
 				G4int n_hit = HC_SCn -> entries();
+//				G4cout << "n_hit : " << n_hit << G4endl;
 				for(G4int b=0; b<n_hit; b++)
 				{
 					OpHit* hit = (*HC_SCn)[b];
@@ -107,16 +113,24 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 						for(G4int c=0; c<nSteps; c++)
 						{
 							G4int procID = hit -> GetProcID(c);
-							G4int nSecondaryOP = hit -> GetNSecondaryOP(c);
+							G4int nSecondaryOP = 0;
+							G4bool boundary = 0;
+							G4double prevKE = 0;
+							G4double length = 0;
+							if(trackPDG != -22)
+							{
+								nSecondaryOP = hit -> GetNSecondaryOP(c);
+								boundary = hit -> GetIsBoundary(c);
+								prevKE = hit -> GetKE(c);
+								length = hit -> GetStepLength(c);
+							}
 //							G4cout << "nSecondaryOP: " << nSecondaryOP << G4endl;
 							G4String procName = hit -> GetProcName(c);
-							G4bool boundary = hit -> GetIsBoundary(c);
 							G4ThreeVector mom = hit -> GetMomentum(c);
 							G4ThreeVector pos = hit -> GetPosition(c);
+							G4int firstStep = hit -> GetIsFirstStep(c);
 							G4double time = hit -> GetTime(c);
 							G4double edep = hit -> GetEdep(c);
-							G4double prevKE = hit -> GetKE(c);
-							G4double length = hit -> GetStepLength(c);
 							fRunAction -> SetProcess(procID,procName);
 							if(PC->GetParBool("MCStep") && trackPDG != -22)
 							{
@@ -124,7 +138,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 									(boundary,1,trackID,procID,trackPDG,detID,boundary?postDetID:detID,pos,
 									 edep,length,nSecondaryOP,prevKE);
 							}
-							if(PC->GetParBool("OpBoundary") && trackPDG == -22)
+							if(PC->GetParBool("OpBoundary") && trackPDG == -22)// && firstStep == 1)
 							{
 								fRunAction -> FillOpticalPhotonBoundary(trackID, procID, mom, pos, time);
 							}
@@ -184,13 +198,14 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 //					G4int size_vec = hit -> GetSizeOfVector();
 //					if(trackID == 1)
 ////						G4cout << "NSteps: " << size_vec << G4endl;
-//					if(PC->GetParBool("MCStep"))
+//					if(PC->GetParBool("MCStep") && false)
 //					{
 ////						if(trackPDG == 2212) G4cout << "proton" << G4endl;
 //						fRunAction -> FillStep(trackID,trackPDG,detID,detID,G4ThreeVector(),edep);
 //					}
 //					for(G4int c=0; c<size_vec; c++)	// N steps of each photon
 //					{
+//						G4int IsBoundary = hit -> GetIsBoundary(c);
 //						G4int procID = hit -> GetProcID(c);
 //						G4ThreeVector mom = hit -> GetMomentum(c);
 //						G4ThreeVector pos = hit -> GetPosition(c);

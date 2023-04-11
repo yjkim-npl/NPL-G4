@@ -26,14 +26,13 @@ inline int DetIDtoIndex(const int detID)
 	return idx;
 }
 void MakeHIMAC
-(char* p = "ion",
- char* e = "2400MeV",
+(char* p = "temp",
+ char* e = "",
  char* s  =""
  )
 {
 	// opt 0: step from SteppingAction
 	// opt 1: step from Hit obj
-	cout << "done" << endl;
 	const int opt = 0;
 	// Link Input
 	const char* path = "data_root";
@@ -45,9 +44,9 @@ void MakeHIMAC
 		else          infile = Form("out_%s_%s.root",p,s);
 	}else{
 		if(str_s=="") infile = Form("out_%s_%s.root",p,e);
-		else          infile = Form("out_%s_%s_%s.root",p,e);
+		else          infile = Form("out_%s_%s_%s.root",p,e,s);
 	}
-	cout<< Form("%s/%s",path,infile) << endl;
+	cout<< "infile: " << Form("%s/%s",path,infile) << endl;
 	TFile* F = new TFile(Form("%s/%s",path,infile),"read");
 	TList* ProcessTable = (TList*) F -> Get("ProcessTable");
 	TList* InputParameters = (TList*) F -> Get("InputParameters");
@@ -58,7 +57,7 @@ void MakeHIMAC
 	{
 		TNamed* name = (TNamed*) ProcessTable -> At(a);
 		map_process.insert(make_pair(name->GetTitle(),stoi(name->GetName())));
-		cout << name->GetTitle() << " " << name->GetName() << endl;
+//		cout << name->GetTitle() << " " << name->GetName() << endl;
 	}
 	map<string,string> map_parameters;
 	for(int a=0; a<InputParameters->GetSize();a++)
@@ -129,8 +128,8 @@ void MakeHIMAC
 	{
 //		if(b==0)
 //			continue;
-		H1_E[a][b] = new TH1F(Form("H1_E_%s_%s",particle[a],det[b]),"",2200,0,110);
-		float max_range = b==0?6:b==1?2:b==2?0.1:20;
+		H1_E[a][b] = new TH1F(Form("H1_E_%s_%s",particle[a],det[b]),"",2500,0,2500);
+		float max_range = b==SC1?6:b==SC2?2:b==SC3?0.1:20;
 		H1_dE[a][b] = new TH1F(Form("H1_dE_%s_%s",particle[a],det[b]),"",200,0,max_range);
 		H2_XY[a][b] = new TH2F(Form("H2_XY_%s_%s",particle[a],det[b]),"",
 				2*x[b],-x[b],x[b],2*y[b],-y[b],y[b]);
@@ -176,15 +175,15 @@ void MakeHIMAC
 			vec_stepFromHit.push_back(fromHit);
 			vec_stepX.push_back(stepvx[b]);
 			vec_stepY.push_back(stepvy[b]);
-			if(fromHit == opt)
+			if(fromHit == opt && prevDetIdx != dELS  && false)
 			{
 				map_TrackID_EdepSum[prevDetIdx][trkID] += edep;
-//				cout << "trkID: " << trkID << "(" << particle[trkPDG] << ")" << endl;
-//				cout << "DetID: " << det[prevDetIdx] << " -> " << det[postDetIdx] << endl;
-//				cout << "PrevKE: " << prevKE << endl;
-//				cout << "Edep: " << edep << endl;
-//				cout << endl;
-//				cout << map_TrackID_EdepSum[prevDetIdx][trkID] << " " << edep << endl;
+				cout << "EventNo: " << a << endl;
+				cout << "trkID: " << trkID << "(" << particle[trkPDG] << ")" << endl;
+				cout << "DetID: " << det[prevDetIdx] << " -> " << det[postDetIdx] << endl;
+				cout << "PrevKE: " << prevKE << endl;
+				cout << "Edep: " << edep << endl;;
+				cout << map_TrackID_EdepSum[prevDetIdx][trkID] << " " << edep << endl << endl;
 			}
 		}
 

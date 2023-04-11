@@ -24,7 +24,7 @@ class OpHit : public G4VHit
 		void AddPostDetID(G4int postDetID)
 			{post_DetID = postDetID;}
 		void CountStep()
-			{nSteps++;}
+			{nSteps++; vec_IsFirstStep.push_back(0);}
 		void AddProcess(G4int procID, G4String procName)
 			{vec_procID.push_back(procID); vec_procName.push_back(procName);}
 		void AddBoundary(G4int boundary)
@@ -57,6 +57,8 @@ class OpHit : public G4VHit
 			{return post_DetID;}
 		G4int GetIsBoundary(G4int idx)
 			{return vec_IsBoundary[idx];}
+		G4int GetIsFirstStep(G4int idx)
+			{return vec_IsFirstStep[idx];}
 		G4int GetProcID(G4int idx)
 			{return vec_procID[idx];}
 		G4int GetNSecondaryOP(G4int idx)
@@ -87,6 +89,7 @@ class OpHit : public G4VHit
 		G4double EdepSum;
 		vector<G4int> vec_NSecondaryOP;
 		vector<G4int> vec_IsBoundary;
+		vector<G4int> vec_IsFirstStep;
 		vector<G4double> vec_prevKE;
 		vector<G4double> vec_Edep;
 		vector<G4int> vec_procID;

@@ -128,7 +128,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddHit(trackID,trackPDG,prevNo);
 		fHitsCollection -> insert(hit);
 	}
-	// new hit of other particles 
+	// add hit of other particles 
 	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
 		 OpParameterContainer::GetInstance() -> GetParBool("MCStep"))
 	{
@@ -145,7 +145,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		if(boundary)
 			hit -> AddPostDetID(postNo);
 	}
-	// new hit of optical photon
+	// add hit of optical photon
 	else if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpticalPhysics") &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpBoundary"))

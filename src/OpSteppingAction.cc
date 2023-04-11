@@ -75,9 +75,12 @@ G4int OpSteppingAction::CalculatePostNo(G4ThreeVector pos)
 void OpSteppingAction::UserSteppingAction(const G4Step* step)
 {
 	// information of GeomBoundary(not o.p)
-	if(//step->GetTrack()->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition() ||
+	if(step->GetTrack()->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition() ||
 	   step -> GetPostStepPoint() -> GetStepStatus() == fWorldBoundary || 
 		 PC->GetParBool("MCStep")==false)
+		return;
+	if(step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() == PC->GetParInt("WorldID") &&
+		 step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo() == PC->GetParInt("WorldID"))
 		return;
 
 	G4bool prev_boundary = 0;

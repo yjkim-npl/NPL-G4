@@ -1,12 +1,12 @@
 void DrawHIMAC
-(char* p = "ion",
- char* e = "2400MeV",
+(char* p = "temp",
+ char* e = "",
  char* s = ""
  )
 {
 	bool DrawOpt1 = 1;
 	bool DrawOpt2 = 1;
-	bool DrawOpt3 = 1;
+	bool DrawOpt3 = 0;
 	char* infile;
 	TString str_p = p;
 	TString str_s = s;

@@ -174,8 +174,8 @@ void OpDraw
 		TH1F* H1_wav_ratio = new TH1F("H1_wav_ratio","",600,300,900);
 		TH1F* H1_E_ratio = new TH1F("H1_E_ratio","",350,1,4.5);
 
-		H1_wav_ratio = H1_OpWav[SiPM];
-		H1_E_ratio = H1_OpE[SiPM];
+		H1_wav_ratio -> Clone(H1_OpWav[SiPM]);
+		H1_E_ratio -> Clone(H1_OpE[SiPM]);
 		H1_wav_ratio -> Divide(H1_OpWav[Total]);
 		H1_E_ratio -> Divide(H1_OpE[Total]);
 		H1_wav_ratio -> GetYaxis() -> SetRangeUser(0,0.6);

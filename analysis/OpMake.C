@@ -1,8 +1,7 @@
-#define max 20000
 void OpMake
 (
- const char* particle = "proton",
- const char* energy = "200MeV",
+ const char* particle = "temp",
+ const char* energy = "",
  const char* suffix = ""
 )
 {
@@ -22,19 +21,23 @@ void OpMake
 		   to check attenuation(absorption)
 		9: 1-D Time distribution at each side of SiPM
 		10: 1-D histogram of Number of optical photons reached at each side of SiPM
+		11: 2-D histogram of momentum at boundary (OpBoundary)
+		12: 2-D histogram of position at boundary (OpBoundary)
 	*/
-	bool Opt[11];
+	bool Opt[13];
 	Opt[0] = 1;
-	Opt[1] = 1;
-	Opt[2] = 1;
-	Opt[3] = 1; // segmenation error
+	Opt[1] = 0;
+	Opt[2] = 0;
+	Opt[3] = 0; // segmenation error
 	Opt[4] = 0; // not working
-	Opt[5] = 1;
+	Opt[5] = 0;
 	Opt[6] = 0; // not working
-	Opt[7] = 1;
-	Opt[8] = 1;	// segmentation error
-	Opt[9] = 1;
-	Opt[10] = 1;
+	Opt[7] = 0;
+	Opt[8] = 0;	// segmentation error
+	Opt[9] = 0;
+	Opt[10] = 0;
+	Opt[11] = 0;
+	Opt[12] = 0;
 	const int StepFromHit = 1;
 
 	char* infile;
@@ -80,22 +83,22 @@ void OpMake
 
 	// MCTrack data
 	int nTrack;
-	int TrackID[max], TrackProcID[max], ParentID[max], TrackPDG[max], TrackDetID[max];
-	double px[max], py[max], pz[max], vx[max], vy[max], vz[max];
-	double KE[max];
+	vector<int> *TrackID, *TrackProcID, *ParentID, *TrackPDG, *TrackDetID;
+	vector<double> *px, *py, *pz, *vx, *vy, *vz;
+	vector<double> *KE;
 
 	// MCPostTrack data
 	int nPostTrack;
-	int p_TrackID[max], p_TrackProcID[max], p_TrackDetID[max];
-	double p_px[max],p_py[max],p_pz[max],p_vx[max],p_vy[max],p_vz[max];
-	double p_KE[max];
+	vector<int> *p_TrackID, *p_TrackProcID, *p_TrackDetID;
+	vector<double> *p_px,*p_py,*p_pz,*p_vx,*p_vy,*p_vz;
+	vector<double> *p_KE;
 
 	// MCStep data
 	int nStep; 
-	int s_TrackID[max], s_FromHit[max], s_ProcID[max], s_PDG[max], s_PrevDetID[max], s_PostDetID[max];
-	int s_IsBoundary[max], s_NSecondOP[max];
-	double s_prevKE[max], s_Edep[max], s_Length[max];
-	double s_vx[max], s_vy[max], s_vz[max];
+	vector<int> *s_TrackID, *s_FromHit, *s_ProcID, *s_PDG, *s_PrevDetID, *s_PostDetID;
+	vector<int> *s_IsBoundary, *s_NSecondOP;
+	vector<double> *s_prevKE, *s_Edep, *s_Length;
+	vector<double> *s_vx, *s_vy, *s_vz;
 
 	// OpTrack data
 	int NOp;
@@ -110,6 +113,11 @@ void OpMake
 	vector<double> *op_px, *op_py, *op_pz, *op_vx, *op_vy, *op_vz;
 	vector<double> *op_KE, *op_Time;
 
+	// OpBoundary data
+	int NOpBoundary;
+	vector<int> *ob_TrackID, *ob_ProcID;
+	vector<double> *ob_px, *ob_py, *ob_pz, *ob_vx, *ob_vy, *ob_vz, *ob_Time;
+
 	// OpSiPM data
 	int NOpSiPM;
 	vector<int> *os_ProcID, *os_DetID;
@@ -120,52 +128,52 @@ void OpMake
 	{
 		cout << "MCTrack was called" << endl;
 		T -> SetBranchAddress("nTrack",&nTrack);
-		T -> SetBranchAddress("TrackID",TrackID);
-		T -> SetBranchAddress("TrackProcID",TrackProcID);
-		T -> SetBranchAddress("ParentID",ParentID);
-		T -> SetBranchAddress("TrackPDG",TrackPDG);
-		T -> SetBranchAddress("TrackDetID",TrackDetID);
-		T -> SetBranchAddress("TrackPX",px);
-		T -> SetBranchAddress("TrackPY",py);
-		T -> SetBranchAddress("TrackPZ",pz);
-		T -> SetBranchAddress("TrackVX",vx);
-		T -> SetBranchAddress("TrackVY",vy);
-		T -> SetBranchAddress("TrackVZ",vz);
-		T -> SetBranchAddress("TrackKEnergy",KE);
+		T -> SetBranchAddress("TrackID",&TrackID);
+		T -> SetBranchAddress("TrackProcID",&TrackProcID);
+		T -> SetBranchAddress("ParentID",&ParentID);
+		T -> SetBranchAddress("TrackPDG",&TrackPDG);
+		T -> SetBranchAddress("TrackDetID",&TrackDetID);
+		T -> SetBranchAddress("TrackPX",&px);
+		T -> SetBranchAddress("TrackPY",&py);
+		T -> SetBranchAddress("TrackPZ",&pz);
+		T -> SetBranchAddress("TrackVX",&vx);
+		T -> SetBranchAddress("TrackVY",&vy);
+		T -> SetBranchAddress("TrackVZ",&vz);
+		T -> SetBranchAddress("TrackKEnergy",&KE);
 	}
 	if(map_parameters["MCPostTrack"] == "true")
 	{
 		cout << "MCPostTrack was called" << endl;
 		T -> SetBranchAddress("nPostTrack",&nPostTrack);
-		T -> SetBranchAddress("PostTrackID",p_TrackID);
-		T -> SetBranchAddress("PostTrackProcID",p_TrackProcID);
-		T -> SetBranchAddress("PostTrackDetID",p_TrackDetID);
-		T -> SetBranchAddress("PostTrackPX",p_px);
-		T -> SetBranchAddress("PostTrackPY",p_py);
-		T -> SetBranchAddress("PostTrackPZ",p_pz);
-		T -> SetBranchAddress("PostTrackVX",p_vx);
-		T -> SetBranchAddress("PostTrackVY",p_vy);
-		T -> SetBranchAddress("PostTrackVZ",p_vz);
-		T -> SetBranchAddress("PostTrackKEnergy",p_KE);
+		T -> SetBranchAddress("PostTrackID",&p_TrackID);
+		T -> SetBranchAddress("PostTrackProcID",&p_TrackProcID);
+		T -> SetBranchAddress("PostTrackDetID",&p_TrackDetID);
+		T -> SetBranchAddress("PostTrackPX",&p_px);
+		T -> SetBranchAddress("PostTrackPY",&p_py);
+		T -> SetBranchAddress("PostTrackPZ",&p_pz);
+		T -> SetBranchAddress("PostTrackVX",&p_vx);
+		T -> SetBranchAddress("PostTrackVY",&p_vy);
+		T -> SetBranchAddress("PostTrackVZ",&p_vz);
+		T -> SetBranchAddress("PostTrackKEnergy",&p_KE);
 	}
 	if(map_parameters["MCStep"] == "true")
 	{
 		cout << "MCStep was called" << endl;
 		T -> SetBranchAddress("nStep",&nStep);
-		T -> SetBranchAddress("StepTrackID",s_TrackID);
-		T -> SetBranchAddress("StepFromHit",s_FromHit);
-		T -> SetBranchAddress("StepProcID",s_ProcID);
-		T -> SetBranchAddress("StepTrackPDG",s_PDG);
-		T -> SetBranchAddress("StepPrevDetID",s_PrevDetID);
-		T -> SetBranchAddress("StepPostDetID",s_PostDetID);
-		T -> SetBranchAddress("IsBoundary",s_IsBoundary);
-		T -> SetBranchAddress("StepNSecondaryOP",s_NSecondOP);
-		T -> SetBranchAddress("StepPrevKE",s_prevKE);
-		T -> SetBranchAddress("StepEdep",s_Edep);
-		T -> SetBranchAddress("StepLength",s_Length);
-		T -> SetBranchAddress("StepVX",s_vx);
-		T -> SetBranchAddress("StepVY",s_vy);
-		T -> SetBranchAddress("StepVZ",s_vz);
+		T -> SetBranchAddress("StepTrackID",&s_TrackID);
+		T -> SetBranchAddress("StepFromHit",&s_FromHit);
+		T -> SetBranchAddress("StepProcID",&s_ProcID);
+		T -> SetBranchAddress("StepTrackPDG",&s_PDG);
+		T -> SetBranchAddress("StepPrevDetID",&s_PrevDetID);
+		T -> SetBranchAddress("StepPostDetID",&s_PostDetID);
+		T -> SetBranchAddress("IsBoundary",&s_IsBoundary);
+		T -> SetBranchAddress("StepNSecondaryOP",&s_NSecondOP);
+		T -> SetBranchAddress("StepPrevKE",&s_prevKE);
+		T -> SetBranchAddress("StepEdep",&s_Edep);
+		T -> SetBranchAddress("StepLength",&s_Length);
+		T -> SetBranchAddress("StepVX",&s_vx);
+		T -> SetBranchAddress("StepVY",&s_vy);
+		T -> SetBranchAddress("StepVZ",&s_vz);
 	}
 	if(map_parameters["OpTrack"] == "true")
 	{
@@ -215,6 +223,20 @@ void OpMake
 		T -> SetBranchAddress("OpSiPMTime",&os_Time);
 		T -> SetBranchAddress("OpSiPMEnergy",&os_E);
 	}
+	if(map_parameters["OpBoundary"] == "true" && false)
+	{
+		cout << "OpBoundary was called" << endl;
+		T -> SetBranchAddress("NOpBoundary",&NOpBoundary);
+		T -> SetBranchAddress("OpTrackIDBoundary",&ob_TrackID);
+		T -> SetBranchAddress("OpProcIDBoundary",&ob_ProcID);
+		T -> SetBranchAddress("OpPXBoundary",&ob_px);
+		T -> SetBranchAddress("OpPYBoundary",&ob_py);
+		T -> SetBranchAddress("OpPZBoundary",&ob_pz);
+		T -> SetBranchAddress("OpVXBoundary",&ob_vx);
+		T -> SetBranchAddress("OpVYBoundary",&ob_vy);
+		T -> SetBranchAddress("OpVZBoundary",&ob_vz);
+		T -> SetBranchAddress("OpTBoundary",&ob_Time);
+	}
 	
 	
 	// define output histrogram container
@@ -239,8 +261,16 @@ void OpMake
 	TH1F* H1_OpTime = new TH1F("H1_OpTime","",200,0,20);
 	TH1F* H1_PostOpTime = new TH1F("H1_PostOpTime","",500,0,50);
 	// HIST 4 (currently not work)
-//	enum {Prev,Post,trans,fre_refl,tot_refl,too_small};
-//	TH2F* H2_p;
+	enum {Prev,trans,fre_refl,tot_refl,too_small};
+	char* str_proc[] = {"Prev","trans","fre_refl","tot_refl","too_small"};
+	const int nproc = sizeof(str_proc)/sizeof(str_proc[0]);
+	TH3F* H3_p[nproc];
+	for(int a=0; a<nproc; a++)
+	{
+		H3_p[a] = new TH3F(Form("H3_p_%s",str_proc[a]),"",
+//				800,-4e-6,4e6,800,-4e-6,4e6,800,-4e-6,4e6);
+				8,-4e-6,4e6,8,-4e-6,4e6,8,-4e-6,4e6);
+	}
 	// HIST 5 w/ step
 	TH2F* H2_Edep_L = new TH2F("H2_Edep_L","",30,0,15,100,0,100);
 	// HIST 6 w/ step(curretnly not work)
@@ -255,12 +285,17 @@ void OpMake
 	// HIST 10 w/ OpSiPM
 	TH1F* H1_NOp_Left = new TH1F("H1_NOp_Left","",100,0,100);
 	TH1F* H1_NOp_Right = new TH1F("H1_NOp_Right","",100,0,100);
+	// HIST 11 w/ OpBoundary
+//	TH2F* H2_OpB_mom[6]; 
+	// HIST 12 w/ OpBoundary
+	TH2F* H2_OpB_pos[6];// forward, backward, upside, downside, left, right
 
 	// event loop
 	for(int a=0; a<T->GetEntriesFast(); a++)
 	{
 		if(a%100 == 0) 
 			cout << "Processing " << a << " th event" << endl;
+		cout << "done" << endl;
 		T -> GetEntry(a);
 		if(Opt[0])
 			H1_NOp_dist -> Fill(NOp);
@@ -289,7 +324,7 @@ void OpMake
 				H1_OpE[SiPM] -> Fill(os_E->at(b)*1e6);
 				H1_OpWav[SiPM] -> Fill(wav);
 			}
-		}
+		} // OpSiPM
 		if(Opt[10])
 		{
 			H1_NOp_Left -> Fill(NOp_Left);
@@ -327,9 +362,12 @@ void OpMake
 				if(map_parameters["OpPostTrack"]=="true")
 					H1_PostOpTime -> Fill(op_Time->at(b));
 			}
-			int pdg = (int)s_PDG[b] % 100000;
-			map_TrkID_PDG.insert(make_pair(s_TrackID[b],pdg));
-		}// each optical photon
+			if(Opt[4]){
+				H3_p[Prev] -> Fill(o_px->at(b), o_py->at(b), o_pz->at(b));
+			}
+			int pdg = (int)s_PDG->at(b) % 100000;
+			map_TrkID_PDG.insert(make_pair(s_TrackID->at(b),pdg));
+		}// each optical photon generation
 		for(int b=0; b<PostNOp;b++)
 		{
 			if(Opt[8] && op_TrackLength->at(b) != 0 && map_parameters["OpPostTrack"]=="true"){
@@ -350,33 +388,49 @@ void OpMake
 					H1_OpWav[Backward] -> Fill(wav);
 				}
 			}
-		}
+		} // each dead photon
 		for(int b=0; b<nStep; b++)
 		{
-			if(Opt[5] && s_FromHit[b]==StepFromHit && s_PDG[b] > 100)
+			if(Opt[5] && s_FromHit->at(b)==StepFromHit && s_PDG->at(b) > 100)
 			{
-				if(map_TrkID_Edep[s_TrackID[b]] == 0 && map_TrkID_LY[s_TrackID[b]] == 0){
-					map_TrkID_Edep[s_TrackID[b]] = s_Edep[b];
-					map_TrkID_LY[s_TrackID[b]] = s_NSecondOP[b];
+				if(map_TrkID_Edep[s_TrackID->at(b)] == 0 && map_TrkID_LY[s_TrackID->at(b)] == 0){
+					map_TrkID_Edep[s_TrackID->at(b)] = s_Edep->at(b);
+					map_TrkID_LY[s_TrackID->at(b)] = s_NSecondOP->at(b);
 				} else{
-					map_TrkID_Edep[s_TrackID[b]] += s_Edep[b];
-					map_TrkID_LY[s_TrackID[b]] += s_NSecondOP[b];
+					map_TrkID_Edep[s_TrackID->at(b)] += s_Edep->at(b);
+					map_TrkID_LY[s_TrackID->at(b)] += s_NSecondOP->at(b);
 				}
 			}
 			if(Opt[6])
-				H2_dEdx_dLdx -> Fill(s_Edep[b]/s_Length[b],s_NSecondOP[b]/s_Length[b]);
+				H2_dEdx_dLdx -> Fill(s_Edep->at(b)/s_Length->at(b),s_NSecondOP->at(b)/s_Length->at(b));
 			if(Opt[7] && 
-				 s_FromHit[b]==StepFromHit &&
-				 s_PDG[b] > 100 && // reject e+,e-,gam
-				 s_PrevDetID[b] == 201)
+				 s_FromHit->at(b)==StepFromHit &&
+				 s_PDG->at(b) > 100 && // reject e+,e-,gam
+				 s_PrevDetID->at(b) == 201)
 			{
-//				cout << "PDG: " << s_PDG[b] << endl;
+//				cout << "PDG: " << s_PDG->at(b) << endl;
 //				cout << "Edep: " << s_Edep << endl;
-				H2_LY_OpParentID -> Fill(s_NSecondOP[b],map_TrkID_PDG[o_ParentID->at(b)]);
+				H2_LY_OpParentID -> Fill(s_NSecondOP->at(b),map_TrkID_PDG[o_ParentID->at(b)]);
 			}
 		}// each step
 		if(Opt[5])
 			H2_Edep_L -> Fill(map_TrkID_Edep[1],map_TrkID_LY[1]);	// primary particle
+		for(int b=0; b<NOpBoundary; b++)
+		{
+			if(b%100 ==0)
+				cout << "Processing " << b << "th boundary step" << endl;
+			int idx = -1;
+			if(ob_ProcID->at(b) == map_process["Transmission"])                 idx = trans;
+			else if(ob_ProcID->at(b) == map_process["FresnelReflection"])       idx = fre_refl;
+			else if(ob_ProcID->at(b) == map_process["TotalInternalReflection"]) idx = tot_refl;
+			else if(ob_ProcID->at(b) == map_process["StepTooSmall"])            idx = too_small;
+			else{
+				cout << "other process: " << ob_ProcID->at(b) << endl;
+				continue;
+			}
+			if(Opt[4])
+				H3_p[idx] -> Fill(ob_px->at(b),ob_py->at(b),ob_pz->at(b));
+		}
 	}// each event
 
 	// Write to output root file
@@ -399,7 +453,12 @@ void OpMake
 		H1_PostOpTime -> Write();
 	}
 	if(Opt[4])
-	{}
+	{
+		for(int a=0; a<nproc; a++)
+		{
+			H3_p[a] -> Write();
+		}
+	}
 	if(Opt[5])
 		H2_Edep_L -> Write();
 	if(Opt[6])

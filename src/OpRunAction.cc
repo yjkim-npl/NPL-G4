@@ -96,75 +96,75 @@ void OpRunAction::init_Tree()
 	if(PC -> GetParBool("MCTrack"))
 	{
 		T -> Branch("nTrack",&nTrack);
-		T -> Branch("TrackID",TrackID,"TrackID[nTrack]/I");
-		T -> Branch("TrackProcID",TrackProcID,"TrackProcID[nTrack]/I");
-		T -> Branch("ParentID",ParentID,"ParentID[nTrack]/I");
-		T -> Branch("TrackPDG",TrackPDG,"TrackPDG[nTrack]/I");
-		T -> Branch("TrackDetID",TrackDetID,"TrackDetID[nTrack]/I");
+		T -> Branch("TrackID",&TrackID);
+		T -> Branch("TrackProcID",&TrackProcID);
+		T -> Branch("ParentID",&ParentID);
+		T -> Branch("TrackPDG",&TrackPDG);
+		T -> Branch("TrackDetID",&TrackDetID);
 
-		T -> Branch("TrackPX",TrackPX,"TrackPX[nTrack]/D");
-		T -> Branch("TrackPY",TrackPY,"TrackPY[nTrack]/D");
-		T -> Branch("TrackPZ",TrackPZ,"TrackPZ[nTrack]/D");
-		T -> Branch("TrackVX",TrackVX,"TrackVX[nTrack]/D");
-		T -> Branch("TrackVY",TrackVY,"TrackVY[nTrack]/D");
-		T -> Branch("TrackVZ",TrackVZ,"TrackVZ[nTrack]/D");
-		T -> Branch("TrackEnergy",TrackEnergy,"TrackEnergy[nTrack]/D");
-		T -> Branch("TrackKEnergy",TrackKEnergy,"TrackKEnergy[nTrack]/D");
+		T -> Branch("TrackPX",&TrackPX);
+		T -> Branch("TrackPY",&TrackPY);
+		T -> Branch("TrackPZ",&TrackPZ);
+		T -> Branch("TrackVX",&TrackVX);
+		T -> Branch("TrackVY",&TrackVY);
+		T -> Branch("TrackVZ",&TrackVZ);
+		T -> Branch("TrackEnergy",&TrackEnergy);
+		T -> Branch("TrackKEnergy",&TrackKEnergy);
 	}
 	if(PC -> GetParBool("MCPostTrack"))
 	{
 		T -> Branch("nPostTrack",&nPostTrack);
-		T -> Branch("PostTrackID",PostTrackID,"PostTrackID[nPostTrack]/I");
-		T -> Branch("PostTrackProcID",PostTrackProcID,"PostTrackProcID[nPostTrack]/I");
-		T -> Branch("PostTrackDetID",PostTrackDetID,"PostTrackDetID[nPostTrack]/I");
+		T -> Branch("PostTrackID",&PostTrackID);
+		T -> Branch("PostTrackProcID",&PostTrackProcID);
+		T -> Branch("PostTrackDetID",&PostTrackDetID);
 
-		T -> Branch("PostTrackPX",PostTrackPX,"PostTrackPX[nPostTrack]/D");
-		T -> Branch("PostTrackPY",PostTrackPY,"PostTrackPY[nPostTrack]/D");
-		T -> Branch("PostTrackPZ",PostTrackPZ,"PostTrackPZ[nPostTrack]/D");
-		T -> Branch("PostTrackVX",PostTrackVX,"PostTrackVX[nPostTrack]/D");
-		T -> Branch("PostTrackVY",PostTrackVY,"PostTrackVY[nPostTrack]/D");
-		T -> Branch("PostTrackVZ",PostTrackVZ,"PostTrackVZ[nPostTrack]/D");
-		T -> Branch("PostTrackEnergy",PostTrackEnergy,"PostTrackEnergy[nPostTrack]/D");
-		T -> Branch("PostTrackKEnergy",PostTrackKEnergy,"PostTrackKEnergy[nPostTrack]/D");
+		T -> Branch("PostTrackPX",&PostTrackPX);
+		T -> Branch("PostTrackPY",&PostTrackPY);
+		T -> Branch("PostTrackPZ",&PostTrackPZ);
+		T -> Branch("PostTrackVX",&PostTrackVX);
+		T -> Branch("PostTrackVY",&PostTrackVY);
+		T -> Branch("PostTrackVZ",&PostTrackVZ);
+		T -> Branch("PostTrackEnergy",&PostTrackEnergy);
+		T -> Branch("PostTrackKEnergy",&PostTrackKEnergy);
 	}
 	if(PC -> GetParBool("MCStep"))
 	{
 		T -> Branch("nStep",&nStep);
-		T -> Branch("StepTrackID",StepTrackID,"StepTrackID[nStep]/I");
-		T -> Branch("StepFromHit",StepFromHit,"StepFromHit[nStep]/I");
-		T -> Branch("StepProcID",StepProcID,"StepProcID[nStep]/I");
-		T -> Branch("StepTrackPDG",StepTrackPDG,"StepTrackPDG[nStep]/I");
-		T -> Branch("StepPrevDetID",StepPrevDetID,"StepPrevDetID[nStep]/I");
-		T -> Branch("StepPostDetID",StepPostDetID,"StepPostDetID[nStep]/I");
-		T -> Branch("IsBoundary",IsBoundary,"IsBoundary[nStep]/I");
-		T -> Branch("StepPrevKE",StepPrevKE,"StepPrevKE[nStep]/D");
+		T -> Branch("StepTrackID",&StepTrackID);
+		T -> Branch("StepFromHit",&StepFromHit);
+		T -> Branch("StepProcID",&StepProcID);
+		T -> Branch("StepTrackPDG",&StepTrackPDG);
+		T -> Branch("StepPrevDetID",&StepPrevDetID);
+		T -> Branch("StepPostDetID",&StepPostDetID);
+		T -> Branch("IsBoundary",&IsBoundary);
+		T -> Branch("StepPrevKE",&StepPrevKE);
 
-		T -> Branch("StepVX",StepVX,"StepVX[nStep]/D");
-		T -> Branch("StepVY",StepVY,"StepVY[nStep]/D");
-		T -> Branch("StepVZ",StepVZ,"StepVZ[nStep]/D");
-		T -> Branch("StepEdep",StepEdep,"StepEdep[nStep]/D");
-		T -> Branch("StepLength",StepLength,"StepLength[nStep]/D");
+		T -> Branch("StepVX",&StepVX);
+		T -> Branch("StepVY",&StepVY);
+		T -> Branch("StepVZ",&StepVZ);
+		T -> Branch("StepEdep",&StepEdep);
+		T -> Branch("StepLength",&StepLength);
 		if(PC->GetParBool("OpticalPhysics"))
 		{
-			T -> Branch("StepNSecondaryOP",StepNSecondaryOP,"StepNSecondaryOP[nStep]/I");
+			T -> Branch("StepNSecondaryOP",&StepNSecondaryOP);
 		}
 	}
 	if(PC -> GetParBool("OpTrack"))
 	{
 		T -> Branch("NOp",&NOp);
-		T -> Branch("OpTrackID",&OpTrackID);
-		T -> Branch("OpProcessID",&OpProcessID);
-		T -> Branch("OpParentID",&OpParentID);
-		T -> Branch("OpDetID",&OpDetID);
-		T -> Branch("OpPX",&OpPX);
-		T -> Branch("OpPY",&OpPY);
-		T -> Branch("OpPZ",&OpPZ);
-		T -> Branch("OpVX",&OpVX);
-		T -> Branch("OpVY",&OpVY);
-		T -> Branch("OpVZ",&OpVZ);
-		T -> Branch("OpEnergy",&OpEnergy);
-		T -> Branch("OpKEnergy",&OpKEnergy);
-		T -> Branch("OpTime",&OpTime);
+		T -> Branch("OpTrackID",OpTrackID,"OpTrackID[NOp]/I");
+		T -> Branch("OpProcessID",OpProcessID,"OpProcessID[NOp]/I");
+		T -> Branch("OpParentID",OpParentID,"OpParentID[NOp]/I");
+		T -> Branch("OpDetID",OpDetID,"OpDetID[NOp]/I");
+		T -> Branch("OpPX",OpPX,"OpPX[NOp]/D");
+		T -> Branch("OpPY",OpPY,"OpPY[NOp]/D");
+		T -> Branch("OpPZ",OpPZ,"OpPZ[NOp]/D");
+		T -> Branch("OpVX",OpVX,"OpVX[NOp]/D");
+		T -> Branch("OpVY",OpVY,"OpVY[NOp]/D");
+		T -> Branch("OpVZ",OpVZ,"OpVZ[NOp]/D");
+		T -> Branch("OpEnergy",OpEnergy,"OpEnergy[NOp]/D");
+		T -> Branch("OpKEnergy",OpKEnergy,"OpKEnergy[NOp]/D");
+		T -> Branch("OpTime",OpTime,"OpTime[NOp]/D");
 	}
 	if(PC -> GetParBool("OpPostTrack"))
 	{
@@ -186,15 +186,15 @@ void OpRunAction::init_Tree()
 	if(PC -> GetParBool("OpBoundary"))
 	{
 		T -> Branch("NOpBoundary",&NOpBoundary);
-		T -> Branch("OpTrackIDBoundary",&OpTrackIDBoundary);
-		T -> Branch("OpProcIDBoundary",&OpProcIDBoundary);
-		T -> Branch("OpPXBoundary",&OpPXBoundary);
-		T -> Branch("OpPYBoundary",&OpPYBoundary);
-		T -> Branch("OpPZBoundary",&OpPZBoundary);
-		T -> Branch("OpVXBoundary",&OpVXBoundary);
-		T -> Branch("OpVYBoundary",&OpVYBoundary);
-		T -> Branch("OpVZBoundary",&OpVZBoundary);
-		T -> Branch("OpTBoundary",&OpTBoundary);
+		T -> Branch("OpTrackIDBoundary",OpTrackIDBoundary,"OpTrackIDBoundary[NOpBoundary]/I");
+		T -> Branch("OpProcIDBoundary",OpProcIDBoundary,"OpProcIDBoundary[NOpBoundary]/I");
+		T -> Branch("OpPXBoundary",OpPXBoundary,"OpPXBoundary[NOpBoundary]/D");
+		T -> Branch("OpPYBoundary",OpPYBoundary,"OpPYBoundary[NOpBoundary]/D");
+		T -> Branch("OpPZBoundary",OpPZBoundary,"OpPZBoundary[NOpBoundary]/D");
+		T -> Branch("OpVXBoundary",OpVXBoundary,"OpVXBoundary[NOpBoundary]/D");
+		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
+		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
+		T -> Branch("OpTBoundary",OpTBoundary,"OpTBoundary[NOpBoundary]/D");
 	}
 	if(PC->GetParBool("OpSiPM"))
 	{
@@ -233,74 +233,86 @@ void OpRunAction::EndOfRunAction(const G4Run* run)
 
 void OpRunAction::clear_data()
 {
-	set_procID.clear();
 	if(PC->GetParBool("MCTrack"))
 	{
 		nTrack = 0;
-		fill_n(TrackID,max_tracks,0);
-		fill_n(TrackProcID,max_tracks,0);
-		fill_n(ParentID,max_tracks,0);
-		fill_n(TrackPDG,max_tracks,0);
-		fill_n(TrackDetID,max_tracks,0);
-		fill_n(TrackPX,max_tracks,0);
-		fill_n(TrackPY,max_tracks,0);
-		fill_n(TrackPZ,max_tracks,0);
-		fill_n(TrackVX,max_tracks,0);
-		fill_n(TrackVY,max_tracks,0);
-		fill_n(TrackVZ,max_tracks,0);
-		fill_n(TrackEnergy,max_tracks,0);
-		fill_n(TrackKEnergy,max_tracks,0);
+		TrackID.clear();
+		TrackProcID.clear();
+		ParentID.clear();
+		TrackPDG.clear();
+		TrackDetID.clear();
+		TrackPX.clear();
+		TrackPY.clear();
+		TrackPZ.clear();
+		TrackVX.clear();
+		TrackVY.clear();
+		TrackVZ.clear();
+		TrackEnergy.clear();
+		TrackKEnergy.clear();
 	}
 	if(PC->GetParBool("MCPostTrack"))
 	{
 		nPostTrack = 0;
-		fill_n(PostTrackID,max_tracks,0);
-		fill_n(PostTrackProcID,max_tracks,0);
-		fill_n(PostTrackPDG,max_tracks,0);
-		fill_n(PostTrackDetID,max_tracks,0);
-		fill_n(PostTrackPX,max_tracks,0);
-		fill_n(PostTrackPY,max_tracks,0);
-		fill_n(PostTrackPZ,max_tracks,0);
-		fill_n(PostTrackVX,max_tracks,0);
-		fill_n(PostTrackVY,max_tracks,0);
-		fill_n(PostTrackVZ,max_tracks,0);
-		fill_n(PostTrackEnergy,max_tracks,0);
-		fill_n(PostTrackKEnergy,max_tracks,0);
+		PostTrackID.clear();
+		PostTrackProcID.clear();
+		PostTrackPDG.clear();
+		PostTrackDetID.clear();
+		PostTrackPX.clear();
+		PostTrackPY.clear();
+		PostTrackPZ.clear();
+		PostTrackVX.clear();
+		PostTrackVY.clear();
+		PostTrackVZ.clear();
+		PostTrackEnergy.clear();
+		PostTrackKEnergy.clear();
 	}
 	if(PC->GetParBool("MCStep"))
 	{
 		nStep = 0;
-		fill_n(StepTrackID,max_steps,0);
-		fill_n(StepFromHit,max_steps,0);
-		fill_n(StepProcID,max_steps,0);
-		fill_n(StepTrackPDG,max_steps,0);
-		fill_n(StepPrevDetID,max_steps,0);
-		fill_n(StepPostDetID,max_steps,0);
-		fill_n(IsBoundary,max_steps,0);
-		fill_n(StepPrevKE,max_steps,0);
-		fill_n(StepVX,max_steps,0);
-		fill_n(StepVY,max_steps,0);
-		fill_n(StepVZ,max_steps,0);
-		fill_n(StepEdep,max_steps,0);
-		fill_n(StepLength,max_steps,0);
-		fill_n(StepNSecondaryOP,max_steps,0);
+		StepTrackID.clear();
+		StepFromHit.clear();
+		StepProcID.clear();
+		StepTrackPDG.clear();
+		StepPrevDetID.clear();
+		StepPostDetID.clear();
+		IsBoundary.clear();
+		StepPrevKE.clear();
+		StepVX.clear();
+		StepVY.clear();
+		StepVZ.clear();
+		StepEdep.clear();
+		StepLength.clear();
+		StepNSecondaryOP.clear();
 	}
 	if(PC->GetParBool("OpTrack"))
 	{
 		NOp = 0;
-		OpTrackID.clear();
-		OpProcessID.clear();
-		OpParentID.clear();
-		OpDetID.clear();
-		OpPX.clear();
-		OpPY.clear();
-		OpPZ.clear();
-		OpVX.clear();
-		OpVY.clear();
-		OpVZ.clear();
-		OpEnergy.clear();
-		OpKEnergy.clear();
-		OpTime.clear();
+//		OpTrackID.clear();
+//		OpProcessID.clear();
+//		OpParentID.clear();
+//		OpDetID.clear();
+//		OpPX.clear();
+//		OpPY.clear();
+//		OpPZ.clear();
+//		OpVX.clear();
+//		OpVY.clear();
+//		OpVZ.clear();
+//		OpEnergy.clear();
+//		OpKEnergy.clear();
+//		OpTime.clear();
+		fill_n(OpTrackID,max_photons,0);
+		fill_n(OpProcessID,max_photons,0);
+		fill_n(OpParentID,max_photons,0);
+		fill_n(OpDetID,max_photons,0);
+		fill_n(OpPX,max_photons,0);
+		fill_n(OpPY,max_photons,0);
+		fill_n(OpPZ,max_photons,0);
+		fill_n(OpVX,max_photons,0);
+		fill_n(OpVY,max_photons,0);
+		fill_n(OpVZ,max_photons,0);
+		fill_n(OpEnergy,max_photons,0);
+		fill_n(OpKEnergy,max_photons,0);
+		fill_n(OpTime,max_photons,0);
 	}
 	if(PC -> GetParBool("OpPostTrack"))
 	{
@@ -321,15 +333,24 @@ void OpRunAction::clear_data()
 	if(PC -> GetParBool("OpBoundary"))
 	{
 		NOpBoundary = 0;
-		OpTrackIDBoundary.clear();
-		OpProcIDBoundary.clear();
-		OpPXBoundary.clear();
-		OpPYBoundary.clear();
-		OpPZBoundary.clear();
-		OpVXBoundary.clear();
-		OpVYBoundary.clear();
-		OpVZBoundary.clear();
-		OpTBoundary.clear();
+//		OpTrackIDBoundary.clear();
+//		OpProcIDBoundary.clear();
+//		OpPXBoundary.clear();
+//		OpPYBoundary.clear();
+//		OpPZBoundary.clear();
+//		OpVXBoundary.clear();
+//		OpVYBoundary.clear();
+//		OpVZBoundary.clear();
+//		OpTBoundary.clear();
+		fill_n(OpTrackIDBoundary,max_photons,0);
+		fill_n(OpProcIDBoundary,max_photons,0);
+		fill_n(OpPXBoundary,max_photons,0);
+		fill_n(OpPYBoundary,max_photons,0);
+		fill_n(OpPZBoundary,max_photons,0);
+		fill_n(OpVXBoundary,max_photons,0);
+		fill_n(OpVYBoundary,max_photons,0);
+		fill_n(OpVZBoundary,max_photons,0);
+		fill_n(OpTBoundary,max_photons,0);
 	}
 	if(PC->GetParBool("OpSiPM"))
 	{
@@ -364,34 +385,34 @@ void OpRunAction::FillTrack
 {
 	if(opt == MCTrack)	// starting point, prev track
 	{
-		TrackID[nTrack] = trkID;
-		TrackProcID[nTrack] = procID;
-		ParentID[nTrack] = parentID;
-		TrackPDG[nTrack] = pdg;
-		TrackDetID[nTrack] = detID;
-		TrackPX[nTrack] = p.x();
-		TrackPY[nTrack] = p.y();
-		TrackPZ[nTrack] = p.z();
-		TrackVX[nTrack] = v.x();
-		TrackVY[nTrack] = v.y();
-		TrackVZ[nTrack] = v.z();
-		TrackEnergy[nTrack] = totenergy;
-		TrackKEnergy[nTrack] = kinenergy;
+		TrackID.push_back(trkID);
+		TrackProcID.push_back(procID);
+		ParentID.push_back(parentID);
+		TrackPDG.push_back(pdg);
+		TrackDetID.push_back(detID);
+		TrackPX.push_back(p.x());
+		TrackPY.push_back(p.y());
+		TrackPZ.push_back(p.z());
+		TrackVX.push_back(v.x());
+		TrackVY.push_back(v.y());
+		TrackVZ.push_back(v.z());
+		TrackEnergy.push_back(totenergy);
+		TrackKEnergy.push_back(kinenergy);
 		nTrack++;
 	}
 	else if(opt == MCPostTrack)	// end point, post Track
 	{
-		PostTrackID[nPostTrack] = trkID;
-		PostTrackProcID[nPostTrack] = procID;
-		PostTrackDetID[nPostTrack] = detID;
-		PostTrackPX[nPostTrack] = p.x();
-		PostTrackPY[nPostTrack] = p.y();
-		PostTrackPZ[nPostTrack] = p.z();
-		PostTrackVX[nPostTrack] = v.x();
-		PostTrackVY[nPostTrack] = v.y();
-		PostTrackVZ[nPostTrack] = v.z();
-		PostTrackEnergy[nPostTrack] = totenergy;
-		PostTrackKEnergy[nPostTrack] = kinenergy;
+		PostTrackID.push_back(trkID);
+		PostTrackProcID.push_back(procID);
+		PostTrackDetID.push_back(detID);
+		PostTrackPX.push_back(p.x());
+		PostTrackPY.push_back(p.y());
+		PostTrackPZ.push_back(p.z());
+		PostTrackVX.push_back(v.x());
+		PostTrackVY.push_back(v.y());
+		PostTrackVZ.push_back(v.z());
+		PostTrackEnergy.push_back(totenergy);
+		PostTrackKEnergy.push_back(kinenergy);
 		nPostTrack++;
 	}
 	else
@@ -406,19 +427,32 @@ void OpRunAction::FillOpticalPhoton
 {
 	if(opt == MCTrack)
 	{
-		OpTrackID.push_back(trkID);
-		OpProcessID.push_back(procID);
-		OpParentID.push_back(parentID);
-		OpDetID.push_back(detID);
-		OpPX.push_back(p.x());
-		OpPY.push_back(p.y());
-		OpPZ.push_back(p.z());
-		OpVX.push_back(v.x());
-		OpVY.push_back(v.y());
-		OpVZ.push_back(v.z());
-		OpTime.push_back(time);
-		OpEnergy.push_back(energy);
-		OpKEnergy.push_back(kenergy);
+//		OpTrackID.push_back(trkID);
+//		OpProcessID.push_back(procID);
+//		OpParentID.push_back(parentID);
+//		OpDetID.push_back(detID);
+//		OpPX.push_back(p.x());
+//		OpPY.push_back(p.y());
+//		OpPZ.push_back(p.z());
+//		OpVX.push_back(v.x());
+//		OpVY.push_back(v.y());
+//		OpVZ.push_back(v.z());
+//		OpTime.push_back(time);
+//		OpEnergy.push_back(energy);
+//		OpKEnergy.push_back(kenergy);
+		OpTrack[NOp] = trkID;
+		OpProcess[NOp] = procID;
+		OpParent[NOp] = parentID;
+		OpDet[NOp] = detID;
+		OpPX[NOp] = p.x();
+		OpPY[NOp] = p.y();
+		OpPZ[NOp] = p.z();
+		OpVX[NOp] = v.x();
+		OpVY[NOp] = v.y();
+		OpVZ[NOp] = v.z();
+		OpTime[NOp] =  time;
+		OpEnergy[NOp] =  energy;
+		OpKEnergy[NOp] =  kenergy;
 		NOp++;
 	}
 	else if (opt == MCPostTrack)
@@ -442,25 +476,40 @@ void OpRunAction::FillOpticalPhoton
 }
 
 void OpRunAction::FillOpticalPhotonBoundary
-(G4int trkID, G4int procID, G4ThreeVector p, G4ThreeVector v, G4double t)
+(G4int trkID, G4int procID, G4ThreeVector v, G4ThreeVector p, G4double t)
 {
-	set_procID.insert(procID);
-	if(NOpBoundary == max_opticalphotons-1)
+//	if(NOpBoundary == max_opticalphotons-1)
+//	{
+//		G4cout << "Number Of Optical Photon boundary steps exceed max_opticalphotons" << G4endl;
+//		return;
+//	}
+//	if(find(OpTrackIDBoundary.begin(),OpTrackIDBoundary.end(),trkID) == OpTrackIDBoundary.end()){
+	for(int a=0; a<max_photons; a++)
 	{
-		G4cout << "Number Of Optical Photon boundary steps exceed max_opticalphotons" << G4endl;
-		return;
+		if(OpTrackIDBoundary[a] == trkID)
+			return;
 	}
-	OpTrackIDBoundary.push_back(trkID);
-	OpProcIDBoundary.push_back(procID);
-	OpPXBoundary.push_back(p.x());
-	OpPYBoundary.push_back(p.y());
-	OpPZBoundary.push_back(p.z());
-	OpVXBoundary.push_back(v.x());
-	OpVYBoundary.push_back(v.y());
-	OpVZBoundary.push_back(v.z());
-	OpTBoundary.push_back(t);
-//	G4cout << t << G4endl;
-	NOpBoundary++;
+//		OpTrackIDBoundary.push_back(trkID);
+//		OpProcIDBoundary.push_back(procID);
+//		OpPXBoundary.push_back(p.x());
+//		OpPYBoundary.push_back(p.y());
+//		OpPZBoundary.push_back(p.z());
+//		OpVXBoundary.push_back(v.x());
+//		OpVYBoundary.push_back(v.y());
+//		OpVZBoundary.push_back(v.z());
+//		OpTBoundary.push_back(t);
+//		OpTrackIDBoundary.push_back(trkID);
+		OpProcIDBoundary[NOpBoundary] = procID;
+		OpPXBoundary[NOpBoundary] =  p.x();
+		OpPYBoundary[NOpBoundary] =  p.y();
+		OpPZBoundary[NOpBoundary] =  p.z();
+		OpVXBoundary[NOpBoundary] =  v.x();
+		OpVYBoundary[NOpBoundary] =  v.y();
+		OpVZBoundary[NOpBoundary] =  v.z();
+		OpTBoundary[NOpBoundary] = t;
+//		G4cout << t << G4endl;
+		NOpBoundary++;
+	}
 }
 
 
@@ -472,25 +521,25 @@ void OpRunAction::FillStep
 //		StepDetID[nStep] = post_detID;	// mainly this case means particle track killed in a volume
 //	else
 //		StepDetID[nStep] = prev_detID;
-	if(nStep == max_steps-1)
-	{
-		G4cout << "Number of steps exceed the maximum step(" << max_steps << ")" << G4endl;
-		return;
-	}
-	StepFromHit[nStep] = fromHit;
-	StepTrackID[nStep] = trkID;
-	StepProcID[nStep] = procID;
-	StepTrackPDG[nStep] = pdg;
-	StepPrevDetID[nStep] = prev_detID;
-	StepPostDetID[nStep] = post_detID;
-	IsBoundary[nStep] = boundary;
-	StepPrevKE[nStep] = prevKE;
-	StepVX[nStep] = v.x();
-	StepVY[nStep] = v.y();
-	StepVZ[nStep] = v.z();
-	StepEdep[nStep] = edep;
-	StepLength[nStep] = length;
-	StepNSecondaryOP[nStep] = nSecondaries;
+//	if(nStep == max_steps-1)
+//	{
+//		G4cout << "Number of steps exceed the maximum step(" << max_steps << ")" << G4endl;
+//		return;
+//	}
+	StepFromHit.push_back(fromHit);
+	StepTrackID.push_back(trkID);
+	StepProcID.push_back(procID);
+	StepTrackPDG.push_back(pdg);
+	StepPrevDetID.push_back(prev_detID);
+	StepPostDetID.push_back(post_detID);
+	IsBoundary.push_back(boundary);
+	StepPrevKE.push_back(prevKE);
+	StepVX.push_back(v.x());
+	StepVY.push_back(v.y());
+	StepVZ.push_back(v.z());
+	StepEdep.push_back(edep);
+	StepLength.push_back(length);
+	StepNSecondaryOP.push_back(nSecondaries);
 	nStep++;
 }
 
@@ -509,28 +558,28 @@ void OpRunAction::FillSiPM
 	NOpSiPM++;
 	SetProcess(procID,procName);
 }
-G4int OpRunAction::find_OpIndex(G4int trkID)
-{
-	for(G4int idx=0; idx<max_opticalphotons; idx++)
-	{
-		if(OpTrackID[idx] == trkID)
-			return idx;
-	}
-	G4ExceptionDescription msg;
-	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
-	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
-}
-G4int OpRunAction::find_StepIndex(G4int trkID)
-{
-	for(G4int idx=0; idx<max_steps; idx++)
-	{
-		if(StepTrackID[idx] == trkID)
-			return idx;
-	}
+//G4int OpRunAction::find_OpIndex(G4int trkID)
+//{
+//	for(G4int idx=0; idx<max_opticalphotons; idx++)
+//	{
+//		if(OpTrackID[idx] == trkID)
+//			return idx;
+//	}
 //	G4ExceptionDescription msg;
 //	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
 //	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
-}
+//}
+//G4int OpRunAction::find_StepIndex(G4int trkID)
+//{
+//	for(G4int idx=0; idx<max_steps; idx++)
+//	{
+//		if(StepTrackID[idx] == trkID)
+//			return idx;
+//	}
+////	G4ExceptionDescription msg;
+////	msg << "OpRunAction::find_OpIndex can not find trkID" << G4endl;
+////	G4Exception("OpRunAction::find_OpIndex()", "OpR01",FatalException,msg);
+//}
 
 void OpRunAction::update_Tree()
 {
