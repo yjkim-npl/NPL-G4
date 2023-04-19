@@ -150,19 +150,19 @@ class OpRunAction : public G4UserRunAction
 //		vector<G4double> OpKEnergy;
 //		vector<G4double> OpTime;
 
-		G4int OpTrackID[max_photons]
-		G4int OpProcessID[max_photons]
-		G4int OpParentID[max_photons]
-		G4int OpDetID[max_photons]
-		G4double OpPX[max_photons]
-		G4double OpPY[max_photons]
-		G4double OpPZ[max_photons]
-		G4double OpVX[max_photons]
-		G4double OpVY[max_photons]
-		G4double OpVZ[max_photons]
-		G4double OpEnergy[max_photons]
-		G4double OpKEnergy[max_photons]
-		G4double OpTime[max_photons]
+		G4int OpTrackID[max_photons];
+		G4int OpProcessID[max_photons];
+		G4int OpParentID[max_photons];
+		G4int OpDetID[max_photons];
+		G4double OpPX[max_photons];
+		G4double OpPY[max_photons];
+		G4double OpPZ[max_photons];
+		G4double OpVX[max_photons];
+		G4double OpVY[max_photons];
+		G4double OpVZ[max_photons];
+		G4double OpEnergy[max_photons];
+		G4double OpKEnergy[max_photons];
+		G4double OpTime[max_photons];
 
 		G4int PostNOp;
 		vector<G4int> PostOpTrackID;
@@ -180,24 +180,24 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> PostOpTime;
 
 		G4int NOpBoundary;
-//		vector<G4int> OpTrackIDBoundary;
-//		vector<G4int> OpProcIDBoundary;
-//		vector<G4double> OpPXBoundary;
-//		vector<G4double> OpPYBoundary;
-//		vector<G4double> OpPZBoundary;
-//		vector<G4double> OpVXBoundary;
-//		vector<G4double> OpVYBoundary;
-//		vector<G4double> OpVZBoundary;
-//		vector<G4double> OpTBoundary;
-		G4int OpTrackIDBoundary[max_photons]
-		G4int OpProcIDBoundary[max_photons]
-		G4double OpPXBoundary[max_photons]
-		G4double OpPYBoundary[max_photons]
-		G4double OpPZBoundary[max_photons]
-		G4double OpVXBoundary[max_photons]
-		G4double OpVYBoundary[max_photons]
-		G4double OpVZBoundary[max_photons]
-		G4double OpTBoundary[max_photons]
+		vector<G4int> OpTrackIDBoundary;
+		vector<G4int> OpProcIDBoundary;
+		vector<G4double> OpPXBoundary;
+		vector<G4double> OpPYBoundary;
+		vector<G4double> OpPZBoundary;
+		vector<G4double> OpVXBoundary;
+		vector<G4double> OpVYBoundary;
+		vector<G4double> OpVZBoundary;
+		vector<G4double> OpTBoundary;
+//		G4int OpTrackIDBoundary[max_photons];
+//		G4int OpProcIDBoundary[max_photons];
+//		G4double OpPXBoundary[max_photons];
+//		G4double OpPYBoundary[max_photons];
+//		G4double OpPZBoundary[max_photons];
+//		G4double OpVXBoundary[max_photons];
+//		G4double OpVYBoundary[max_photons];
+//		G4double OpVZBoundary[max_photons];
+//		G4double OpTBoundary[max_photons];
 
 		// for SiPM readout
 		G4int NOpSiPM;

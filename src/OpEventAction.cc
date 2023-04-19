@@ -68,9 +68,9 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 	}
 
 	if(PC->GetParBool("MCStep") ||
-		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("OpBoundary")))
+		(PC->GetParBool("OpticalPhysics") && PC->GetParBool("OpBoundary")) )
 	{
-		G4cout << "EndOfEventAction " << G4endl;
+//		G4cout << "EndOfEventAction " << G4endl;
 		for(G4int a=0; a<vec_fID.size(); a++)
 		{
 			if(vec_fID.at(a) == -1)

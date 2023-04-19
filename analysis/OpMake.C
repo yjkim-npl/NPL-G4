@@ -27,7 +27,7 @@ void OpMake
 	bool Opt[13];
 	Opt[0] = 1;
 	Opt[1] = 0;
-	Opt[2] = 0;
+	Opt[2] = 1;
 	Opt[3] = 0; // segmenation error
 	Opt[4] = 0; // not working
 	Opt[5] = 0;
