@@ -1,0 +1,3 @@
+/Users/yongjun/work/git/NPL-G4/Opsim/build/CMakeFiles/Opsim.dir
+/Users/yongjun/work/git/NPL-G4/Opsim/build/CMakeFiles/edit_cache.dir
+/Users/yongjun/work/git/NPL-G4/Opsim/build/CMakeFiles/rebuild_cache.dir
