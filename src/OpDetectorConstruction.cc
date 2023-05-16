@@ -159,6 +159,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	{
 		G4int SiPMID = PC -> GetParInt("SiPMID");
 		G4double sizeX = PC -> GetParDouble("SiPM_sizeX");
+		G4double G_sizeX = PC -> GetParDouble("Glass_sizeX");
 		G4double sizeY = PC -> GetParDouble("SiPM_sizeY");
 		G4double sizeZ = PC -> GetParDouble("SiPM_sizeZ");
 		G4double totY  = PC -> GetParDouble("SiPM_totY");
@@ -172,6 +173,7 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4int nReplica = 21;	// 96.85 = 3.85*21+0.8*20
 		G4double width_Replica = 0.8 * mm;
 		G4Material* mat_SiPM = fMaterials -> GetMaterial("Silicon");
+		G4Material* mat_Glass = fMaterials -> GetMaterial("Glass");
 
 		if(PC -> GetParBool("SiPM_gapIn"))
 		{
@@ -205,8 +207,12 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		{
 			G4Box*solid_sensor = 
 				new G4Box("solid_SiPM",0.5*sizeX,0.5*totY,0.5*sizeZ);
+			G4Box* solid_glass = 
+				new G4Box("solid_Glass",0.5*G_sizeX,0.5*totY,0.5*sizeZ);
 			logicSiPM = 
 				new G4LogicalVolume(solid_sensor,mat_SiPM,"logicSiPM");
+			G4LogicalVolume* logic_Glass = 
+				new G4LogicalVolume(solid_glass,mat_Glass,"logicGlass");
 			if(PC->GetParBool("OpticalPhysics"))
 			{
 				G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
@@ -214,19 +220,29 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			}
 			if(PC->GetParBool("SC1In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX)+G_sizeX,0,SC1ZOffset-trans),logicSiPM,"SiPML1",logicWorld,false,SiPMID+1,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX)-G_sizeX,0,SC1ZOffset-trans),logicSiPM,"SiPMR1",logicWorld,false,SiPMID+2,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC1_sizeX),0,SC1ZOffset-trans),logic_Glass,"GlassL1",logicWorld,false,SiPMID+11,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC1_sizeX),0,SC1ZOffset-trans),logic_Glass,"GlassR1",logicWorld,false,SiPMID+12,checkOverlaps);
 			}
 			if(PC->GetParBool("SC2In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX)+G_sizeX,0,SC2ZOffset-trans),logicSiPM,"SiPML2",logicWorld,false,SiPMID+3,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX)-G_sizeX,0,SC2ZOffset-trans),logicSiPM,"SiPMR2",logicWorld,false,SiPMID+4,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC2_sizeX),0,SC2ZOffset-trans),logic_Glass,"GlassL2",logicWorld,false,SiPMID+21,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC2_sizeX),0,SC2ZOffset-trans),logic_Glass,"GlassR2",logicWorld,false,SiPMID+22,checkOverlaps);
 			}
 			if(PC->GetParBool("SC3In"))
 			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*SC3_sizeX+sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPML",logicWorld,false,SiPMID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logicSiPM,"SiPMR",logicWorld,false,SiPMID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX)+G_sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPML3",logicWorld,false,SiPMID+5,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX)-G_sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPMR3",logicWorld,false,SiPMID+6,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC3_sizeX),0,SC3ZOffset-trans),logic_Glass,"GlassL3",logicWorld,false,SiPMID+31,checkOverlaps);
+				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC3_sizeX),0,SC3ZOffset-trans),logic_Glass,"GlassR3",logicWorld,false,SiPMID+32,checkOverlaps);
 			}
+			G4VisAttributes* attGlass = new G4VisAttributes(G4Colour(G4Colour::Yellow()));
+			attGlass -> SetVisibility(true);
+			attGlass -> SetForceWireframe(true);
+			logic_Glass -> SetVisAttributes(attGlass);
 		}
 		G4VisAttributes* attSiPM = new G4VisAttributes(G4Colour(G4Colour::Grey()));
 		attSiPM -> SetVisibility(true);

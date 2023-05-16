@@ -97,6 +97,12 @@ void OpMaterials::CreateMaterials()
 		map_mat.insert(make_pair("Argon",fAr));
 
 	// Create materials with complex component
+
+	G4Material* fGlass = new G4Material("Glass",density=1.032*g/cm3,2);
+	fGlass -> AddElement(C,91.533*perCent);
+	fGlass -> AddElement(H,8.467*perCent);
+		map_mat.insert(make_pair("Glass",fGlass));
+
 	G4Material* fPVT = new G4Material("PVT", density=1.023*g/cm3, ncompo=2, kStateSolid);
 	G4double nH_per_cm3 = 5.15;
 	G4double nC_per_cm3 = 4.69;
@@ -105,8 +111,6 @@ void OpMaterials::CreateMaterials()
 	fPVT -> AddElement(H,natoms=9);
 	fPVT -> AddElement(C,natoms=9);
 		map_mat.insert(make_pair("Scintillator",fPVT));
-//		G4cout << "Density of PVT: " << fPVT -> GetDensity() << G4endl;
-//		G4cout << "Density of G4PVT: " << fNistMan->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE")->GetDensity() << G4endl;
 
 	G4Material* fC2H4 = G4Material::GetMaterial("G4_POLYETHYLENE");
 		map_mat.insert(make_pair("G4_POLYTEHTYLENE",fC2H4));
@@ -191,6 +195,28 @@ void OpMaterials::ApplyMaterialProperties()
 	fAir -> SetMaterialPropertiesTable(mp_air);
 	map_mat["Air"] = fAir;
 
+	// Glass
+	G4Material* fGlass = map_mat["Glass"];
+	vector<G4double> RI_Glass;
+	vector<G4double> Abs_Glass; 
+	G4MaterialPropertiesTable* mp_Glass = new G4MaterialPropertiesTable();
+	if(OpParameterContainer::GetInstance()->GetParInt("SC2matOpt")==0){
+		RI_Glass.assign(opEn_PS.size(),1.55);
+		Abs_Glass.assign(opEn_PS.size(),420*cm);
+		mp_Glass -> AddProperty("RINDEX",opEn_PS,RI_Glass);
+		mp_Glass -> AddProperty("ABSLENGTH",opEn_PS,Abs_Glass);
+	}else if (OpParameterContainer::GetInstance()->GetParInt("SC2matOpt") == 1){
+		RI_Glass.assign(opEn_PVT.size(),1.55);
+		Abs_Glass.assign(opEn_PVT.size(),420*cm);
+		mp_Glass -> AddProperty("RINDEX",opEn_PVT,RI_Glass);
+		mp_Glass -> AddProperty("ABSLENGTH",opEn_PVT,Abs_Glass);
+	}else{
+		G4cout << "SC2matOpt: " << OpParameterContainer::GetInstance()->GetParInt("SC2matOpt") << G4endl;
+		G4cout << "SC2 mat Opt should be the value 0 or 1" << G4endl;
+	}
+	fGlass -> SetMaterialPropertiesTable(mp_Glass);
+	map_mat["Glass"] = fGlass;
+
 	// PolyVinylToluene
 	G4Material* fScint = map_mat["Scintillator"];
 	vector<G4double> ABS_PVT, RI_PVT;
@@ -270,6 +296,8 @@ void OpMaterials::ApplyMaterialProperties()
 		0.38,0.37,0.35,0.33,0.30,0.27,0.24,0.21,
 		0.14,0.06,0.02,0.00
 	};
+	eff_SiPM.clear();
+	eff_SiPM.assign(opEn_PVT.size(),1.0);
 
 	G4MaterialPropertiesTable* mp_SiPM = new G4MaterialPropertiesTable();
 	mp_SiPM -> AddProperty("REFLECTIVITY",opEn_PVT,refl_SiPM);
