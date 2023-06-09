@@ -10,6 +10,7 @@
 #include "G4Orb.hh"
 #include "G4Sphere.hh"
 #include "G4Trd.hh"
+#include "G4ThreeVector.hh"
 #include "G4Trap.hh"
 #include "G4Tubs.hh"
 #include "G4VSolid.hh"
@@ -45,7 +46,7 @@ OpDetectorConstruction::~OpDetectorConstruction()
 G4VPhysicalVolume* OpDetectorConstruction::Construct()
 {  
 	// Option to switch on/off checking of volumes overlaps
-	G4bool checkOverlaps = true;
+	G4bool checkOverlaps = false;
 
 	// World
 	G4int worldID = PC -> GetParInt("WorldID");
@@ -65,33 +66,6 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	G4double trans = PC -> GetParDouble("Translation");
 
 	// SC
-	if(PC -> GetParBool("SC1In"))
-	{
-		G4int ID = PC -> GetParInt("SC1ID");
-		G4double sizeX = PC -> GetParDouble("SC1_sizeX");
-		G4double sizeY = PC -> GetParDouble("SC1_sizeY");
-		G4double sizeZ = PC -> GetParDouble("SC1_sizeZ");
-		G4double ZOffset = PC -> GetParDouble("SC1_ZOffset");
-		G4Material* mat;
-		if(PC -> GetParInt("SC1matOpt") == 0)
-			mat = fMaterials -> GetMaterial("Polystyrene");
-		else if(PC -> GetParInt("SC1matOpt") == 1)
-			mat = fMaterials -> GetMaterial("Scintillator");
-		else
-			mat = fMaterials -> GetMaterial("Polystyrene");
-
-		G4Box* solidSC1 =
-			new G4Box("SC1",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		logicSC1 = 
-			new G4LogicalVolume(solidSC1,mat,"SC1");
-		logicSC1 -> SetUserLimits(fStepLimit);
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC1,"SC1",logicWorld,false,ID+1,checkOverlaps);
-
-		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
-		attSC -> SetVisibility(true);
-		attSC -> SetForceWireframe(true);
-		logicSC1 -> SetVisAttributes(attSC);
-	}
 	if(PC -> GetParBool("SC2In"))
 	{
 		G4int ID = PC -> GetParInt("SC2ID");
@@ -126,82 +100,103 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		attSC -> SetForceWireframe(true);
 		logicSC2 -> SetVisAttributes(attSC);
 	}
-	if(PC -> GetParBool("SC3In"))
-	{
-		G4int ID = PC -> GetParInt("SC3ID");
-		G4double sizeX = PC -> GetParDouble("SC3_sizeX");
-		G4double sizeY = PC -> GetParDouble("SC3_sizeY");
-		G4double sizeZ = PC -> GetParDouble("SC3_sizeZ");
-		G4double ZOffset = PC -> GetParDouble("SC3_ZOffset");
-		G4Material* mat;
-		if(PC -> GetParInt("SC3matOpt") == 0)
-			mat = fMaterials -> GetMaterial("Polystyrene");
-		else if(PC -> GetParInt("SC3matOpt") == 1)
-			mat = fMaterials -> GetMaterial("Scintillator");
-		else
-			mat = fMaterials -> GetMaterial("Polystyrene");
-
-		G4Box* solidSC3 =
-			new G4Box("SC3",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		logicSC3 = 
-			new G4LogicalVolume(solidSC3,mat,"SC3");
-		logicSC3 -> SetUserLimits(fStepLimit);
-		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC3,"SC3",logicWorld,false,ID+1,checkOverlaps);
-
-		G4VisAttributes* attSC = new G4VisAttributes(G4Colour(G4Colour::Cyan()));
-		attSC -> SetVisibility(true);
-		attSC -> SetForceWireframe(true);
-		logicSC3 -> SetVisAttributes(attSC);
-	}
-
-
 	if(PC -> GetParBool("SiPMIn"))
 	{
 		G4int SiPMID = PC -> GetParInt("SiPMID");
+		G4bool LR = PC -> GetParBool("SiPMLR");
+		G4bool UD = PC -> GetParBool("SiPMUD");
 		G4double sizeX = PC -> GetParDouble("SiPM_sizeX");
 		G4double G_sizeX = PC -> GetParDouble("Glass_sizeX");
 		G4double sizeY = PC -> GetParDouble("SiPM_sizeY");
 		G4double sizeZ = PC -> GetParDouble("SiPM_sizeZ");
 		G4double totY  = PC -> GetParDouble("SiPM_totY");
 		G4double gap   = PC -> GetParDouble("SiPM_gap");
-		G4double SC1_sizeX = PC -> GetParDouble("SC1_sizeX");
+		G4double frame = PC -> GetParDouble("SiPM_frame");
+		G4int SC2ID = PC -> GetParInt("SC2ID");
 		G4double SC2_sizeX = PC -> GetParDouble("SC2_sizeX");
-		G4double SC3_sizeX = PC -> GetParDouble("SC3_sizeX");
-		G4double SC1ZOffset = PC -> GetParDouble("SC1_ZOffset");
+		G4double SC2_sizeY = PC -> GetParDouble("SC2_sizeY");
 		G4double SC2ZOffset = PC -> GetParDouble("SC2_ZOffset");
-		G4double SC3ZOffset = PC -> GetParDouble("SC3_ZOffset");
 		G4int nReplica = 21;	// 96.85 = 3.85*21+0.8*20
-		G4double width_Replica = 0.8 * mm;
+		const G4double width_Replica = (gap + frame) * mm;
 		G4Material* mat_SiPM = fMaterials -> GetMaterial("Silicon");
 		G4Material* mat_Glass = fMaterials -> GetMaterial("Glass");
 
 		if(PC -> GetParBool("SiPM_gapIn"))
 		{
-			G4Box* solid_area = 
-				new G4Box("solid_SiPM_area",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-			G4LogicalVolume* logic_area = 
-				new G4LogicalVolume(solid_area,fMaterials->GetMaterial("G4_AIR"),"logic_SiPM_area");
-			if(PC -> GetParBool("SC1In"))
-			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1L",logicWorld,false,SiPMID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX),0,SC1ZOffset-trans),logic_area,"Area1R",logicWorld,false,SiPMID+2,checkOverlaps);
-			}
-			if(PC -> GetParBool("SC2In"))
-			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2L",logicWorld,false,SiPMID+3,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX),0,SC2ZOffset-trans),logic_area,"Area2R",logicWorld,false,SiPMID+4,checkOverlaps);
-			}
-			if(PC -> GetParBool("SC3In"))
-			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2L",logicWorld,false,SiPMID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX),0,SC3ZOffset-trans),logic_area,"Area2R",logicWorld,false,SiPMID+6,checkOverlaps);
-			}
-
+//			G4Box* solid_area = 
+//				new G4Box("solid_SiPM_area",0.5*sizeX,0.5*totY,0.5*sizeZ);
+//			G4LogicalVolume* logic_area = 
+//				new G4LogicalVolume(solid_area,fMaterials->GetMaterial("G4_AIR"),"logic_SiPM_area");
+//			G4Box* solid_glass_area = 
+//				new G4Box("solid_SiPM_glass_area",0.5*G_sizeX,0.5*totY,0.5*sizeZ);
+//			G4LogicalVolume* logic_glass_area = 
+//				new G4LogicalVolume(solid_glass_area,fMaterials->GetMaterial("G4_AIR"),"logic_SiPM_glass_area");
+//			G4VisAttributes* attArea = new G4VisAttributes(G4Colour(G4Colour::Grey()));
+//			attArea -> SetVisibility(false);
+//			logic_area -> SetVisAttributes(attArea);
+//			logic_glass_area -> SetVisAttributes(attArea);
+			G4RotationMatrix* rot = new G4RotationMatrix(); rot->rotateZ(90*deg);
 			G4Box* solid_sensor = 
 				new G4Box("solid_SiPM",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 			logicSiPM = 
-				new G4LogicalVolume(solid_sensor,mat_SiPM,"logic_SiPM");
-			new G4PVReplica("SiPM",logicSiPM,logic_area,kYAxis,nReplica,width_Replica+sizeY,0);
+				new G4LogicalVolume(solid_sensor,mat_SiPM,"logicSiPM");
+			G4Box* solid_glass = 
+				new G4Box("solid_Glass",0.5*G_sizeX,0.5*sizeY,0.5*sizeZ);
+			G4LogicalVolume* logic_Glass =
+				new G4LogicalVolume(solid_glass,mat_Glass,"logicGlass");
+			if(PC->GetParBool("OpticalPhysics"))
+			{
+				G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
+				new G4LogicalSkinSurface("SiPM_surf",logicSiPM,surf_SiPM);
+			}
+			if(PC -> GetParBool("SC2In"))
+			{
+				if(LR)
+				{
+					for(G4int col=0; col<nReplica; col++)
+					{
+						G4String str_GlassL = "Glass"+to_string(col)+"L";
+						G4String str_GlassR = "Glass"+to_string(col)+"R";
+						G4String str_SiPML = "SiPM"+to_string(col)+"L";
+						G4String str_SiPMR = "SiPM"+to_string(col)+"R";
+						G4int cent = (G4int)nReplica/2;
+						new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX)+G_sizeX,(cent-col)*(gap+frame+sizeY),SC2ZOffset-trans),logicSiPM,str_SiPML,logicWorld,false,SiPMID+1000+SC2ID+col,checkOverlaps);
+						new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX)-G_sizeX,(cent-col)*(gap+frame+sizeY),SC2ZOffset-trans),logicSiPM,str_SiPMR,logicWorld,false,SiPMID+2000+SC2ID+col,checkOverlaps);
+						new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+G_sizeX),(cent-col)*(gap+frame+sizeY),SC2ZOffset-trans),logic_Glass,str_GlassL,logicWorld,false,0,checkOverlaps);
+						new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+G_sizeX),(cent-col)*(gap+frame+sizeY),SC2ZOffset-trans),logic_Glass,str_GlassR,logicWorld,false,0,checkOverlaps);
+					}
+				}
+				if(UD)
+				{
+					for(G4int row=0; row<nReplica; row++)
+					{
+						G4String str_GlassU = "Glass"+to_string(row)+"U";
+						G4String str_GlassD = "Glass"+to_string(row)+"D";
+						G4String str_SiPMU = "SiPM"+to_string(row)+"U";
+						G4String str_SiPMD = "SiPM"+to_string(row)+"D";
+						G4int cent = (G4int)nReplica/2;
+						new G4PVPlacement(rot,G4ThreeVector((cent-row)*(gap+frame+sizeY),0.5*(SC2_sizeX+sizeX)+G_sizeX,SC2ZOffset-trans),logicSiPM,str_SiPMU,logicWorld,false,SiPMID+3000+SC2ID+row,checkOverlaps);
+						new G4PVPlacement(rot,G4ThreeVector((cent-row)*(gap+frame+sizeY),-0.5*(SC2_sizeX+sizeX)-G_sizeX,SC2ZOffset-trans),logicSiPM,str_SiPMD,logicWorld,false,SiPMID+4000+SC2ID+row,checkOverlaps);
+						new G4PVPlacement(rot,G4ThreeVector((cent-row)*(gap+frame+sizeY),0.5*(SC2_sizeX+G_sizeX),SC2ZOffset-trans),logic_Glass,str_GlassU,logicWorld,false,0,checkOverlaps);
+						new G4PVPlacement(rot,G4ThreeVector((cent-row)*(gap+frame+sizeY),-0.5*(SC2_sizeX+G_sizeX),SC2ZOffset-trans),logic_Glass,str_GlassD,logicWorld,false,0,checkOverlaps);
+					}
+				}
+//				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX)+G_sizeX,0,SC2ZOffset-trans),logic_area,"Area2L",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX)-G_sizeX,0,SC2ZOffset-trans),logic_area,"Area2R",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+G_sizeX),0,SC2ZOffset-trans),logic_glass_area,"AreaG2L",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+G_sizeX),0,SC2ZOffset-trans),logic_glass_area,"AreaG2R",logicWorld,false,0,checkOverlaps);
+//
+//				new G4PVPlacement(rot,G4ThreeVector(0,0.5*(SC2_sizeX+sizeX)+G_sizeX,SC2ZOffset-trans),logic_area,"Area2U",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(rot,G4ThreeVector(0,-0.5*(SC2_sizeX+sizeX)-G_sizeX,SC2ZOffset-trans),logic_area,"Area2D",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(rot,G4ThreeVector(0,0.5*(SC2_sizeX+G_sizeX),SC2ZOffset-trans),logic_glass_area,"AreaG2U",logicWorld,false,0,checkOverlaps);
+//				new G4PVPlacement(rot,G4ThreeVector(0,-0.5*(SC2_sizeX+G_sizeX),SC2ZOffset-trans),logic_glass_area,"AreaG2D",logicWorld,false,0,checkOverlaps);
+			}
+//			new G4PVReplica("Glass",logic_Glass,logic_glass_area,kYAxis,nReplica,width_Replica+sizeY,0);
+//			new G4PVReplica("SiPM",logicSiPM,logic_area,kYAxis,nReplica,width_Replica+sizeY,0);
+			G4VisAttributes* attGlass = new G4VisAttributes(G4Colour(G4Colour::Yellow()));
+			attGlass -> SetVisibility(true);
+			attGlass -> SetForceWireframe(true);
+			logic_Glass -> SetVisAttributes(attGlass);
 		}
 		else // unified one silicon column
 		{
@@ -218,26 +213,17 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 				G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
 				new G4LogicalSkinSurface("SiPM_surf",logicSiPM,surf_SiPM);
 			}
-			if(PC->GetParBool("SC1In"))
-			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC1_sizeX+sizeX)+G_sizeX,0,SC1ZOffset-trans),logicSiPM,"SiPML1",logicWorld,false,SiPMID+1,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC1_sizeX+sizeX)-G_sizeX,0,SC1ZOffset-trans),logicSiPM,"SiPMR1",logicWorld,false,SiPMID+2,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC1_sizeX),0,SC1ZOffset-trans),logic_Glass,"GlassL1",logicWorld,false,SiPMID+11,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC1_sizeX),0,SC1ZOffset-trans),logic_Glass,"GlassR1",logicWorld,false,SiPMID+12,checkOverlaps);
-			}
 			if(PC->GetParBool("SC2In"))
 			{
+				G4RotationMatrix rot = G4RotationMatrix(); rot.rotateX(90*deg);
 				new G4PVPlacement(0,G4ThreeVector(0.5*(SC2_sizeX+sizeX)+G_sizeX,0,SC2ZOffset-trans),logicSiPM,"SiPML2",logicWorld,false,SiPMID+3,checkOverlaps);
 				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC2_sizeX+sizeX)-G_sizeX,0,SC2ZOffset-trans),logicSiPM,"SiPMR2",logicWorld,false,SiPMID+4,checkOverlaps);
 				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC2_sizeX),0,SC2ZOffset-trans),logic_Glass,"GlassL2",logicWorld,false,SiPMID+21,checkOverlaps);
 				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC2_sizeX),0,SC2ZOffset-trans),logic_Glass,"GlassR2",logicWorld,false,SiPMID+22,checkOverlaps);
-			}
-			if(PC->GetParBool("SC3In"))
-			{
-				new G4PVPlacement(0,G4ThreeVector(0.5*(SC3_sizeX+sizeX)+G_sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPML3",logicWorld,false,SiPMID+5,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(SC3_sizeX+sizeX)-G_sizeX,0,SC3ZOffset-trans),logicSiPM,"SiPMR3",logicWorld,false,SiPMID+6,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(0.5*(G_sizeX+SC3_sizeX),0,SC3ZOffset-trans),logic_Glass,"GlassL3",logicWorld,false,SiPMID+31,checkOverlaps);
-				new G4PVPlacement(0,G4ThreeVector(-0.5*(G_sizeX+SC3_sizeX),0,SC3ZOffset-trans),logic_Glass,"GlassR3",logicWorld,false,SiPMID+32,checkOverlaps);
+//				new G4PVPlacement(rot,,G4ThreeVector(0.5*(SC2_sizeY+sizeX)+G_sizeX,SC2ZOffset-trans),logicSiPM,"SiPMU2",logicWorld,false,SiPMID+5,checkOverlaps);
+//				new G4PVPlacement(rot,,G4ThreeVector(-0.5*(SC2_sizeY+sizeX)-G_sizeX,SC2ZOffset-trans),logicSiPM,"SiPMD2",logicWorld,false,SiPMID+6,checkOverlaps);
+//				new G4PVPlacement(rot,,G4ThreeVector(0.5*(G_sizeX+SC2_sizeY),SC2ZOffset-trans),logic_Glass,"GlassU2",logicWorld,false,SiPMID+23,checkOverlaps);
+//				new G4PVPlacement(rot,,G4ThreeVector(-0.5*(G_sizeX+SC2_sizeY),SC2ZOffset-trans),logic_Glass,"GlassD2",logicWorld,false,SiPMID+24,checkOverlaps);
 			}
 			G4VisAttributes* attGlass = new G4VisAttributes(G4Colour(G4Colour::Yellow()));
 			attGlass -> SetVisibility(true);

@@ -160,6 +160,7 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 					OpSiPMHit* hit = (*HC_SiPM)[b];
 					G4int NOpSiPM = hit -> GetPhotonCount();
 					G4int detID = hit -> GetDetectorID();
+//					G4cout << "EventAction:: " << detID << G4endl;
 					for(G4int c=0; c<NOpSiPM; c++)
 					{
 						G4int procID = hit -> GetProcID(c);

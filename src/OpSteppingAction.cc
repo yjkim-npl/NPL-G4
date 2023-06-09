@@ -147,7 +147,7 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 //	if(prevNo == 201 || postNo == 201)
 	if(PC -> GetParInt("StepVerbosity") > 0)
 	{
-		G4cout << "##########" <<G4endl;
+		G4cout << G4endl << "##########" <<G4endl;
 		G4cout << "OpSteppingAction::UserSteppingAction" << G4endl;
 		G4cout << "PrevBoundary : " << prev_boundary << " PostBoundary: " << post_boundary << G4endl;
 		G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
@@ -156,7 +156,7 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 		G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
 		G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
 		G4cout << "Edep: " << fedep << G4endl;
-		G4cout << "posX: " << pos.x() << " -> " << post_pos.x() << G4endl;
+		G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
 		G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
 	}
 

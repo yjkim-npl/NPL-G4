@@ -79,7 +79,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 //			&&
 //			 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary)
 		{
-			G4cout << "##########" <<G4endl;
+			G4cout << G4endl << "##########" <<G4endl;
 			G4cout << "OpSD::ProcessHit" << G4endl;
 			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
 			G4cout << "Boundary: " << boundary << G4endl;

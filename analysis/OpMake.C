@@ -20,7 +20,7 @@ void OpMake
 (
  const char* particle = "proton",
  const char* energy   = "100MeV",
- const char* suffix   = "SY1000_noSiPM"
+ const char* suffix   = "gap_LR"
 )
 {
 	/*
@@ -36,9 +36,10 @@ void OpMake
 		 8. 1-D Time distribution at SiPM             (OpSiPM)
 		 9. 1-D Time difference at LR                 (OpSiPM)
 		 10. 1-D ratio of photons                     (OpTrack && OpPostTrack && OpSiPM && OpBoundary)
-		     total, absorbed, transmitted to SiPM and detected(efficiency)
+		     total, absorbed, transmitted to SiPM and efficiency, geom
+		 11. 2-D # of detected photon vs. Timing resolution (OpSiPM)
 	 */
-	const int n_Hist = 11;
+	const int n_Hist = 12;
 	bool Opt[n_Hist]; fill_n(Opt,n_Hist,1);
 	const int StepFromHit = 1;
 
@@ -100,22 +101,13 @@ void OpMake
 			L_out.Add(name);
 		if(((TString)name->GetName()).Contains("PVT") || ((TString)name->GetName()).Contains("PS"))
 			L_out.Add(name);
+		if(((TString)name->GetName()).Contains("SiPM"))
+			L_out.Add(name);
 	}
 	
 	// Define the data container
-	const int m_t = 1e4;
 	const int m_s = 2.5e4;
 	const int m_o = 1e4;
-	// MCTrack data
-	int nTrack;
-	int t_ID[m_t], t_ProcID[m_t], t_ParentID[m_t], t_PDG[m_t], t_DetID[m_t];
-	double t_px[m_t], t_py[m_t], t_pz[m_t], t_vx[m_t], t_vy[m_t], t_vz[m_t], t_KE[m_t];
-
-	// MCPostTrack data
-	int nPostTrack;
-	int p_ID[m_t], p_ProcID[m_t], p_DetID[m_t];
-	double p_px[m_t], p_py[m_t], p_pz[m_t], p_vx[m_t], p_vy[m_t], p_vz[m_t], p_KE[m_t];
-
 	// MCStep data
 	int nStep;
 	int s_ID[m_s], s_FromHit[m_s], s_ProcID[m_s], s_PDG[m_s], s_PrevDetID[m_s], s_PostDetID[m_s];
@@ -145,38 +137,6 @@ void OpMake
 	double ob_px[m_s], ob_py[m_s], ob_pz[m_s], ob_vx[m_s], ob_vy[m_s], ob_vz[m_s], ob_Time[m_s];
 
 	// Link container
-	if(map_parameters["MCTrack"] == "true")
-	{
-		cout << "MCTrack was called" << endl;
-		T -> SetBranchAddress("nTrack",&nTrack);
-		T -> SetBranchAddress("TrackID",t_ID);
-		T -> SetBranchAddress("TrackProcID",t_ProcID);
-		T -> SetBranchAddress("ParentID",t_ParentID);
-		T -> SetBranchAddress("TrackPDG",t_PDG);
-		T -> SetBranchAddress("TrackDetID",t_DetID);
-		T -> SetBranchAddress("TrackPX",t_px);
-		T -> SetBranchAddress("TrackPY",t_py);
-		T -> SetBranchAddress("TrackPZ",t_pz);
-		T -> SetBranchAddress("TrackVX",t_vx);
-		T -> SetBranchAddress("TrackVY",t_vy);
-		T -> SetBranchAddress("TrackVZ",t_vz);
-		T -> SetBranchAddress("TrackKEnergy",t_KE);
-	}
-	if(map_parameters["MCPostTrack"] == "true")
-	{
-		cout << "MCPostTrack was called" << endl;
-		T -> SetBranchAddress("nPostTrack",&nPostTrack);
-		T -> SetBranchAddress("PostTrackID",p_ID);
-		T -> SetBranchAddress("PostTrackProcID",p_ProcID);
-		T -> SetBranchAddress("PostTrackDetID",p_DetID);
-		T -> SetBranchAddress("PostTrackPX",p_px);
-		T -> SetBranchAddress("PostTrackPY",p_py);
-		T -> SetBranchAddress("PostTrackPZ",p_pz);
-		T -> SetBranchAddress("PostTrackVX",p_vx);
-		T -> SetBranchAddress("PostTrackVY",p_vy);
-		T -> SetBranchAddress("PostTrackVZ",p_vz);
-		T -> SetBranchAddress("PostTrackKEnergy",p_KE);
-	}
 	if(map_parameters["MCStep"] == "true")
 	{
 		cout << "MCStep was called" << endl;
@@ -286,21 +246,30 @@ void OpMake
 	// HIST 6
 	TH1F* H1_OpTrackLength = new TH1F("H1_OpTrackLength","",1000,0,1000);
 	// HIST 7
-	enum {L,R,Le,Re};
-	const char* str_SiPM_opt[] = {"Left","Right","Left_eff","Right_eff"};
+	enum {Le,Re,Ue,De};
+	const char* str_SiPM_opt[] = {"Le","Re","Ue","De"};
 	const int n_SiPM_opt = sizeof(str_SiPM_opt)/sizeof(str_SiPM_opt[0]);
 	TH1F* H1_NOpSiPM[n_SiPM_opt];
 	for(int a=0; a<n_SiPM_opt; a++)
+	{
+		if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
+			continue;
 		H1_NOpSiPM[a] = new TH1F(Form("H1_NOpSiPM_%s",str_SiPM_opt[a]),"",5000,0,5000);
+	}
 	// HIST 8
 	TH1F* H1_OpSiPMTime[n_SiPM_opt];
 	for(int a=0; a<n_SiPM_opt; a++)
+	{
+		if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
+			continue;
 		H1_OpSiPMTime[a] = new TH1F(Form("H1_OpSiPMTime_%s",str_SiPM_opt[a]),"",1000,0,50);
+	}
 	// HIST 9
 	TH1F* H1_SiPMTimeDiff = new TH1F(Form("H1_SiPMTimeDiff"),"",10000,-50,50);
-	TH1F* H1_SiPMTimeDiff_eff = new TH1F("H1_SiPMTimeDiff_eff","",10000,-50,50);
 	// HIST 10
 	TH1F* H1_ratio = new TH1F("H1_ratio","",6,0,6);
+	// HIST 11
+	TH2F* H2_dLY_TimeRes = new TH2F(Form("H2_dLY_TimeRes"),"",5000,0,5000,200,-2,2);
 
 	// event loop
 	int o_gen = 0;
@@ -319,10 +288,8 @@ void OpMake
 		if(Opt[10])
 		{
 			int gen = H1_ratio -> GetBinContent(1) + NOp;
-			int die = H1_ratio -> GetBinContent(2) + PostNOp;
 			H1_ratio -> SetBinContent(1,gen);
 			o_gen += NOp;
-			o_die += PostNOp;
 		}
 		for(int b=0; b<NOp; b++)
 		{
@@ -380,18 +347,18 @@ void OpMake
 		}// each optical photon at PostOpTrack
 
 		// container for calculation of energy weighted time 
-		int NOp_L = 0;	// for opt 7
-		int NOp_L_eff = 0;
-		int NOp_R = 0;
-		int NOp_R_eff = 0;
-		double MeanTime_L = 0;
-		double MeanTime_R = 0;
+		int NOp_Le = 0;	// for opt 7
+		int NOp_Re = 0;
+		int NOp_Ue = 0;
+		int NOp_De = 0;
 		double MeanTime_Le = 0;
 		double MeanTime_Re = 0;
-		double MeanEnergy_L = 0;
-		double MeanEnergy_R = 0;
+		double MeanTime_Ue = 0;
+		double MeanTime_De = 0;
 		double MeanEnergy_Le = 0;
 		double MeanEnergy_Re = 0;
+		double MeanEnergy_Ue = 0;
+		double MeanEnergy_De = 0;
 
 		if(Opt[10])
 		{
@@ -401,62 +368,61 @@ void OpMake
 		for(int b=0; b<NOpSiPM; b++)
 		{
 			double wav = 1.2398e-3/os_KE[b];
-			int R = rand()%100;
-			if(Opt[7])
+			int R_eff = rand()%100;
+			int R_geom;
+			if(map_parameters["SiPM_gapIn"] == "true")
 			{
-				if(os_vx[b] > 0) 
-				{
-					NOp_R++;
-					if(R < 100*FindEff(wav,vec_wav,vec_eff))
-					{
-//						cout << "R: " << R << " wav: " << wav << " eff: " << 100*FindEff(wav,vec_wav,vec_eff) << endl;
-						NOp_R_eff++;
-					}else{
-//						cout << "R > eff" << endl;
-					}
-				}
-				else if (os_vx[b] <0)
-				{
-					NOp_L++;
-					if(R < 100*FindEff(wav,vec_wav,vec_eff))
-					{
-//						cout << "R: " << R << " wav: " << wav << " eff: " << 100*FindEff(wav,vec_wav,vec_eff) << endl;
-						NOp_L_eff++;
-					}else{
-//						cout << "R > eff" << endl;
-					}
-				}
-//				else cout << "other position was detected" << endl;
+				R_geom = 0;
+//				cout << "gap in inserted!" << endl;
 			}
-			if(Opt[8] || Opt[9])
-			{
-				if(os_vx[b] >0)
-				{
-					MeanTime_R += os_KE[b]*os_Time[b];
-					MeanEnergy_R += os_KE[b];
-					if(R < 100*FindEff(wav,vec_wav,vec_eff))
-					{
-						MeanTime_Re += os_KE[b]*os_Time[b];
-						MeanEnergy_Re += os_KE[b];
-					}
-				} else if (os_vx[b] <0){
-					MeanTime_L += os_KE[b]*os_Time[b];
-					MeanEnergy_L += os_KE[b];
-					if(R < 100*FindEff(wav,vec_wav,vec_eff)) {
-						MeanTime_Le += os_KE[b]*os_Time[b];
-						MeanEnergy_Le += os_KE[b];
-					}
-				} else {
-//					cout << "efficiency rejected" << endl;
-				}
-			}
+			else
+				R_geom = rand()%100;
 			if(Opt[10])
 			{
 				H1_ratio -> Fill(3);
-				if(R < 100*FindEff(wav,vec_wav,vec_eff))
+				if(R_geom < 65)
 				{
-//					cout << R << " " << 100*FindEff(wav,vec_wav,vec_eff) << endl;
 					H1_ratio -> Fill(4);
+					if(R_eff < 100*FindEff(wav,vec_wav,vec_eff))
+						H1_ratio -> Fill(5);
+				}
+			}
+
+			if(Opt[7] || Opt[9])
+			{
+				if(R_eff > 100* FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
+					continue;
+				if(os_DetID[b]/1000 == 11){
+					NOp_Le++;	// Left + eff + geom
+				}else if (os_DetID[b]/1000 == 12){
+					NOp_Re++; // Right + eff + geom
+				}else if (os_DetID[b]/1000 == 13){
+					NOp_Ue++; // Up + eff + geom
+				}else if (os_DetID[b]/1000 == 14){
+					NOp_De++;
+				}else{
+					cout << "Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID[b] <<  endl;
+					continue;
+				}
+			}
+			if(Opt[8] || Opt[9])
+			{
+				if(R_eff > 100*FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
+					continue;
+				if(os_DetID[b]/1000 == 11){
+					MeanTime_Le += os_KE[b]*os_Time[b];
+					MeanEnergy_Le += os_KE[b];
+				}else if(os_DetID[b]/1000 == 12){
+					MeanTime_Re += os_KE[b]*os_Time[b];
+					MeanEnergy_Re += os_KE[b];
+				}else if(os_DetID[b]/1000 == 13){
+					MeanTime_Ue += os_KE[b]*os_Time[b];
+					MeanEnergy_Ue += os_KE[b];
+				}else if(os_DetID[b]/1000 == 14){
+					MeanTime_De += os_KE[b]*os_Time[b];
+					MeanEnergy_De += os_KE[b];
+				} else {
+					continue;
 				}
 			}
 		}// each optical photon at OpSiPM
@@ -469,30 +435,46 @@ void OpMake
 		}
 		if(Opt[7])
 		{
-			H1_NOpSiPM[L] -> Fill(NOp_L);
-			H1_NOpSiPM[R] -> Fill(NOp_R);
-			H1_NOpSiPM[Le] -> Fill(NOp_L_eff);
-			H1_NOpSiPM[Re] -> Fill(NOp_R_eff);
+			if(map_parameters["SiPMLR"] == "true")
+			{
+				H1_NOpSiPM[Le] -> Fill(NOp_Le);
+				H1_NOpSiPM[Re] -> Fill(NOp_Re);
+			}
+			if(map_parameters["SiPMUD"] == "true")
+			{
+				H1_NOpSiPM[Ue] -> Fill(NOp_Ue);
+				H1_NOpSiPM[De] -> Fill(NOp_De);
+			}
 		}
-		if(Opt[8] || Opt[9])
+		if(Opt[8] || Opt[9] || Opt[11])
 		{
-			MeanTime_L /= MeanEnergy_L;
-			MeanTime_R /= MeanEnergy_R;
 			MeanTime_Le /= MeanEnergy_Le;
 			MeanTime_Re /= MeanEnergy_Re;
+			MeanTime_Ue /= MeanEnergy_Ue;
+			MeanTime_De /= MeanEnergy_De;
 			if(Opt[8])
 			{
-				H1_OpSiPMTime[L] -> Fill(MeanTime_L);
-				H1_OpSiPMTime[R] -> Fill(MeanTime_R);
-				H1_OpSiPMTime[Le] -> Fill(MeanTime_Le);
-				H1_OpSiPMTime[Re] -> Fill(MeanTime_Re);
+				if(map_parameters["SiPMLR"] == "true")
+				{
+					H1_OpSiPMTime[Le] -> Fill(MeanTime_Le);
+					H1_OpSiPMTime[Re] -> Fill(MeanTime_Re);
+				}
+				if(map_parameters["SiPMUD"] == "true")
+				{
+					H1_OpSiPMTime[Ue] -> Fill(MeanTime_Ue);
+					H1_OpSiPMTime[De] -> Fill(MeanTime_De);
+				}
 			}
 			if(Opt[9])
 			{
-				double Time_diff = MeanTime_L - MeanTime_R;
-				double Time_diff_eff = MeanTime_Le - MeanTime_Re;
+				double Time_diff = MeanTime_Le - MeanTime_Re;
 				H1_SiPMTimeDiff -> Fill(Time_diff);
-				H1_SiPMTimeDiff_eff -> Fill(Time_diff_eff);
+			}
+			if(Opt[11])
+			{
+				double NOp_eg = 0.25*NOp_Le + 0.25*NOp_Re + 0.25*NOp_Ue + 0.25*NOp_De;
+				double Time_diff_eg = MeanTime_Le - MeanTime_Re;
+				H2_dLY_TimeRes -> Fill(NOp_eg,Time_diff_eg);
 			}
 		}
 		map<int,double> map_TrkID_Edep;
@@ -541,23 +523,30 @@ void OpMake
 	if(Opt[6])
 		H1_OpTrackLength -> Write();
 	if(Opt[7])	{
-		H1_NOpSiPM[L] -> Write();
-		H1_NOpSiPM[R] -> Write();
-		H1_NOpSiPM[Le] -> Write();
-		H1_NOpSiPM[Re] -> Write();
+		for(int a=0; a<n_SiPM_opt; a++)
+		{
+			if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
+				continue;
+			H1_NOpSiPM[a] -> Write();
+		}
 	}
 	if(Opt[8]){
-		H1_OpSiPMTime[L] -> Write();
-		H1_OpSiPMTime[R] -> Write();
-		H1_OpSiPMTime[Le] -> Write();
-		H1_OpSiPMTime[Re] -> Write();
+		for(int a=0; a<n_SiPM_opt; a++)
+		{
+			if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
+				continue;
+			H1_OpSiPMTime[a] -> Write();
+		}
 	}
 	if(Opt[9]){
 		H1_SiPMTimeDiff -> Write();
-		H1_SiPMTimeDiff_eff -> Write();
+//		H1_SiPMTimeDiff_eg -> Write();
 	}
 	if(Opt[10]){
 		H1_ratio -> Write();
+	}
+	if(Opt[11]){
+		H2_dLY_TimeRes -> Write();
 	}
 	F -> Close();
 	G -> Close();

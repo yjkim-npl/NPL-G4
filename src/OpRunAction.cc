@@ -678,6 +678,8 @@ void OpRunAction::FillSiPM
 (G4int detID, G4int procID, G4String procName,
  G4ThreeVector pos, G4ThreeVector mom, G4double time, G4double energy)
 {
+	OpSiPMProcID[NOpSiPM]=procID;
+	OpSiPMDetID[NOpSiPM]=detID;
 	OpSiPMVX[NOpSiPM]=pos.x();
 	OpSiPMVY[NOpSiPM]=pos.y();
 	OpSiPMVZ[NOpSiPM]=pos.z();

@@ -1,7 +1,7 @@
 #include "OpSiPMHit.hh"
 #include "OpSiPMSD.hh"
-
 #include "OpParameterContainer.hh"
+
 #include "G4HCofThisEvent.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4OpBoundaryProcess.hh"
@@ -11,6 +11,7 @@
 #include "G4ParticleTypes.hh"
 #include "G4SDManager.hh"
 #include "G4TrackVector.hh"
+#include "G4ThreeVector.hh"
 
 OpSiPMSD::OpSiPMSD(const G4String &name, const G4String &HCname)
 	:G4VSensitiveDetector(name),
@@ -41,10 +42,16 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	{
 		return false;
 	}
-	G4int prevNo = step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
+	G4ThreeVector pos = step -> GetPostStepPoint() -> GetPosition();
+	G4int SCNo = OpParameterContainer::GetInstance()->GetParInt("SC2ID");
+	G4double widthX;
+	G4double widthY;
+
+//	G4int prevNo = step -> GetPreStepPoint() -> GetTouchable()-> GetReplicaNumber(); // SiPMID
+	G4int prevNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
+//	G4cout << "prevNo: " << prevNo << G4endl;
 	G4double prevKE = step -> GetPreStepPoint() -> GetKineticEnergy();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
-	G4ThreeVector pos = step -> GetPreStepPoint() -> GetPosition();
 //	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
 	G4double time = step -> GetTrack() -> GetGlobalTime();
 	G4int procID = -10;
