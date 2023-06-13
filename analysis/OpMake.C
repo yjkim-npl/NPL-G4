@@ -116,14 +116,24 @@ void OpMake
 
 	// OpTrack data
 	int NOp;
-	int o_ID[m_o], o_ProcID[m_o], o_ParentID[m_o], o_DetID[m_o];
-	double o_px[m_o], o_py[m_o], o_pz[m_o], o_vx[m_o], o_vy[m_o], o_vz[m_o], o_KE[m_o], o_Time[m_o];
+	// array
+//	int o_ID[m_o], o_ProcID[m_o], o_ParentID[m_o], o_DetID[m_o];
+//	double o_px[m_o], o_py[m_o], o_pz[m_o], o_vx[m_o], o_vy[m_o], o_vz[m_o], o_KE[m_o], o_Time[m_o];
+
+	// vector
+	vector<int> *o_ID, *o_ProcID, *o_ParentID, *o_DetID;
+	vector<double> *o_px, *o_py, *o_pz, *o_vx, *o_vy, *o_vz, *o_KE, *o_Time;
 
 	// OpPostTrack data
 	int PostNOp;
-	int op_ID[m_o], op_ProcID[m_o], op_DetID[m_o];
-	double op_px[m_o], op_py[m_o], op_pz[m_o], op_vx[m_o], op_vy[m_o], op_vz[m_o];
-	double op_KE[m_o], op_Time[m_o], op_Length[m_o];
+	// array
+//	int op_ID[m_o], op_ProcID[m_o], op_DetID[m_o];
+//	double op_px[m_o], op_py[m_o], op_pz[m_o], op_vx[m_o], op_vy[m_o], op_vz[m_o];
+//	double op_KE[m_o], op_Time[m_o], op_Length[m_o];
+	// vector
+	vector<int> *op_ID, *op_ProcID, *op_DetID;
+	vector<double> *op_px, *op_py, *op_pz, *op_vx, *op_vy, *op_vz;
+	vector<double> *op_KE, *op_Time, *op_Length;
 
 	// OpSiPM data
 	int NOpSiPM;
@@ -157,35 +167,35 @@ void OpMake
 	{
 		cout << "OpTrack was called" << endl;
 		T -> SetBranchAddress("NOp",&NOp);
-		T -> SetBranchAddress("OpTrackID",o_ID);
-		T -> SetBranchAddress("OpProcessID",o_ProcID);
-		T -> SetBranchAddress("OpParentID",o_ParentID);
-		T -> SetBranchAddress("OpDetID",o_DetID);
-		T -> SetBranchAddress("OpPX",o_px);
-		T -> SetBranchAddress("OpPY",o_py);
-		T -> SetBranchAddress("OpPZ",o_pz);
-		T -> SetBranchAddress("OpVX",o_vx);
-		T -> SetBranchAddress("OpVY",o_vy);
-		T -> SetBranchAddress("OpVZ",o_vz);
-		T -> SetBranchAddress("OpKEnergy",o_KE);
-		T -> SetBranchAddress("OpTime",o_Time);
+		T -> SetBranchAddress("OpTrackID",&o_ID);
+		T -> SetBranchAddress("OpProcessID",&o_ProcID);
+		T -> SetBranchAddress("OpParentID",&o_ParentID);
+		T -> SetBranchAddress("OpDetID",&o_DetID);
+		T -> SetBranchAddress("OpPX",&o_px);
+		T -> SetBranchAddress("OpPY",&o_py);
+		T -> SetBranchAddress("OpPZ",&o_pz);
+		T -> SetBranchAddress("OpVX",&o_vx);
+		T -> SetBranchAddress("OpVY",&o_vy);
+		T -> SetBranchAddress("OpVZ",&o_vz);
+		T -> SetBranchAddress("OpKEnergy",&o_KE);
+		T -> SetBranchAddress("OpTime",&o_Time);
 	}
 	if(map_parameters["OpPostTrack"] == "true")
 	{
 		cout << "OpPostTrack was called" << endl;
 		T -> SetBranchAddress("PostNOp",&PostNOp);
-		T -> SetBranchAddress("PostOpTrackID",op_ID);
-		T -> SetBranchAddress("PostProcID",op_ProcID);
-		T -> SetBranchAddress("PostOpDetID",op_DetID);
-		T -> SetBranchAddress("PostOpPX",op_px);
-		T -> SetBranchAddress("PostOpPY",op_py);
-		T -> SetBranchAddress("PostOpPZ",op_pz);
-		T -> SetBranchAddress("PostOpVX",op_vx);
-		T -> SetBranchAddress("PostOpVY",op_vy);
-		T -> SetBranchAddress("PostOpVZ",op_vz);
-		T -> SetBranchAddress("PostOpKEnergy",op_KE);
-		T -> SetBranchAddress("PostOpTime",op_Time);
-		T -> SetBranchAddress("OpTrackLength",op_Length);
+		T -> SetBranchAddress("PostOpTrackID",&op_ID);
+		T -> SetBranchAddress("PostProcID",&op_ProcID);
+		T -> SetBranchAddress("PostOpDetID",&op_DetID);
+		T -> SetBranchAddress("PostOpPX",&op_px);
+		T -> SetBranchAddress("PostOpPY",&op_py);
+		T -> SetBranchAddress("PostOpPZ",&op_pz);
+		T -> SetBranchAddress("PostOpVX",&op_vx);
+		T -> SetBranchAddress("PostOpVY",&op_vy);
+		T -> SetBranchAddress("PostOpVZ",&op_vz);
+		T -> SetBranchAddress("PostOpKEnergy",&op_KE);
+		T -> SetBranchAddress("PostOpTime",&op_Time);
+		T -> SetBranchAddress("OpTrackLength",&op_Length);
 	}
 	if(map_parameters["OpSiPM"] == "true")
 	{
@@ -301,24 +311,33 @@ void OpMake
 		}
 		for(int b=0; b<NOp; b++)
 		{
+			// for vector
+			double wav = 1.2398e-3/o_KE->at(b);
+			double E = 1e6*o_KE->at(b);
+			int procID = o_ProcID->at(b);
+			double time = o_Time->at(b);
+			// for array
+//			double wav = 1.2398e-3/o_KE[b];
+//			double E = 1e6*o_KE[b];
+//			int procID = o_ProcID[b];
+//			double time = o_Time[b];
 			if(Opt[1])
 			{
 				H1_OpProcID -> Fill(20); // Fill total entries
-				if(o_ProcID[b] == 21 || o_ProcID[b] == 22)
-					H1_OpProcID -> Fill(o_ProcID[b]);
+				// for vector
+				if(procID == 21 || procID == 22)
+					H1_OpProcID -> Fill(procID);
 				else
 					H1_OpProcID -> Fill(23);
 			}// Opt1
 			if(Opt[2])
 			{
-				double wav = 1.2398e-3/o_KE[b];
-				double E = 1e6*o_KE[b];
 				H1_OpE[Total] -> Fill(E);
 				H1_OpWav[Total] -> Fill(wav);
-				if(o_ProcID[b] == 21){ // cherenkov
+				if(procID == 21){ // cherenkov
 					H1_OpE[Cheren] -> Fill(E);
 					H1_OpWav[Cheren] -> Fill(wav);
-				}else if (o_ProcID[b] == 22){ // scintillation
+				}else if (procID == 22){ // scintillation
 					H1_OpE[Scint] -> Fill(E);
 					H1_OpWav[Scint] -> Fill(wav);
 				}else{
@@ -327,16 +346,26 @@ void OpMake
 				}
 			}// Opt2
 			if(Opt[3])
-				H1_OpTime -> Fill(o_Time[b]);
+				H1_OpTime -> Fill(time);
 		}// each optical photon at OpTrack
 		for(int b=0; b<PostNOp; b++)
 		{
-			if(op_DetID[b] == 201)
+			// for vector
+			int procID = op_ProcID->at(b);
+			int detID = op_DetID->at(b);
+			double time = op_Time->at(b);
+			double length = op_Length->at(b);
+			// for array
+//			int procID = op_ProcID[b];
+//			int detID = op_DetID[b];
+//			double time = op_Time[b];
+//			double length = op_Length[b];
+			if(detID == 201)
 			{
 				if(Opt[3])
-					H1_PostOpTime -> Fill(op_Time[b]);
+					H1_PostOpTime -> Fill(time);
 				if(Opt[6])
-					H1_OpTrackLength -> Fill(op_Length[b]);
+					H1_OpTrackLength -> Fill(length);
 				if(Opt[10]){
 					H1_ratio -> Fill(1);
 					o_abs1++;
@@ -347,7 +376,7 @@ void OpMake
 					o_trans_to_world++;
 				}
 			}
-			if(op_ProcID[b] == 31 && Opt[10])
+			if(procID == 31 && Opt[10])
 			{
 				o_abs2++;
 //				H1_ratio -> Fill(3);
