@@ -35,7 +35,7 @@ void OpDraw
 		 9. 1-D Time difference at SiPM LRUD          (OpSiPM);
 		 10. 1-D ratio of photons                     (OpTrack && OpPostTrack && OpSiPM)
 		     total, absorbed, transmitted to SiPM and detected(efficiency)
-		 11. 2-D # of detected photon vs. Timing resolution (OpSiPM)
+		 11.(7+9) 2-D # of detected photon vs. Timing resolution (OpSiPM)
 	 */
 	const int n_Hist = 12;
 	bool DrawOpt[n_Hist];
@@ -46,11 +46,12 @@ void OpDraw
 	DrawOpt[4] = 0;
 	DrawOpt[5] = 0;
 	DrawOpt[6] = 0;
-	DrawOpt[7] = 0;
+	DrawOpt[7] = 1;
 	DrawOpt[8] = 1;
-	DrawOpt[9] = 1; bool text_output_opt9 = 1;
+	DrawOpt[9] = 1; 
 	DrawOpt[10] = 0;
 	DrawOpt[11] = 0;
+	bool text_output_LY_res = 1;
 
 	char* in_pref = "out_root/H_Op_out";
 	int name_opt = 0;
@@ -303,6 +304,7 @@ void OpDraw
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c6 -> SaveAs(outname);
 	}
+	double m_LY_L=0, e_LY_L=0, m_LY_R=0, e_LY_R=0, m_LY_U=0, e_LY_U=0,  m_LY_D=0, e_LY_D=0;
 	if(DrawOpt[7])
 	{
 		const int x_edge = 700; // for SY1000
@@ -424,21 +426,21 @@ void OpDraw
 		leg -> AddEntry((TObject*)0,Form("SY: %.1f / MeV",SY),"h");
 		if(LR)
 		{
-			leg -> AddEntry(fLe,
-					Form("Mean_{L}: %.1f, #sigma_{L}: %.1f",
-						fLe->GetParameter(1),fLe->GetParameter(2)),"l");
-			leg -> AddEntry(fRe,
-					Form("Mean_{R}: %.1f, #sigma_{R}: %.1f",
-						fRe->GetParameter(1),fRe->GetParameter(2)),"l");
+			m_LY_L = fLe->GetParameter(1);
+			e_LY_L = fLe->GetParameter(2);
+			m_LY_R = fRe->GetParameter(1);
+			e_LY_R = fRe->GetParameter(2);
+			leg -> AddEntry(fLe,Form("Mean_{L}: %.1f, #sigma_{L}: %.1f",m_LY_L,e_LY_R),"l");
+			leg -> AddEntry(fRe,Form("Mean_{R}: %.1f, #sigma_{R}: %.1f",m_LY_R,e_LY_R),"l");
 		}
 		if(UD)
 		{
-			leg -> AddEntry(fUe,
-					Form("Mean_{U}: %.1f, #sigma_{U}: %.1f",
-						fUe->GetParameter(1),fUe->GetParameter(2)),"l");
-			leg -> AddEntry(fDe,
-					Form("Mean_{D}: %.1f, #sigma_{D}: %.1f",
-						fDe->GetParameter(1),fDe->GetParameter(2)),"l");
+			m_LY_U = fUe->GetParameter(1);
+			e_LY_U = fUe->GetParameter(2);
+			m_LY_D = fDe->GetParameter(1);
+			e_LY_D = fDe->GetParameter(2);
+			leg -> AddEntry(fUe,Form("Mean_{U}: %.1f, #sigma_{U}: %.1f",m_LY_U,e_LY_U),"l");
+			leg -> AddEntry(fDe,Form("Mean_{D}: %.1f, #sigma_{D}: %.1f",m_LY_D,e_LY_D),"l");
 		}
 		TCanvas* c7 = new TCanvas("c7","c7",1.2*600,600);
 		gPad -> SetMargin(.13,.05,.12,.05);
@@ -595,6 +597,7 @@ void OpDraw
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c8 -> SaveAs(outname);
 	}
+	double res_LR=0, err_LR=0, res_UD=0, err_UD=0;
 	if(DrawOpt[9])
 	{
 		const bool LR = map_MatProp["SiPMLR"]=="true"?true:false;
@@ -617,7 +620,7 @@ void OpDraw
 
 		TH1F* H1_SiPMTimeDiff_LR;
 		TF1* fLR;
-		double mean_LR, sigma_LR;
+		double mean_LR;
 		if(LR)
 		{
 			H1_SiPMTimeDiff_LR	= (TH1F*) F -> Get("H1_SiPMTimeDiff_LR");
@@ -637,12 +640,13 @@ void OpDraw
 			fLR -> SetLineWidth(4);
 			H1_SiPMTimeDiff_LR -> Fit(fLR,"R0Q");
 			mean_LR = fLR -> GetParameter(1);
-			sigma_LR = fLR -> GetParameter(2);
+			res_LR = fLR -> GetParameter(2);
+			err_LR = fLR -> GetParError(2);
 		}
 
 		TH1F* H1_SiPMTimeDiff_UD;
 		TF1* fUD;
-		double mean_UD, sigma_UD;
+		double mean_UD;
 		if(UD)
 		{
 			H1_SiPMTimeDiff_UD = (TH1F*) F -> Get("H1_SiPMTimeDiff_UD");
@@ -662,7 +666,8 @@ void OpDraw
 			fUD -> SetLineWidth(4);
 			H1_SiPMTimeDiff_UD -> Fit(fUD,"R0Q");
 			mean_UD = fUD -> GetParameter(1);
-			sigma_UD = fUD -> GetParameter(2);
+			res_UD = fUD -> GetParameter(2);
+			err_UD = fUD -> GetParError(2);
 		}
 		
 		
@@ -674,8 +679,14 @@ void OpDraw
 		leg -> AddEntry((TObject*)0,Form("Scintillation Yield: %.1f / MeV",SY),"h");
 		if(LR) leg -> AddEntry(H1_SiPMTimeDiff_LR,Form("T_{L}-T_{R} distribution"),"l");
 		if(UD) leg -> AddEntry(H1_SiPMTimeDiff_UD,Form("T_{U}-T_{D} distribution"),"l");
-		if(LR) leg -> AddEntry(fLR,Form("Mean_{LR}: %.3f, #sigma_{LR}: %.3f",mean_LR,sigma_LR),"l");
-		if(UD) leg -> AddEntry(fUD,Form("Mean_{UD}: %.3f, #sigma_{UD}: %.3f",mean_UD,sigma_UD),"l");
+		if(LR)
+		{
+			leg -> AddEntry(fLR,Form("Mean_{LR}: %.3f, #sigma_{LR}: %.3f",mean_LR,res_LR),"l");
+		}
+		if(UD)
+		{
+			leg -> AddEntry(fUD,Form("Mean_{UD}: %.3f, #sigma_{UD}: %.3f",mean_UD,res_UD),"l");
+		}
 //		leg -> AddEntry(f1e,Form("Mean_{e}: %.3f, #sigma_{e}: %.3f",mean_e,sigma_e),"l");
 //		leg -> AddEntry(f1e,Form("sigma_{e}: %.3f #pm %.3f",sigma_e, sigma_ee),"l");
 
@@ -691,51 +702,6 @@ void OpDraw
 		char* pref = "fig/fig_SiPMTimeDiff";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c9 -> SaveAs(outname);
-		if(text_output_opt9)
-		{
-			ifstream data("Resolution_data.txt");
-			string line;
-			bool IsExist = 0;
-			vector<string> vec_particle;  vec_particle.push_back("particle");
-			vector<string> vec_energy;    vec_energy.push_back("energy");
-			vector<string> vec_SY;        vec_SY.push_back("SY");
-			vector<string> vec_suffix;    vec_suffix.push_back("suffix");
-			vector<string> vec_opt;       vec_opt.push_back("LRUD(10*LR+UD)"); // LRUD
-			vector<string> vec_resLR;     vec_resLR.push_back("resolutionLR[ps]");
-			vector<string> vec_resUD;     vec_resUD.push_back("resolutionUD[ps]");
-			getline(data,line); // dummy line
-			while(getline(data,line))
-			{
-				stringstream ss(line);
-				string p, e, sy, s, o, rLR, rUD;
-				ss >> p >> e >> sy >> s >> o >> rLR >> rUD;
-				vec_particle.push_back(p);
-				vec_energy.push_back(e);
-				vec_SY.push_back(sy);
-				vec_suffix.push_back(s);
-				vec_opt.push_back(o);
-				vec_resLR.push_back(rLR);
-				vec_resUD.push_back(rUD);
-				if((string)particle == p && (string)energy == e &&
-						(string)suffix == s && to_string(SY) == sy)
-					IsExist = 1;
-			}
-			data.close();
-			if(!IsExist)
-			{
-				ofstream data("Resolution_data.txt");
-				const int n_size = vec_particle.size();
-				for(int a=0; a<n_size; a++)
-				{
-					data << vec_particle[a] << " " << vec_energy[a] << " " << vec_SY[a] << " " <<
-						vec_suffix[a] << " " << vec_opt[a] << " " << vec_resLR[a] << " " << vec_resUD[a] << endl;
-				}
-				data << particle << " " << energy << " " << SY << " " << suffix << " " << 
-					Form("%02d",10*LR+UD) << " "
-					<< Form("%.3f %.3f",LR?0.5*sigma_LR:0,UD?0.5*sigma_UD:0) << endl;
-				data.close();
-			}
-		}
 	}
 	if(DrawOpt[10])
 	{
@@ -797,5 +763,77 @@ void OpDraw
 		char* pref = "fig/fig_dLY_TimeRes";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c11 -> SaveAs(outname);
+	}
+	if(text_output_LY_res && DrawOpt[7] && DrawOpt[9])
+	{
+		ifstream data("Resolution_data.txt");
+		string line;
+		bool IsExist = 0;
+		vector<string> vec_particle;  vec_particle.push_back("p");
+		vector<string> vec_energy;    vec_energy.push_back("E");
+		vector<string> vec_SY;        vec_SY.push_back("SY");
+		vector<string> vec_suffix;    vec_suffix.push_back("suffix");
+		vector<string> vec_opt;       vec_opt.push_back("LRUD(10*LR+UD)"); // LRUD
+		vector<tuple<string,string,string,string>> vec_LY, vec_LY_e; // L,R,U,D
+		vec_LY.push_back(make_tuple("LY_L","LY_R","LY_U","LY_D"));
+		vec_LY_e.push_back(make_tuple("LY_L_e","LY_R_e","LY_U_e","LY_D_e"));
+		vector<string> vec_resLR, vec_resLR_e;
+		vec_resLR.push_back("resLR[ps]"); vec_resLR_e.push_back("resLR_e");
+		vector<string> vec_resUD, vec_resUD_e;
+		vec_resUD.push_back("resUD[ps]"); vec_resUD_e.push_back("resUD_e");
+		getline(data,line); // dummy line
+		while(getline(data,line))
+		{
+			stringstream ss(line);
+			string p, e, sy, s, o;
+			string LY_L, LY_R, LY_U, LY_D, LY_L_e, LY_R_e, LY_U_e, LY_D_e, rLR, rLR_e, rUD, rUD_e;
+			ss >> p >> e >> sy >> s >> o >> 
+				LY_L >> LY_L_e >> LY_R >> LY_R_e >> LY_U >> LY_U_e >> LY_D >> LY_D_e >> 
+				rLR >> rLR_e >> rUD >> rUD_e;
+			vec_particle.push_back(p);
+			vec_energy.push_back(e);
+			vec_SY.push_back(sy);
+			vec_suffix.push_back(s);
+			vec_opt.push_back(o);
+			vec_LY.push_back(make_tuple(LY_L,LY_R,LY_U,LY_D));
+			vec_LY_e.push_back(make_tuple(LY_L_e,LY_R_e,LY_U_e,LY_D_e));
+			vec_resLR.push_back(rLR);
+			vec_resLR_e.push_back(rLR_e);
+			vec_resUD.push_back(rUD);
+			vec_resUD_e.push_back(rUD_e);
+			if((string)particle == p && (string)energy == e &&
+					(string)suffix == s && to_string((int)SY) == sy)
+			{
+				IsExist = 1;
+			}
+		}
+		data.close();
+		bool LR = map_MatProp["SiPMLR"]=="true"?1:0;
+		bool UD = map_MatProp["SiPMUD"]=="true"?1:0;
+		if(!IsExist)
+		{
+			ofstream data("Resolution_data.txt");
+			const int n_size = vec_particle.size();
+			for(int a=0; a<n_size; a++)
+			{
+				data << vec_particle[a] << " " << vec_energy[a] << " " << vec_SY[a] << " " << // beam info
+					vec_suffix[a] << " " << vec_opt[a] << " " << // file info
+					Form("%s %s %s %s ",
+							get<0>(vec_LY[a]).c_str(),get<0>(vec_LY_e[a]).c_str(),
+							get<1>(vec_LY[a]).c_str(),get<1>(vec_LY_e[a]).c_str()) <<
+					Form("%s %s %s %s ",
+							get<2>(vec_LY[a]).c_str(),get<2>(vec_LY_e[a]).c_str(),
+							get<3>(vec_LY[a]).c_str(),get<3>(vec_LY_e[a]).c_str()) <<
+					Form("%s %s %s %s",
+							vec_resLR[a].c_str(), vec_resLR_e[a].c_str(),
+							vec_resUD[a].c_str(), vec_resUD_e[a].c_str()) << endl;
+			}
+			data << particle << " " << energy << " " << SY << " " << suffix << " " << 
+				Form("%02d ",10*LR+UD) <<
+				Form("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f ",
+						m_LY_L,e_LY_L,m_LY_R,e_LY_R,m_LY_U,e_LY_U,m_LY_D,e_LY_D) <<
+				Form("%.3f %.3f %.3f %.3f",res_LR,err_LR,res_UD,err_UD) << endl;
+			data.close();
+		}
 	}
 }

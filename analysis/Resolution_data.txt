@@ -1,2 +1,2 @@
-particle energy SY suffix LRUD(10*LR+UD) resolutionLR[ps] resolutionUD[ps]
-proton 100MeV 1000 gap_LR 10 0.104 0.000
+p E SY suffix LRUD(10*LR+UD) LY_L LY_L_e LY_R LY_R_e LY_U LY_U_e LY_D LY_D_e resLR[ps] resLR_e resUD[ps] resUD_e
+proton 100MeV 1000 gap_LR 10 126.7 14.3 127.0 14.2 0.0 0.0 0.0 0.0 0.208 0.006 0.000 0.000

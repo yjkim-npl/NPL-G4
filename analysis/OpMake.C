@@ -396,7 +396,7 @@ void OpMake
 				}
 			}
 
-			if(Opt[7] || Opt[9])
+			if(Opt[7] || Opt[9] || Opt[11])
 			{
 				if(R_eff > 100* FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
 					continue;
