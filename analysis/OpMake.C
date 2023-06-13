@@ -34,7 +34,7 @@ void OpMake
 		 6. 1-D total track length of optical photon  (OpPostTrack)
 		 7. 1-D Number of optical photon at SiPM      (OpSiPM)
 		 8. 1-D Time distribution at SiPM             (OpSiPM)
-		 9. 1-D Time difference at LR                 (OpSiPM)
+		 9. 1-D Time difference at LR,UD              (OpSiPM)
 		 10. 1-D ratio of photons                     (OpTrack && OpPostTrack && OpSiPM && OpBoundary)
 		     total, absorbed, transmitted to SiPM and efficiency, geom
 		 11. 2-D # of detected photon vs. Timing resolution (OpSiPM)
@@ -265,7 +265,15 @@ void OpMake
 		H1_OpSiPMTime[a] = new TH1F(Form("H1_OpSiPMTime_%s",str_SiPM_opt[a]),"",1000,0,50);
 	}
 	// HIST 9
-	TH1F* H1_SiPMTimeDiff = new TH1F(Form("H1_SiPMTimeDiff"),"",10000,-50,50);
+	enum {LR,UD};
+	const char* str_SiPM_pos[] = {"LR","UD"};
+	const int n_pos = sizeof(str_SiPM_pos)/sizeof(str_SiPM_pos[0]);
+	TH1F* H1_SiPMTimeDiff[n_pos];
+	for(int a=0; a<n_pos; a++)
+	{
+		if(map_parameters[Form("SiPM%s",str_SiPM_pos[a])] == "true")
+			H1_SiPMTimeDiff[a] = new TH1F(Form("H1_SiPMTimeDiff_%s",str_SiPM_pos[a]),"",10000,-50,50);
+	}
 	// HIST 10
 	TH1F* H1_ratio = new TH1F("H1_ratio","",6,0,6);
 	// HIST 11
@@ -399,9 +407,9 @@ void OpMake
 				}else if (os_DetID[b]/1000 == 13){
 					NOp_Ue++; // Up + eff + geom
 				}else if (os_DetID[b]/1000 == 14){
-					NOp_De++;
+					NOp_De++; // Down + eff + geom
 				}else{
-					cout << "Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID[b] <<  endl;
+					cout << a << " Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID[b] <<  endl;
 					continue;
 				}
 			}
@@ -467,8 +475,12 @@ void OpMake
 			}
 			if(Opt[9])
 			{
-				double Time_diff = MeanTime_Le - MeanTime_Re;
-				H1_SiPMTimeDiff -> Fill(Time_diff);
+				double Time_diff_LR = MeanTime_Le - MeanTime_Re;
+				double Time_diff_UD = MeanTime_Ue - MeanTime_De;
+				if(map_parameters["SiPMLR"] == "true")
+					H1_SiPMTimeDiff[LR] -> Fill(Time_diff_LR);
+				if(map_parameters["SiPMUD"] == "true")
+					H1_SiPMTimeDiff[UD] -> Fill(Time_diff_UD);
 			}
 			if(Opt[11])
 			{
@@ -539,8 +551,16 @@ void OpMake
 		}
 	}
 	if(Opt[9]){
-		H1_SiPMTimeDiff -> Write();
-//		H1_SiPMTimeDiff_eg -> Write();
+		if(map_parameters["SiPMLR"] == "true")
+		{
+			H1_SiPMTimeDiff[LR] -> Write();
+			cout << "LR was created" << endl;
+		}
+		if(map_parameters["SiPMUD"] == "true")
+		{
+			H1_SiPMTimeDiff[UD] -> Write();
+			cout << "UD was created" << endl;
+		}
 	}
 	if(Opt[10]){
 		H1_ratio -> Write();
@@ -550,10 +570,10 @@ void OpMake
 	}
 	F -> Close();
 	G -> Close();
-	cout << "gen: " << o_gen << endl;
-	cout << "die: " << o_die << endl;
-	cout << "abs1: " << o_abs1 << endl;
-	cout << "abs2: " << o_abs2 << endl;
-	cout << "trans: " << o_trans << endl;
-	cout << "trans to world: " << o_trans_to_world << endl;
+//	cout << "gen: " << o_gen << endl;
+//	cout << "die: " << o_die << endl;
+//	cout << "abs1: " << o_abs1 << endl;
+//	cout << "abs2: " << o_abs2 << endl;
+//	cout << "trans: " << o_trans << endl;
+//	cout << "trans to world: " << o_trans_to_world << endl;
 }

@@ -32,7 +32,7 @@ void OpDraw
 		 6. 1-D total track length of optical photon  (OpPostTrack)
 		 7. 1-D Number of optical photon at SiPM      (OpSiPM)
 		 8. 1-D Time distribution at SiPM             (OpSiPM)
-		 9. 1-D Time difference at SiPM LR            (OpSiPM);
+		 9. 1-D Time difference at SiPM LRUD          (OpSiPM);
 		 10. 1-D ratio of photons                     (OpTrack && OpPostTrack && OpSiPM)
 		     total, absorbed, transmitted to SiPM and detected(efficiency)
 		 11. 2-D # of detected photon vs. Timing resolution (OpSiPM)
@@ -46,10 +46,10 @@ void OpDraw
 	DrawOpt[4] = 0;
 	DrawOpt[5] = 0;
 	DrawOpt[6] = 0;
-	DrawOpt[7] = 1;
-	DrawOpt[8] = 0;
-	DrawOpt[9] = 0;
-	DrawOpt[10] = 1;
+	DrawOpt[7] = 0;
+	DrawOpt[8] = 1;
+	DrawOpt[9] = 1; bool text_output_opt9 = 1;
+	DrawOpt[10] = 0;
 	DrawOpt[11] = 0;
 
 	char* in_pref = "out_root/H_Op_out";
@@ -466,8 +466,8 @@ void OpDraw
 
 	if(DrawOpt[8])
 	{
-		TH1F* H1_OpSiPMTime_Le = (TH1F*) F -> Get("H1_OpSiPMTime_Le");
-		const int maxY = H1_OpSiPMTime_Le -> GetMaximum();
+		const bool LR = map_MatProp["SiPMLR"]=="true"?true:false;
+		const bool UD = map_MatProp["SiPMUD"]=="true"?true:false;
 		// SY1000
 		const double fit_x_min = 1.7;
 		const double fit_x_max = 2.1;
@@ -485,82 +485,110 @@ void OpDraw
 //		const double fit_x_max = 4;
 //		const double fit_xe_min = 0;
 //		const double fit_xe_max = 4.0;
-		H1_OpSiPMTime_Le -> SetStats(false);
-		H1_OpSiPMTime_Le -> GetXaxis() -> SetTitle("<Time> [ns]");
-		H1_OpSiPMTime_Le -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-		H1_OpSiPMTime_Le -> GetYaxis() -> SetRangeUser(0,1.2*maxY);
-		H1_OpSiPMTime_Le -> GetXaxis() -> SetTitleSize(0.05);
-		H1_OpSiPMTime_Le -> SetLineColor(2);
-		TF1* fLe = new TF1("fLe","gaus",fit_x_min,fit_x_max);
-		fLe -> SetLineColor(2);
-		fLe -> SetLineStyle(2);
-		fLe -> SetLineWidth(2);
-		H1_OpSiPMTime_Le -> Fit(fLe,"R0Q");
-		TH1F* H1_OpSiPMTime_Re = (TH1F*) F -> Get("H1_OpSiPMTime_Re");
-		H1_OpSiPMTime_Re -> SetStats(false);
-		H1_OpSiPMTime_Re -> GetXaxis() -> SetTitle("<Time> [ns]");
-		H1_OpSiPMTime_Re -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-		H1_OpSiPMTime_Re -> GetXaxis() -> SetTitleSize(0.05);
-		H1_OpSiPMTime_Re -> SetLineColor(4);
-		TF1* fRe = new TF1("fRe","gaus",fit_x_min,fit_x_max);
-		fRe -> SetLineColor(4);
-		fRe -> SetLineStyle(2);
-		fRe -> SetLineWidth(2);
-		H1_OpSiPMTime_Re -> Fit(fRe,"R0Q");
-		TH1F* H1_OpSiPMTime_Ue = (TH1F*) F -> Get("H1_OpSiPMTime_Ue");
-		H1_OpSiPMTime_Ue -> SetStats(false);
-		H1_OpSiPMTime_Ue -> GetXaxis() -> SetTitle("<Time> [ns]");
-		H1_OpSiPMTime_Ue -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-		H1_OpSiPMTime_Ue -> GetYaxis() -> SetRangeUser(0,1.2*maxY);
-		H1_OpSiPMTime_Ue -> GetXaxis() -> SetTitleSize(0.05);
-		H1_OpSiPMTime_Ue -> SetLineColor(2);
-		TF1* fUe = new TF1("fUe","gaus",fit_xe_min,fit_xe_max);
-		fUe -> SetLineColor(2);
-		fUe -> SetLineStyle(1);
-		fUe -> SetLineWidth(2);
-		H1_OpSiPMTime_Ue -> Fit(fUe,"R0Q");
-		TH1F* H1_OpSiPMTime_De = (TH1F*) F -> Get("H1_OpSiPMTime_De");
-		H1_OpSiPMTime_De -> SetStats(false);
-		H1_OpSiPMTime_De -> GetXaxis() -> SetTitle("<Time> [ns]");
-		H1_OpSiPMTime_De -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-		H1_OpSiPMTime_De -> GetXaxis() -> SetTitleSize(0.05);
-		H1_OpSiPMTime_De -> SetLineColor(4);
-		TF1* fDe = new TF1("fDe","gaus",fit_xe_min,fit_xe_max);
-		fDe -> SetLineColor(4);
-		fDe -> SetLineStyle(1);
-		fDe -> SetLineWidth(2);
-		H1_OpSiPMTime_De -> Fit(fDe,"R0Q");
+		const int maxY = 200;
+		TH1F* H1_OpSiPMTime_Le;
+		TF1* fLe;
+		TH1F* H1_OpSiPMTime_Re;
+		TF1* fRe;
+		TH1F* H1_OpSiPMTime_Ue;
+		TF1* fUe;
+		TH1F* H1_OpSiPMTime_De;
+		TF1* fDe;
+		if(LR)
+		{
+			H1_OpSiPMTime_Le = (TH1F*) F -> Get("H1_OpSiPMTime_Le");
+			H1_OpSiPMTime_Le -> SetStats(false);
+			H1_OpSiPMTime_Le -> GetXaxis() -> SetTitle("<Time> [ns]");
+			H1_OpSiPMTime_Le -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_OpSiPMTime_Le -> GetYaxis() -> SetRangeUser(0,1.2*maxY);
+			H1_OpSiPMTime_Le -> GetXaxis() -> SetTitleSize(0.05);
+			H1_OpSiPMTime_Le -> SetLineColor(2);
+			fLe= new TF1("fLe","gaus",fit_x_min,fit_x_max);
+			fLe -> SetLineColor(2);
+			fLe -> SetLineStyle(2);
+			fLe -> SetLineWidth(2);
+			H1_OpSiPMTime_Le -> Fit(fLe,"R0Q");
+			H1_OpSiPMTime_Re = (TH1F*) F -> Get("H1_OpSiPMTime_Re");
+			H1_OpSiPMTime_Re -> SetStats(false);
+			H1_OpSiPMTime_Re -> GetXaxis() -> SetTitle("<Time> [ns]");
+			H1_OpSiPMTime_Re -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_OpSiPMTime_Re -> GetXaxis() -> SetTitleSize(0.05);
+			H1_OpSiPMTime_Re -> SetLineColor(3);
+			fRe = new TF1("fRe","gaus",fit_x_min,fit_x_max);
+			fRe -> SetLineColor(3);
+			fRe -> SetLineStyle(2);
+			fRe -> SetLineWidth(2);
+			H1_OpSiPMTime_Re -> Fit(fRe,"R0Q");
+		}
+		if(UD)
+		{
+			H1_OpSiPMTime_Ue = (TH1F*) F -> Get("H1_OpSiPMTime_Ue");
+			H1_OpSiPMTime_Ue -> SetStats(false);
+			H1_OpSiPMTime_Ue -> GetXaxis() -> SetTitle("<Time> [ns]");
+			H1_OpSiPMTime_Ue -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_OpSiPMTime_Ue -> GetYaxis() -> SetRangeUser(0,1.2*maxY);
+			H1_OpSiPMTime_Ue -> GetXaxis() -> SetTitleSize(0.05);
+			H1_OpSiPMTime_Ue -> SetLineColor(4);
+			fUe = new TF1("fUe","gaus",fit_xe_min,fit_xe_max);
+			fUe -> SetLineColor(4);
+			fUe -> SetLineStyle(2);
+			fUe -> SetLineWidth(2);
+			H1_OpSiPMTime_Ue -> Fit(fUe,"R0Q");
+			H1_OpSiPMTime_De = (TH1F*) F -> Get("H1_OpSiPMTime_De");
+			H1_OpSiPMTime_De -> SetStats(false);
+			H1_OpSiPMTime_De -> GetXaxis() -> SetTitle("<Time> [ns]");
+			H1_OpSiPMTime_De -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_OpSiPMTime_De -> GetXaxis() -> SetTitleSize(0.05);
+			H1_OpSiPMTime_De -> SetLineColor(6);
+			fDe = new TF1("fDe","gaus",fit_xe_min,fit_xe_max);
+			fDe -> SetLineColor(6);
+			fDe -> SetLineStyle(2);
+			fDe -> SetLineWidth(2);
+			H1_OpSiPMTime_De -> Fit(fDe,"R0Q");
+		}
 
-		TLegend* leg = new TLegend(.43,.5,.9,.5+.055*7);
+		TLegend* leg = new TLegend(.43,.9-0.05*(3+2*LR+2*UD),.9,.9);
 		leg -> SetBorderSize(0);
 		leg -> SetFillStyle(0);
 		leg -> SetTextSize(0.045);
 		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
 		leg -> AddEntry((TObject*)0,"Time distribution at SiPM","h");
 		leg -> AddEntry((TObject*)0,Form("SY: %.1f / MeV",SY),"h");
-		leg -> AddEntry(fLe,
-				Form("Mean_{L}: %.3f, #sigma_{L} : %.3f",
-					fLe->GetParameter(1),fLe->GetParameter(2)),"l");
-		leg -> AddEntry(fRe,
-				Form("Mean_{R}: %.3f, #sigma_{R} : %.3f",
-					fRe->GetParameter(1),fRe->GetParameter(2)),"l");
-		leg -> AddEntry(fUe,
-				Form("Mean_{U}: %.3f, #sigma_{L} : %.3f",
-					fUe->GetParameter(1),fUe->GetParameter(2)),"l");
-		leg -> AddEntry(fDe,
-				Form("Mean_{D}: %.3f, #sigma_{R} : %.3f",
-					fDe->GetParameter(1),fDe->GetParameter(2)),"l");
+		if(LR)
+		{
+			leg -> AddEntry(fLe,
+					Form("Mean_{L}: %.3f, #sigma_{L} : %.3f",
+						fLe->GetParameter(1),fLe->GetParameter(2)),"l");
+			leg -> AddEntry(fRe,
+					Form("Mean_{R}: %.3f, #sigma_{R} : %.3f",
+						fRe->GetParameter(1),fRe->GetParameter(2)),"l");
+		}
+		if(UD)
+		{
+			leg -> AddEntry(fUe,
+					Form("Mean_{U}: %.3f, #sigma_{L} : %.3f",
+						fUe->GetParameter(1),fUe->GetParameter(2)),"l");
+			leg -> AddEntry(fDe,
+					Form("Mean_{D}: %.3f, #sigma_{R} : %.3f",
+						fDe->GetParameter(1),fDe->GetParameter(2)),"l");
+		}
 
 		TCanvas* c8 = new TCanvas("c8","c8",1.2*600,600);
 		gPad -> SetMargin(.13,.05,.12,.05);
-		H1_OpSiPMTime_Le -> Draw("hist same");
-		H1_OpSiPMTime_Re -> Draw("hist same");
-		H1_OpSiPMTime_Ue -> Draw("hist same");
-		H1_OpSiPMTime_De -> Draw("hist same");
-		fLe -> Draw("same");
-		fRe -> Draw("same");
-		fUe -> Draw("same");
-		fDe -> Draw("same");
+		if(LR)
+		{
+			H1_OpSiPMTime_Le -> Draw("hist same");
+			H1_OpSiPMTime_Re -> Draw("hist same");
+			fLe -> Draw("same");
+			fRe -> Draw("same");
+		}
+		if(UD)
+		{
+			H1_OpSiPMTime_Ue -> Draw("hist same");
+			H1_OpSiPMTime_De -> Draw("hist same");
+			fUe -> Draw("same");
+			fDe -> Draw("same");
+		}
 		leg -> Draw("same");
 
 		char* pref = "fig/fig_OpSiPMTime";
@@ -569,6 +597,8 @@ void OpDraw
 	}
 	if(DrawOpt[9])
 	{
+		const bool LR = map_MatProp["SiPMLR"]=="true"?true:false;
+		const bool UD = map_MatProp["SiPMUD"]=="true"?true:false;
 		// for SY1000
 		const double fit_x_min = -0.5;
 		const double fit_x_max = 0.5;
@@ -584,65 +614,128 @@ void OpDraw
 //		const double edge_x_min = -5;
 //		const double edge_x_max = 10;
 		const int rebin = 10;
-		TH1F* H1_SiPMTimeDiff = (TH1F*) F -> Get("H1_SiPMTimeDiff");
-		H1_SiPMTimeDiff -> Rebin(rebin);
-		H1_SiPMTimeDiff -> SetStats(false);
-		H1_SiPMTimeDiff -> SetLineColor(4);
-		H1_SiPMTimeDiff -> GetXaxis() -> SetTitle("#Delta t [ns]");
-		H1_SiPMTimeDiff -> GetXaxis() -> SetTitleSize(0.05);
-		H1_SiPMTimeDiff -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-		H1_SiPMTimeDiff -> GetYaxis() -> SetRangeUser(0,y_max);
-		H1_SiPMTimeDiff -> GetYaxis() -> SetTitle("Entries");
-		H1_SiPMTimeDiff -> GetYaxis() -> SetTitleSize(0.05);
-//		TH1F* H1_SiPMTimeDiff_eg = (TH1F*) F -> Get("H1_SiPMTimeDiff_eg");
-//		H1_SiPMTimeDiff_eg -> Rebin(rebin);
-//		H1_SiPMTimeDiff_eg -> SetStats(false);
-//		H1_SiPMTimeDiff_eg -> SetLineColor(2);
-//		H1_SiPMTimeDiff_eg -> GetXaxis() -> SetTitle("#Delta t [ns]");
-//		H1_SiPMTimeDiff_eg -> GetXaxis() -> SetTitleSize(0.05);
-//		H1_SiPMTimeDiff_eg -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
-//		H1_SiPMTimeDiff -> GetYaxis() -> SetRangeUser(0,y_max);
-//		H1_SiPMTimeDiff_eg -> GetYaxis() -> SetTitle("Entries");
-//		H1_SiPMTimeDiff_eg -> GetYaxis() -> SetTitleSize(0.05);
-		TF1* f1 = new TF1("f1","gaus",fit_x_min,fit_x_max);
-		f1 -> SetLineColor(4);
-		f1 -> SetLineStyle(1);
-		f1 -> SetLineWidth(4);
-		H1_SiPMTimeDiff -> Fit(f1,"R0Q");
-//		TF1* f1e = new TF1("f1e","gaus",fit_x_min,fit_x_max);
-//		f1e -> SetLineColor(2);
-//		f1e -> SetLineStyle(1);
-//		f1e -> SetLineWidth(4);
-//		H1_SiPMTimeDiff_eg -> Fit(f1e,"R0Q");
-		const double mean = f1 -> GetParameter(1);
-		const double sigma = f1 -> GetParameter(2);
-//		const double mean_e = f1e -> GetParameter(1);
-//		const double sigma_e = f1e -> GetParameter(2);
-//		const double sigma_ee = f1e -> GetParError(2);
+
+		TH1F* H1_SiPMTimeDiff_LR;
+		TF1* fLR;
+		double mean_LR, sigma_LR;
+		if(LR)
+		{
+			H1_SiPMTimeDiff_LR	= (TH1F*) F -> Get("H1_SiPMTimeDiff_LR");
+			H1_SiPMTimeDiff_LR -> Rebin(rebin);
+			H1_SiPMTimeDiff_LR -> SetStats(false);
+			H1_SiPMTimeDiff_LR -> SetLineColor(4);
+			H1_SiPMTimeDiff_LR -> SetLineWidth(2);
+			H1_SiPMTimeDiff_LR -> GetXaxis() -> SetTitle("#Delta t [ns]");
+			H1_SiPMTimeDiff_LR -> GetXaxis() -> SetTitleSize(0.05);
+			H1_SiPMTimeDiff_LR -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_SiPMTimeDiff_LR -> GetYaxis() -> SetRangeUser(0,y_max);
+			H1_SiPMTimeDiff_LR -> GetYaxis() -> SetTitle("Entries");
+			H1_SiPMTimeDiff_LR -> GetYaxis() -> SetTitleSize(0.05);
+			fLR = new TF1("fLR","gaus",fit_x_min,fit_x_max);
+			fLR -> SetLineColor(4);
+			fLR -> SetLineStyle(2);
+			fLR -> SetLineWidth(4);
+			H1_SiPMTimeDiff_LR -> Fit(fLR,"R0Q");
+			mean_LR = fLR -> GetParameter(1);
+			sigma_LR = fLR -> GetParameter(2);
+		}
+
+		TH1F* H1_SiPMTimeDiff_UD;
+		TF1* fUD;
+		double mean_UD, sigma_UD;
+		if(UD)
+		{
+			H1_SiPMTimeDiff_UD = (TH1F*) F -> Get("H1_SiPMTimeDiff_UD");
+			H1_SiPMTimeDiff_UD -> Rebin(rebin);
+			H1_SiPMTimeDiff_UD -> SetStats(false);
+			H1_SiPMTimeDiff_UD -> SetLineColor(2);
+			H1_SiPMTimeDiff_UD -> SetLineWidth(2);
+			H1_SiPMTimeDiff_UD -> GetXaxis() -> SetTitle("#Delta t [ns]");
+			H1_SiPMTimeDiff_UD -> GetXaxis() -> SetTitleSize(0.05);
+			H1_SiPMTimeDiff_UD -> GetXaxis() -> SetRangeUser(edge_x_min,edge_x_max);
+			H1_SiPMTimeDiff_UD -> GetYaxis() -> SetRangeUser(0,y_max);
+			H1_SiPMTimeDiff_UD -> GetYaxis() -> SetTitle("Entries");
+			H1_SiPMTimeDiff_UD -> GetYaxis() -> SetTitleSize(0.05);
+			fUD = new TF1("fUD","gaus",fit_x_min,fit_x_max);
+			fUD -> SetLineColor(2);
+			fUD -> SetLineStyle(2);
+			fUD -> SetLineWidth(4);
+			H1_SiPMTimeDiff_UD -> Fit(fUD,"R0Q");
+			mean_UD = fUD -> GetParameter(1);
+			sigma_UD = fUD -> GetParameter(2);
+		}
 		
 		
-		TLegend* leg = new TLegend(0.45,0.6,0.9,0.6+0.055*5);
+		TLegend* leg = new TLegend(0.4,0.9-0.055*(2+2*LR+2*UD),0.9,0.9);
 		leg -> SetBorderSize(0);
 		leg -> SetFillStyle(0);
 		leg -> SetTextSize(0.045);
 		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
-		leg -> AddEntry((TObject*)0,Form("T_{L}-T_{R} distribution"),"h");
 		leg -> AddEntry((TObject*)0,Form("Scintillation Yield: %.1f / MeV",SY),"h");
-		leg -> AddEntry(f1,Form("Mean: %.3f, #sigma: %.3f",mean,sigma),"l");
+		if(LR) leg -> AddEntry(H1_SiPMTimeDiff_LR,Form("T_{L}-T_{R} distribution"),"l");
+		if(UD) leg -> AddEntry(H1_SiPMTimeDiff_UD,Form("T_{U}-T_{D} distribution"),"l");
+		if(LR) leg -> AddEntry(fLR,Form("Mean_{LR}: %.3f, #sigma_{LR}: %.3f",mean_LR,sigma_LR),"l");
+		if(UD) leg -> AddEntry(fUD,Form("Mean_{UD}: %.3f, #sigma_{UD}: %.3f",mean_UD,sigma_UD),"l");
 //		leg -> AddEntry(f1e,Form("Mean_{e}: %.3f, #sigma_{e}: %.3f",mean_e,sigma_e),"l");
 //		leg -> AddEntry(f1e,Form("sigma_{e}: %.3f #pm %.3f",sigma_e, sigma_ee),"l");
 
 		TCanvas* c9 = new TCanvas("c9","c9",1.2*600,600);
 		gPad -> SetMargin(.13,.05,.12,.05);
-		H1_SiPMTimeDiff -> Draw("hist same");
-//		H1_SiPMTimeDiff_eg -> Draw("hist same");
-		f1 -> Draw("same");
+		if(LR) H1_SiPMTimeDiff_LR -> Draw("hist same");
+		if(UD) H1_SiPMTimeDiff_UD -> Draw("hist same");
+		if(LR) fLR -> Draw("same");
+		if(UD) fUD -> Draw("same");
 //		f1e -> Draw("same");
 		leg -> Draw();
 
 		char* pref = "fig/fig_SiPMTimeDiff";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c9 -> SaveAs(outname);
+		if(text_output_opt9)
+		{
+			ifstream data("Resolution_data.txt");
+			string line;
+			bool IsExist = 0;
+			vector<string> vec_particle;  vec_particle.push_back("particle");
+			vector<string> vec_energy;    vec_energy.push_back("energy");
+			vector<string> vec_SY;        vec_SY.push_back("SY");
+			vector<string> vec_suffix;    vec_suffix.push_back("suffix");
+			vector<string> vec_opt;       vec_opt.push_back("LRUD(10*LR+UD)"); // LRUD
+			vector<string> vec_resLR;     vec_resLR.push_back("resolutionLR[ps]");
+			vector<string> vec_resUD;     vec_resUD.push_back("resolutionUD[ps]");
+			getline(data,line); // dummy line
+			while(getline(data,line))
+			{
+				stringstream ss(line);
+				string p, e, sy, s, o, rLR, rUD;
+				ss >> p >> e >> sy >> s >> o >> rLR >> rUD;
+				vec_particle.push_back(p);
+				vec_energy.push_back(e);
+				vec_SY.push_back(sy);
+				vec_suffix.push_back(s);
+				vec_opt.push_back(o);
+				vec_resLR.push_back(rLR);
+				vec_resUD.push_back(rUD);
+				if((string)particle == p && (string)energy == e &&
+						(string)suffix == s && to_string(SY) == sy)
+					IsExist = 1;
+			}
+			data.close();
+			if(!IsExist)
+			{
+				ofstream data("Resolution_data.txt");
+				const int n_size = vec_particle.size();
+				for(int a=0; a<n_size; a++)
+				{
+					data << vec_particle[a] << " " << vec_energy[a] << " " << vec_SY[a] << " " <<
+						vec_suffix[a] << " " << vec_opt[a] << " " << vec_resLR[a] << " " << vec_resUD[a] << endl;
+				}
+				data << particle << " " << energy << " " << SY << " " << suffix << " " << 
+					Form("%02d",10*LR+UD) << " "
+					<< Form("%.3f %.3f",LR?0.5*sigma_LR:0,UD?0.5*sigma_UD:0) << endl;
+				data.close();
+			}
+		}
 	}
 	if(DrawOpt[10])
 	{

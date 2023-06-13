@@ -1,0 +1,2 @@
+particle energy SY suffix LRUD(10*LR+UD) resolutionLR[ps] resolutionUD[ps]
+proton 100MeV 1000 gap_LR 10 0.104 0.000
