@@ -116,7 +116,8 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4double SC2_sizeX = PC -> GetParDouble("SC2_sizeX");
 		G4double SC2_sizeY = PC -> GetParDouble("SC2_sizeY");
 		G4double SC2ZOffset = PC -> GetParDouble("SC2_ZOffset");
-		G4int nReplica = 21;	// 96.85 = 3.85*21+0.8*20
+		G4int nReplica = 33;	// 96.85 = 3.85*21+0.8*20
+//		G4int nReplica = 21;	// for prototype SC, 96.85 = 3.85*21+0.8*20
 		const G4double width_Replica = (gap + frame) * mm;
 		G4Material* mat_SiPM = fMaterials -> GetMaterial("Silicon");
 		G4Material* mat_Glass = fMaterials -> GetMaterial("Glass");

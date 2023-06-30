@@ -18,7 +18,8 @@ void OpDraw
 (
  char* particle = "proton",
  char* energy   = "100MeV",
- char* suffix   = "gap_LR"
+ char* suffix   = "gap_LR_default"
+// char* suffix   = "SY1e4"
 )
 {
 	/*
@@ -43,14 +44,14 @@ void OpDraw
 	DrawOpt[1] = 0;
 	DrawOpt[2] = 0;
 	DrawOpt[3] = 0;
-	DrawOpt[4] = 0;
+	DrawOpt[4] = 1;
 	DrawOpt[5] = 0;
 	DrawOpt[6] = 0;
 	DrawOpt[7] = 1;
-	DrawOpt[8] = 1;
+	DrawOpt[8] = 0;
 	DrawOpt[9] = 1; 
 	DrawOpt[10] = 0;
-	DrawOpt[11] = 0;
+	DrawOpt[11] = 1;
 	bool text_output_LY_res = 1;
 
 	char* in_pref = "out_root/H_Op_out";
@@ -236,6 +237,35 @@ void OpDraw
 	}
 	if(DrawOpt[4])
 	{
+		bool LR = map_MatProp["SiPMLR"]=="true"?true:false;
+		bool UD = map_MatProp["SiPMUD"]=="true"?true:false;
+		TH2F* H2_XY_prof = (TH2F*) F -> Get("H2_XY_prof");
+		H2_XY_prof -> SetStats(false);
+		H2_XY_prof -> Rebin2D(2,2);
+		H2_XY_prof -> GetXaxis() -> SetTitle("X[mm]");
+		H2_XY_prof -> GetYaxis() -> SetTitle("Y[mm]");
+		H2_XY_prof -> GetXaxis() -> SetRangeUser(-100,100);
+		H2_XY_prof -> GetYaxis() -> SetRangeUser(-100,100);
+		H2_XY_prof -> GetXaxis() -> SetTitleSize(0.05);
+		H2_XY_prof -> GetYaxis() -> SetTitleSize(0.05);
+		H2_XY_prof -> GetYaxis() -> SetTitleOffset(0.65);
+
+		TCanvas* c4 = new TCanvas("c4","c4",1.2*600,600);
+		gPad -> SetMargin(.12,.05,.13,.05);
+		TLegend* leg = new TLegend(.5,.9-0.06*2,.9,.9);
+		leg -> SetBorderSize(0);
+		leg -> SetFillStyle(0);
+		leg -> SetTextSize(0.05);
+		leg -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
+		leg -> AddEntry((TObject*)0,Form("SiPM at %s%s",LR?"LR":"",UD?"UD":""),"h");
+
+		H2_XY_prof -> Draw("colz");
+		leg -> Draw();
+
+		char* pref = "fig/fig_SiPM_XY";
+		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
+		c4 -> SaveAs(outname);
+
 	}
 	if(DrawOpt[5])
 	{
@@ -355,7 +385,7 @@ void OpDraw
 			H1_NOpSiPM_Le -> Rebin(rebin);
 			H1_NOpSiPM_Re -> Rebin(rebin);
 			H1_NOpSiPM_Le -> GetXaxis() -> SetTitle("# of photons");
-			H1_NOpSiPM_Le -> SetLineStyle(2);
+			H1_NOpSiPM_Le -> SetLineStyle(1);
 			H1_NOpSiPM_Le -> SetLineColor(2);
 			H1_NOpSiPM_Le -> GetXaxis() -> SetTitleSize(0.05);
 			H1_NOpSiPM_Le -> GetXaxis() -> SetLabelSize(0.045);
@@ -363,7 +393,7 @@ void OpDraw
 			H1_NOpSiPM_Le -> GetXaxis() -> SetRangeUser(0,x_edge);
 			H1_NOpSiPM_Le -> GetYaxis() -> SetRangeUser(0,y_max);
 			H1_NOpSiPM_Re -> GetXaxis() -> SetTitle("# of photons");
-			H1_NOpSiPM_Re -> SetLineStyle(2);
+			H1_NOpSiPM_Re -> SetLineStyle(1);
 			H1_NOpSiPM_Re -> SetLineColor(4);
 			H1_NOpSiPM_Re -> GetXaxis() -> SetTitleSize(0.05);
 			H1_NOpSiPM_Re -> GetXaxis() -> SetLabelSize(0.045);
@@ -372,11 +402,11 @@ void OpDraw
 			H1_NOpSiPM_Re -> GetYaxis() -> SetRangeUser(0,y_max);
 			fLe -> SetLineColor(2);
 			fLe -> SetLineStyle(2);
-			fLe -> SetLineWidth(3);
+			fLe -> SetLineWidth(1);
 			H1_NOpSiPM_Le -> Fit(fLe,"R0Q");
-			fRe -> SetLineColor(4);
+			fRe -> SetLineColor(3);
 			fRe -> SetLineStyle(2);
-			fRe -> SetLineWidth(3);
+			fRe -> SetLineWidth(1);
 			H1_NOpSiPM_Re -> Fit(fRe,"R0Q");
 		}
 		if(UD)
@@ -405,14 +435,12 @@ void OpDraw
 			H1_NOpSiPM_De -> GetYaxis() -> SetLabelSize(0.045);
 			H1_NOpSiPM_De -> GetXaxis() -> SetRangeUser(0,x_edge);
 			H1_NOpSiPM_De -> GetYaxis() -> SetRangeUser(0,y_max);
-			TF1* fUe = new TF1("fLe","gaus",fit_xe_min,fit_xe_max);
-			fUe -> SetLineColor(2);
-			fUe -> SetLineStyle(1);
+			fUe -> SetLineColor(4);
+			fUe -> SetLineStyle(2);
 			fUe -> SetLineWidth(3);
 			H1_NOpSiPM_Ue -> Fit(fUe,"R0Q");
-			TF1* fDe = new TF1("fDe","gaus",fit_xe_min,fit_xe_max);
-			fDe -> SetLineColor(4);
-			fDe -> SetLineStyle(1);
+			fDe -> SetLineColor(6);
+			fDe -> SetLineStyle(2);
 			fDe -> SetLineWidth(3);
 			H1_NOpSiPM_De -> Fit(fDe,"R0Q");
 		}
@@ -741,19 +769,48 @@ void OpDraw
 	{
 		TH2F* H2_dLY_TimeRes = (TH2F*) F -> Get("H2_dLY_TimeRes");
 		H2_dLY_TimeRes -> SetStats(false);
-		double x[] = {(double) H2_dLY_TimeRes -> ProjectionX() -> GetMean()};
-		double xe[] = {(double) H2_dLY_TimeRes -> ProjectionX() -> GetStdDev()};
-		double y[] = {(double) 0.5*H2_dLY_TimeRes -> ProjectionY() -> GetStdDev()};
-		double ye[] = {(double) H2_dLY_TimeRes -> ProjectionY() -> GetStdDevError()};
-		TGraphErrors* g = new TGraphErrors(1,x,y,xe,ye);
+		double x_mean = H2_dLY_TimeRes -> ProjectionX() -> GetMean();
+		double x_dev  = H2_dLY_TimeRes -> ProjectionX() -> GetStdDev();
+		double x_min = x_mean - 3*x_dev;
+		double x_max = x_mean + 3*x_dev;
+		double gap = (x_max - x_min)/15;
+		double x[15],y[15];
+		for(int a=0; a<15; a++)
+		{
+			x[a] = x_min + a*gap;
+			H2_dLY_TimeRes->GetXaxis()->SetRangeUser(x_min+a*gap,x_min+(a+1)*gap);
+			y[a] = 0.5*H2_dLY_TimeRes->ProjectionY()->GetStdDev();
+		}
+//		double x[] = {(double) H2_dLY_TimeRes -> ProjectionX() -> GetMean()};
+//		double xe[] = {(double) H2_dLY_TimeRes -> ProjectionX() -> GetStdDev()};
+//		double y[] = {(double) 0.5*H2_dLY_TimeRes -> ProjectionY() -> GetStdDev()};
+//		double ye[] = {(double) H2_dLY_TimeRes -> ProjectionY() -> GetStdDevError()};
+		TGraphErrors* g = new TGraphErrors(15,x,y,0,0);
 //		g -> SetName(Form("g_dLY_TimeRes_%s_%s_%s",particle,energy,suffix));
 		g -> SetMarkerStyle(20);
 		g -> SetMarkerSize(2);
 		g -> SetMarkerColor(1);
 
-		TCanvas* c11 = new TCanvas("c11","c11",1.2*600,600);
+		TCanvas* c11 = new TCanvas("c11","c11",1.2*600*2,600);
+		c11 -> Divide(2);
+		c11 -> cd(1);
 		gPad -> SetMargin(.13,.05,.12,.05);
-		TH1D* htemp = (TH1D*) gPad -> DrawFrame(0,0.001,200,1);
+		H2_dLY_TimeRes -> GetXaxis() -> SetRangeUser(0.5*x_min,2*x_max);
+		H2_dLY_TimeRes -> GetXaxis() -> SetTitle("#LTNOp_{SiPM}#GT");
+		H2_dLY_TimeRes -> GetXaxis() -> SetTitleSize(0.05);
+		H2_dLY_TimeRes -> GetYaxis() -> SetTitle("Time difference [ns]");
+		H2_dLY_TimeRes -> GetYaxis() -> SetTitleSize(0.05);
+		H2_dLY_TimeRes -> Draw("colz");
+		TLegend* leg1 = new TLegend(.45,.9-0.06*2,.9,.9);
+		leg1 -> SetBorderSize(0);
+		leg1 -> SetFillStyle(0);
+		leg1 -> SetTextSize(0.05);
+		leg1 -> AddEntry((TObject*)0,Form("%s %s simulation",particle,energy),"h");
+		leg1 -> AddEntry((TObject*)0,Form("SY = %.1f / MeV", SY),"h");
+		leg1 -> Draw();
+		c11 -> cd(2);
+		gPad -> SetMargin(.13,.05,.12,.05);
+		TH1D* htemp = (TH1D*) gPad -> DrawFrame(0,0.001,20,0.5);
 		htemp -> GetXaxis() -> SetTitle("#LTLY_{SiPM}#GT");
 		htemp -> GetXaxis() -> SetTitleSize(0.05);
 		htemp -> GetYaxis() -> SetTitle("#sigma(t_{L}-t_{R})/2");

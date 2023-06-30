@@ -29,7 +29,7 @@ void OpMake
 		 1. 1-D creator process of optical photon     (OpTrack)
 		 2. 1-D wavelength(energy) distribution       (OpTrack)
 		 3. 1-D time of generation / died             (OpTrack || OpPostTrack)
-		 4. 2-D momentum profile at boundary          (OpBoundary)
+		 4. 2-D position profile at SiPM              (OpSiPM)
 		 5. 2-D LY - Edep                             (MCStep)
 		 6. 1-D total track length of optical photon  (OpPostTrack)
 		 7. 1-D Number of optical photon at SiPM      (OpSiPM)
@@ -39,6 +39,7 @@ void OpMake
 		     total, absorbed, transmitted to SiPM and efficiency, geom
 		 11. 2-D # of detected photon vs. Timing resolution (OpSiPM)
 	 */
+	bool mIDcut = 1;
 	const int n_Hist = 12;
 	bool Opt[n_Hist]; fill_n(Opt,n_Hist,1);
 	const int StepFromHit = 1;
@@ -250,6 +251,7 @@ void OpMake
 	TH1F* H1_OpTime = new TH1F("H1_OpTime","",200,0,20);
 	TH1F* H1_PostOpTime = new TH1F("H1_PostOpTime","",500,0,50);
 	// HIST 4
+	TH2F* H2_XY_prof = new TH2F("H2_XY_prof","",300,-150,150,300,-150,150);
 	// HIST 5
 	TH2F* H2_Edep_LY = new TH2F("H2_Edep_LY","",100,0,100,5000,0,5000);
 	TH2F* H2_dEdx_dLdx = new TH2F("H2_dEdx_dLdx","",100,0,100,5000,0,5000);
@@ -287,7 +289,7 @@ void OpMake
 	// HIST 10
 	TH1F* H1_ratio = new TH1F("H1_ratio","",6,0,6);
 	// HIST 11
-	TH2F* H2_dLY_TimeRes = new TH2F(Form("H2_dLY_TimeRes"),"",5000,0,5000,200,-2,2);
+	TH2F* H2_dLY_TimeRes = new TH2F(Form("H2_dLY_TimeRes"),"",5000,0,5000,200,-3,3);
 
 	// event loop
 	int o_gen = 0;
@@ -404,6 +406,12 @@ void OpMake
 		}
 		for(int b=0; b<NOpSiPM; b++)
 		{
+			int mID = os_DetID[b]%100;
+			if(mIDcut)
+			{
+				if(mID!=4 && mID!=7 && mID!=10 && mID!=13 && mID!=16)
+					continue;
+			}
 			double wav = 1.2398e-3/os_KE[b];
 			int R_eff = rand()%100;
 			int R_geom;
@@ -414,6 +422,10 @@ void OpMake
 			}
 			else
 				R_geom = rand()%100;
+			if(Opt[4])
+			{
+				H2_XY_prof -> Fill(os_vx[b],os_vy[b]);
+			}
 			if(Opt[10])
 			{
 				H1_ratio -> Fill(3);
@@ -556,7 +568,9 @@ void OpMake
 		H1_OpTime -> Write();
 		H1_PostOpTime -> Write();
 	}
-	if(Opt[4]) {}
+	if(Opt[4]) {
+		H2_XY_prof -> Write();
+	}
 	if(Opt[5]){
 		H2_Edep_LY -> Write();
 		H2_dEdx_dLdx -> Write();
