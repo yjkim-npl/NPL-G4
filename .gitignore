@@ -1,0 +1,11 @@
+build/*
+
+*.swp
+*.swo
+
+*/*.swp
+*/*.swo
+
+analysis/fig/*
+analysis/data_root/*
+analysis/out_root/*
