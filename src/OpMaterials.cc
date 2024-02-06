@@ -194,7 +194,7 @@ void OpMaterials::ApplyMaterialProperties()
 	}
 	fAir -> SetMaterialPropertiesTable(mp_air);
 //	fAir -> SetName("G4_optical_Air");
-		map_mat.insert(make_pair("optical_Air",fAir));
+		map_mat.insert(make_pair("G4_optical_Air",fAir));
 
 	// Glass
 	G4Material* fGlass = map_mat["Glass"];
