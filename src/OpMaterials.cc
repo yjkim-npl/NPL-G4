@@ -193,7 +193,7 @@ void OpMaterials::ApplyMaterialProperties()
 		mp_air -> AddProperty("RINDEX",opEn_PVT,RI_Air);
 	}
 	fAir -> SetMaterialPropertiesTable(mp_air);
-	fAir -> SetName("G4_optical_Air");
+//	fAir -> SetName("G4_optical_Air");
 		map_mat.insert(make_pair("optical_Air",fAir));
 
 	// Glass

@@ -38,3 +38,5 @@ You can run this example with simple command.
 The default setting of parameter container is "OpParameter.conf" in build directory
 
 ### 5. development log
+#### 06.Feb
+ - `OpDetectorConstruction.cc` & `OpMaterials.cc`: modified the option for non-optical simulation 

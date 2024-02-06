@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TList.h"
+#include "TStopwatch.h"
 //#include "TNamed.h"
 
 #include <vector>
@@ -66,6 +67,7 @@ class OpRunAction : public G4UserRunAction
 			{nevnts++;}
 
 	private:
+		TStopwatch stopwatch;
 		OpParameterContainer* PC;
 		TList fInputParameters;
 		map<G4String, G4String> map_input_para;
@@ -129,64 +131,64 @@ class OpRunAction : public G4UserRunAction
 		// Optical photon
 		G4int NOp;
 
-		G4double OpPX[1000];
-		G4double OpPY[1000];
-		G4double OpPZ[1000];
+//		G4double OpPX[1000];
+//		G4double OpPY[1000];
+//		G4double OpPZ[1000];
 
-//		vector<G4int> OpTrackID;
-//		vector<G4int> OpProcessID;
-//		vector<G4int> OpParentID;
-//		vector<G4int> OpDetID;
-//		vector<G4double> OpPX;
-//		vector<G4double> OpPY;
-//		vector<G4double> OpPZ;
-//		vector<G4double> OpVX;
-//		vector<G4double> OpVY;
-//		vector<G4double> OpVZ;
-//		vector<G4double> OpEnergy;
-//		vector<G4double> OpKEnergy;
-//		vector<G4double> OpTime;
+		vector<G4int> OpTrackID;
+		vector<G4int> OpProcessID;
+		vector<G4int> OpParentID;
+		vector<G4int> OpDetID;
+		vector<G4double> OpPX;
+		vector<G4double> OpPY;
+		vector<G4double> OpPZ;
+		vector<G4double> OpVX;
+		vector<G4double> OpVY;
+		vector<G4double> OpVZ;
+		vector<G4double> OpEnergy;
+		vector<G4double> OpKEnergy;
+		vector<G4double> OpTime;
 
 		G4int PostNOp;
 
-		G4int PostProcID[1000];
-		G4double PostOpPX[1000];
-		G4double PostOpPY[1000];
-		G4double PostOpPZ[1000];
-//		vector<G4int> PostOpTrackID;
-//		vector<G4int> PostOpDetID;
-//		vector<G4int> PostProcID;
-//		vector<G4double> OpTrackLength;
-//		vector<G4double> PostOpPX;
-//		vector<G4double> PostOpPY;
-//		vector<G4double> PostOpPZ;
-//		vector<G4double> PostOpVX;
-//		vector<G4double> PostOpVY;
-//		vector<G4double> PostOpVZ;
-//		vector<G4double> PostOpEnergy;
-//		vector<G4double> PostOpKEnergy;
-//		vector<G4double> PostOpTime;
+//		G4int PostProcID[1000];
+//		G4double PostOpPX[1000];
+//		G4double PostOpPY[1000];
+//		G4double PostOpPZ[1000];
+		vector<G4int> PostOpTrackID;
+		vector<G4int> PostOpDetID;
+		vector<G4int> PostProcID;
+		vector<G4double> OpTrackLength;
+		vector<G4double> PostOpPX;
+		vector<G4double> PostOpPY;
+		vector<G4double> PostOpPZ;
+		vector<G4double> PostOpVX;
+		vector<G4double> PostOpVY;
+		vector<G4double> PostOpVZ;
+		vector<G4double> PostOpEnergy;
+		vector<G4double> PostOpKEnergy;
+		vector<G4double> PostOpTime;
 
 		G4int NOpBoundary;
-		G4int OpTrackIDBoundary[1000];
-		G4int OpProcIDBoundary[1000];
-		G4double OpPXBoundary[1000];
-		G4double OpPYBoundary[1000];
-		G4double OpPZBoundary[1000];
-		G4double OpVXBoundary[1000];
-		G4double OpVYBoundary[1000];
-		G4double OpVZBoundary[1000];
-		G4double OpTBoundary[1000];
+//		G4int OpTrackIDBoundary[1000];
+//		G4int OpProcIDBoundary[1000];
+//		G4double OpPXBoundary[1000];
+//		G4double OpPYBoundary[1000];
+//		G4double OpPZBoundary[1000];
+//		G4double OpVXBoundary[1000];
+//		G4double OpVYBoundary[1000];
+//		G4double OpVZBoundary[1000];
+//		G4double OpTBoundary[1000];
 
-//		vector<G4int> OpTrackIDBoundary;
-//		vector<G4int> OpProcIDBoundary;
-//		vector<G4double> OpPXBoundary;
-//		vector<G4double> OpPYBoundary;
-//		vector<G4double> OpPZBoundary;
-//		vector<G4double> OpVXBoundary;
-//		vector<G4double> OpVYBoundary;
-//		vector<G4double> OpVZBoundary;
-//		vector<G4double> OpTBoundary;
+		vector<G4int> OpTrackIDBoundary;
+		vector<G4int> OpProcIDBoundary;
+		vector<G4double> OpPXBoundary;
+		vector<G4double> OpPYBoundary;
+		vector<G4double> OpPZBoundary;
+		vector<G4double> OpVXBoundary;
+		vector<G4double> OpVYBoundary;
+		vector<G4double> OpVZBoundary;
+		vector<G4double> OpTBoundary;
 
 		// for SiPM readout
 		G4int NOpSiPM;

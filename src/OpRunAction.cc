@@ -159,67 +159,67 @@ void OpRunAction::init_Tree()
 	if(PC -> GetParBool("OpTrack"))
 	{
 		T -> Branch("NOp",&NOp);
-		T -> Branch("OpPX",OpPX,"OpPX[NOp]/D");
-		T -> Branch("OpPY",OpPY,"OpPY[NOp]/D");
-		T -> Branch("OpPZ",OpPZ,"OpPZ[NOp]/D");
-//		T -> Branch("OpTrackID",&OpTrackID);
-//		T -> Branch("OpProcessID",&OpProcessID);
-//		T -> Branch("OpParentID",&OpParentID);
-//		T -> Branch("OpDetID",&OpDetID);
-//		T -> Branch("OpPX",&OpPX);
-//		T -> Branch("OpPY",&OpPY);
-//		T -> Branch("OpPZ",&OpPZ);
-//		T -> Branch("OpVX",&OpVX);
-//		T -> Branch("OpVY",&OpVY);
-//		T -> Branch("OpVZ",&OpVZ);
-//		T -> Branch("OpEnergy",&OpEnergy);
-//		T -> Branch("OpKEnergy",&OpKEnergy);
-//		T -> Branch("OpTime",&OpTime);
+//		T -> Branch("OpPX",OpPX,"OpPX[NOp]/D");
+//		T -> Branch("OpPY",OpPY,"OpPY[NOp]/D");
+//		T -> Branch("OpPZ",OpPZ,"OpPZ[NOp]/D");
+		T -> Branch("OpTrackID",&OpTrackID);
+		T -> Branch("OpProcessID",&OpProcessID);
+		T -> Branch("OpParentID",&OpParentID);
+		T -> Branch("OpDetID",&OpDetID);
+		T -> Branch("OpPX",&OpPX);
+		T -> Branch("OpPY",&OpPY);
+		T -> Branch("OpPZ",&OpPZ);
+		T -> Branch("OpVX",&OpVX);
+		T -> Branch("OpVY",&OpVY);
+		T -> Branch("OpVZ",&OpVZ);
+		T -> Branch("OpEnergy",&OpEnergy);
+		T -> Branch("OpKEnergy",&OpKEnergy);
+		T -> Branch("OpTime",&OpTime);
 
 	}
 	if(PC -> GetParBool("OpPostTrack"))
 	{
 		T -> Branch("PostNOp",&PostNOp);
-		T -> Branch("PostProcID",PostProcID,"PostProcID[PostNOp]/I");
-		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[PostNOp]/D");
-		T -> Branch("PostOpPY",PostOpPY,"PostOpPY[PostNOp]/D");
-		T -> Branch("PostOpPZ",PostOpPZ,"PostOpPZ[PostNOp]/D");
-//		T -> Branch("PostOpTrackID",&PostOpTrackID);
-//		T -> Branch("PostOpDetID",&PostOpDetID);
-//		T -> Branch("PostProcID",&PostProcID);
-//		T -> Branch("OpTrackLength",&OpTrackLength);
-//		T -> Branch("PostOpPX",&PostOpPX);
-//		T -> Branch("PostOpPY",&PostOpPY);
-//		T -> Branch("PostOpPZ",&PostOpPZ);
-//		T -> Branch("PostOpVX",&PostOpVX);
-//		T -> Branch("PostOpVY",&PostOpVY);
-//		T -> Branch("PostOpVZ",&PostOpVZ);
-//		T -> Branch("PostOpEnergy",&PostOpEnergy);
-//		T -> Branch("PostOpKEnergy",&PostOpKEnergy);
-//		T -> Branch("PostOpTime",&PostOpTime);
+//		T -> Branch("PostProcID",PostProcID,"PostProcID[PostNOp]/I");
+//		T -> Branch("PostOpPX",PostOpPX,"PostOpPX[PostNOp]/D");
+//		T -> Branch("PostOpPY",PostOpPY,"PostOpPY[PostNOp]/D");
+//		T -> Branch("PostOpPZ",PostOpPZ,"PostOpPZ[PostNOp]/D");
+		T -> Branch("PostOpTrackID",&PostOpTrackID);
+		T -> Branch("PostOpDetID",&PostOpDetID);
+		T -> Branch("PostProcID",&PostProcID);
+		T -> Branch("OpTrackLength",&OpTrackLength);
+		T -> Branch("PostOpPX",&PostOpPX);
+		T -> Branch("PostOpPY",&PostOpPY);
+		T -> Branch("PostOpPZ",&PostOpPZ);
+		T -> Branch("PostOpVX",&PostOpVX);
+		T -> Branch("PostOpVY",&PostOpVY);
+		T -> Branch("PostOpVZ",&PostOpVZ);
+		T -> Branch("PostOpEnergy",&PostOpEnergy);
+		T -> Branch("PostOpKEnergy",&PostOpKEnergy);
+		T -> Branch("PostOpTime",&PostOpTime);
 	}
 	if(PC -> GetParBool("OpBoundary"))
 	{
 		T -> Branch("NOpBoundary",&NOpBoundary);
-		T -> Branch("OpTrackIDBoundary",OpTrackIDBoundary,"OpTrackIDBoundary[NOpBoundary]/I");
-		T -> Branch("OpProcIDBoundary",OpProcIDBoundary,"OpProcIDBoundary[NOpBoundary]/I");
-		T -> Branch("OpPXBoundary",OpPXBoundary,"OpPXBoundary[NOpBoundary]/D");
-		T -> Branch("OpPYBoundary",OpPYBoundary,"OpPYBoundary[NOpBoundary]/D");
-		T -> Branch("OpPZBoundary",OpPZBoundary,"OpPZBoundary[NOpBoundary]/D");
-		T -> Branch("OpVXBoundary",OpVXBoundary,"OpVXBoundary[NOpBoundary]/D");
-		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
-		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
-		T -> Branch("OpTBoundary",OpTBoundary,"OpTBoundary[NOpBoundary]/D");
+//		T -> Branch("OpTrackIDBoundary",OpTrackIDBoundary,"OpTrackIDBoundary[NOpBoundary]/I");
+//		T -> Branch("OpProcIDBoundary",OpProcIDBoundary,"OpProcIDBoundary[NOpBoundary]/I");
+//		T -> Branch("OpPXBoundary",OpPXBoundary,"OpPXBoundary[NOpBoundary]/D");
+//		T -> Branch("OpPYBoundary",OpPYBoundary,"OpPYBoundary[NOpBoundary]/D");
+//		T -> Branch("OpPZBoundary",OpPZBoundary,"OpPZBoundary[NOpBoundary]/D");
+//		T -> Branch("OpVXBoundary",OpVXBoundary,"OpVXBoundary[NOpBoundary]/D");
+//		T -> Branch("OpVYBoundary",OpVYBoundary,"OpVYBoundary[NOpBoundary]/D");
+//		T -> Branch("OpVZBoundary",OpVZBoundary,"OpVZBoundary[NOpBoundary]/D");
+//		T -> Branch("OpTBoundary",OpTBoundary,"OpTBoundary[NOpBoundary]/D");
 
-//		T -> Branch("OpTrackIDBoundary",&OpTrackIDBoundary);
-//		T -> Branch("OpProcIDBoundary",&OpProcIDBoundary);
-//		T -> Branch("OpPXBoundary",&OpPXBoundary);
-//		T -> Branch("OpPYBoundary",&OpPYBoundary);
-//		T -> Branch("OpPZBoundary",&OpPZBoundary);
-//		T -> Branch("OpVXBoundary",&OpVXBoundary);
-//		T -> Branch("OpVYBoundary",&OpVYBoundary);
-//		T -> Branch("OpVZBoundary",&OpVZBoundary);
-//		T -> Branch("OpTBoundary",&OpTBoundary);
+		T -> Branch("OpTrackIDBoundary",&OpTrackIDBoundary);
+		T -> Branch("OpProcIDBoundary",&OpProcIDBoundary);
+		T -> Branch("OpPXBoundary",&OpPXBoundary);
+		T -> Branch("OpPYBoundary",&OpPYBoundary);
+		T -> Branch("OpPZBoundary",&OpPZBoundary);
+		T -> Branch("OpVXBoundary",&OpVXBoundary);
+		T -> Branch("OpVYBoundary",&OpVYBoundary);
+		T -> Branch("OpVZBoundary",&OpVZBoundary);
+		T -> Branch("OpTBoundary",&OpTBoundary);
 	}
 	if(PC->GetParBool("OpSiPM"))
 	{
@@ -239,6 +239,7 @@ void OpRunAction::init_Tree()
 
 void OpRunAction::BeginOfRunAction(const G4Run* run)
 {
+	stopwatch.Start();
 	// verbosity
 	if(PC -> GetParInt("UserVerbosity") > 0) 
 	{
@@ -249,6 +250,7 @@ void OpRunAction::BeginOfRunAction(const G4Run* run)
 void OpRunAction::EndOfRunAction(const G4Run* run)
 {
 	nevnts = run -> GetNumberOfEvent();
+	stopwatch.Print("m");
 
 	// verbosity
 	if(PC -> GetParInt("UserVerbosity") > 0) 
@@ -313,66 +315,66 @@ void OpRunAction::clear_data()
 	if(PC->GetParBool("OpTrack"))
 	{
 		NOp = 0;
-		fill_n(OpPX,1000,0);
-		fill_n(OpPY,1000,0);
-		fill_n(OpPZ,1000,0);
-//		OpTrackID.clear();
-//		OpProcessID.clear();
-//		OpParentID.clear();
-//		OpDetID.clear();
-//		OpPX.clear();
-//		OpPY.clear();
-//		OpPZ.clear();
-//		OpVX.clear();
-//		OpVY.clear();
-//		OpVZ.clear();
-//		OpEnergy.clear();
-//		OpKEnergy.clear();
-//		OpTime.clear();
+//		fill_n(OpPX,1000,0);
+//		fill_n(OpPY,1000,0);
+//		fill_n(OpPZ,1000,0);
+		OpTrackID.clear();
+		OpProcessID.clear();
+		OpParentID.clear();
+		OpDetID.clear();
+		OpPX.clear();
+		OpPY.clear();
+		OpPZ.clear();
+		OpVX.clear();
+		OpVY.clear();
+		OpVZ.clear();
+		OpEnergy.clear();
+		OpKEnergy.clear();
+		OpTime.clear();
 
 	}
 	if(PC -> GetParBool("OpPostTrack"))
 	{
 		PostNOp = 0;
-		fill_n(PostProcID,1000,0);
-		fill_n(PostOpPX,1000,0);
-		fill_n(PostOpPY,1000,0);
-		fill_n(PostOpPZ,1000,0);
-//		PostOpDetID.clear();
-//		PostProcID.clear();
-//		OpTrackLength.clear();
-//		PostOpPX.clear();
-//		PostOpPY.clear();
-//		PostOpPZ.clear();
-//		PostOpVX.clear();
-//		PostOpVY.clear();
-//		PostOpVZ.clear();
-//		PostOpEnergy.clear();
-//		PostOpKEnergy.clear();
-//		PostOpTime.clear();
+//		fill_n(PostProcID,1000,0);
+//		fill_n(PostOpPX,1000,0);
+//		fill_n(PostOpPY,1000,0);
+//		fill_n(PostOpPZ,1000,0);
+		PostOpDetID.clear();
+		PostProcID.clear();
+		OpTrackLength.clear();
+		PostOpPX.clear();
+		PostOpPY.clear();
+		PostOpPZ.clear();
+		PostOpVX.clear();
+		PostOpVY.clear();
+		PostOpVZ.clear();
+		PostOpEnergy.clear();
+		PostOpKEnergy.clear();
+		PostOpTime.clear();
 	}
 	if(PC -> GetParBool("OpBoundary"))
 	{
 		NOpBoundary = 0;
-		fill_n(OpTrackIDBoundary,1000,0);
-		fill_n(OpProcIDBoundary,1000,0);
-		fill_n(OpPXBoundary,1000,0);
-		fill_n(OpPYBoundary,1000,0);
-		fill_n(OpPZBoundary,1000,0);
-		fill_n(OpVXBoundary,1000,0);
-		fill_n(OpVYBoundary,1000,0);
-		fill_n(OpVZBoundary,1000,0);
-		fill_n(OpTBoundary,1000,0);
+//		fill_n(OpTrackIDBoundary,1000,0);
+//		fill_n(OpProcIDBoundary,1000,0);
+//		fill_n(OpPXBoundary,1000,0);
+//		fill_n(OpPYBoundary,1000,0);
+//		fill_n(OpPZBoundary,1000,0);
+//		fill_n(OpVXBoundary,1000,0);
+//		fill_n(OpVYBoundary,1000,0);
+//		fill_n(OpVZBoundary,1000,0);
+//		fill_n(OpTBoundary,1000,0);
 
-//		OpTrackIDBoundary.clear();
-//		OpProcIDBoundary.clear();
-//		OpPXBoundary.clear();
-//		OpPYBoundary.clear();
-//		OpPZBoundary.clear();
-//		OpVXBoundary.clear();
-//		OpVYBoundary.clear();
-//		OpVZBoundary.clear();
-//		OpTBoundary.clear();
+		OpTrackIDBoundary.clear();
+		OpProcIDBoundary.clear();
+		OpPXBoundary.clear();
+		OpPYBoundary.clear();
+		OpPZBoundary.clear();
+		OpVXBoundary.clear();
+		OpVYBoundary.clear();
+		OpVZBoundary.clear();
+		OpTBoundary.clear();
 	}
 	if(PC->GetParBool("OpSiPM"))
 	{
@@ -439,44 +441,44 @@ void OpRunAction::FillOpticalPhoton
 {
 	if(opt == MCTrack)
 	{
-		OpPX[NOp] = p.x();
-		OpPY[NOp] = p.y();
-		OpPZ[NOp] = p.z();
-//		OpTrackID.push_back(trkID);
-//		OpProcessID.push_back(procID);
-//		OpParentID.push_back(parentID);
-//		OpDetID.push_back(detID);
-//		OpPX.push_back(p.x());
-//		OpPY.push_back(p.y());
-//		OpPZ.push_back(p.z());
-//		OpVX.push_back(v.x());
-//		OpVY.push_back(v.y());
-//		OpVZ.push_back(v.z());
-//		OpTime.push_back(time);
-//		OpEnergy.push_back(energy);
-//		OpKEnergy.push_back(kenergy);
+//		OpPX[NOp] = p.x();
+//		OpPY[NOp] = p.y();
+//		OpPZ[NOp] = p.z();
+		OpTrackID.push_back(trkID);
+		OpProcessID.push_back(procID);
+		OpParentID.push_back(parentID);
+		OpDetID.push_back(detID);
+		OpPX.push_back(p.x());
+		OpPY.push_back(p.y());
+		OpPZ.push_back(p.z());
+		OpVX.push_back(v.x());
+		OpVY.push_back(v.y());
+		OpVZ.push_back(v.z());
+		OpTime.push_back(time);
+		OpEnergy.push_back(energy);
+		OpKEnergy.push_back(kenergy);
 
 		NOp++;
 	}
 	else if (opt == MCPostTrack)
 	{
-		PostProcID[PostNOp] = procID;
-		PostOpPX[PostNOp] = p.x();
-		PostOpPY[PostNOp] = p.y();
-		PostOpPZ[PostNOp] = p.z();
-//		PostOpTrackID.push_back(trkID);
-//		PostOpDetID.push_back(detID);
-//		OpTrackLength.push_back(length);
-//		PostProcID.push_back(procID);
-//		PostOpPX.push_back(p.x());
-//		PostOpPY.push_back(p.y());
-//		PostOpPZ.push_back(p.z());
-//		PostOpVX.push_back(v.x());
-//		PostOpVY.push_back(v.y());
-//		PostOpVZ.push_back(v.z());
-//		PostOpEnergy.push_back(energy);
-//		PostOpKEnergy.push_back(kenergy);
-//		PostOpTime.push_back(time);
+//		PostProcID[PostNOp] = procID;
+//		PostOpPX[PostNOp] = p.x();
+//		PostOpPY[PostNOp] = p.y();
+//		PostOpPZ[PostNOp] = p.z();
+		PostOpTrackID.push_back(trkID);
+		PostOpDetID.push_back(detID);
+		OpTrackLength.push_back(length);
+		PostProcID.push_back(procID);
+		PostOpPX.push_back(p.x());
+		PostOpPY.push_back(p.y());
+		PostOpPZ.push_back(p.z());
+		PostOpVX.push_back(v.x());
+		PostOpVY.push_back(v.y());
+		PostOpVZ.push_back(v.z());
+		PostOpEnergy.push_back(energy);
+		PostOpKEnergy.push_back(kenergy);
+		PostOpTime.push_back(time);
 		PostNOp++;
 	}
 }
@@ -486,24 +488,24 @@ void OpRunAction::FillOpticalPhotonBoundary
 {
 	if(procID == -4) // procID 2 is `total internal reflection`
 		return;
-	OpTrackIDBoundary[NOpBoundary] = trkID;
-	OpProcIDBoundary[NOpBoundary] = procID;
-	OpPXBoundary[NOpBoundary] = p.x();
-	OpPYBoundary[NOpBoundary] = p.y();
-	OpPZBoundary[NOpBoundary] = p.z();
-	OpVXBoundary[NOpBoundary] = v.x();
-	OpVYBoundary[NOpBoundary] = v.y();
-	OpVZBoundary[NOpBoundary] = v.z();
-	OpTBoundary[NOpBoundary] = t;
-//	OpTrackIDBoundary.push_back(trkID);
-//	OpProcIDBoundary.push_back(procID);
-//	OpPXBoundary.push_back(p.x());
-//	OpPYBoundary.push_back(p.y());
-//	OpPZBoundary.push_back(p.z());
-//	OpVXBoundary.push_back(v.x());
-//	OpVYBoundary.push_back(v.y());
-//	OpVZBoundary.push_back(v.z());
-//	OpTBoundary.push_back(t);
+//	OpTrackIDBoundary[NOpBoundary] = trkID;
+//	OpProcIDBoundary[NOpBoundary] = procID;
+//	OpPXBoundary[NOpBoundary] = p.x();
+//	OpPYBoundary[NOpBoundary] = p.y();
+//	OpPZBoundary[NOpBoundary] = p.z();
+//	OpVXBoundary[NOpBoundary] = v.x();
+//	OpVYBoundary[NOpBoundary] = v.y();
+//	OpVZBoundary[NOpBoundary] = v.z();
+//	OpTBoundary[NOpBoundary] = t;
+	OpTrackIDBoundary.push_back(trkID);
+	OpProcIDBoundary.push_back(procID);
+	OpPXBoundary.push_back(p.x());
+	OpPYBoundary.push_back(p.y());
+	OpPZBoundary.push_back(p.z());
+	OpVXBoundary.push_back(v.x());
+	OpVYBoundary.push_back(v.y());
+	OpVZBoundary.push_back(v.z());
+	OpTBoundary.push_back(t);
 	NOpBoundary++;
 }
 

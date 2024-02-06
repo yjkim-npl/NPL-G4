@@ -53,8 +53,12 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 	G4double world_sizeX = PC -> GetParDouble("World_sizeX");
 	G4double world_sizeY = PC -> GetParDouble("World_sizeY");
 	G4double world_sizeZ = PC -> GetParDouble("World_sizeZ");
-//	G4Material* world_mat = G4Material::GetMaterial("G4_AIR");
-	G4Material* world_mat = fMaterials -> GetMaterial("G4_AIR");
+	G4Material* world_mat;
+	if(PC -> GetParBool("OpticalPhysics")){
+		world_mat = fMaterials -> GetMaterial("G4_AIR");
+	}else{
+		world_mat = G4Material::GetMaterial("G4_AIR");
+	}
 
 	G4Box* solidWorld =    
 		new G4Box("World",0.5*world_sizeX, 0.5*world_sizeY, 0.5*world_sizeZ);
@@ -218,7 +222,12 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4double ZOffset2 = PC -> GetParDouble("SC_ZOffset2");
 		G4double ZOffset3 = PC -> GetParDouble("SC_ZOffset3");
 		G4double ZOffset4 = PC -> GetParDouble("SC_ZOffset4");
-		G4Material* mat_Box = fMaterials->GetMaterial("G4_optical_Air");
+		G4Material* mat_Box;
+		if(PC->GetParBool("OpticalPhysics")){
+			mat_Box = fMaterials->GetMaterial("G4_optical_Air");
+		}else{
+			mat_Box = G4Material::GetMaterial("G4_AIR");
+		}
 		G4Material* mat;
 		if(PC -> GetParInt("SCmatOpt") == 0)
 			mat = fMaterials -> GetMaterial("Polystyrene");
