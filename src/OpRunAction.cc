@@ -115,6 +115,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("TrackVX",&TrackVX);
 		T -> Branch("TrackVY",&TrackVY);
 		T -> Branch("TrackVZ",&TrackVZ);
+		T -> Branch("TrackTime",&TrackTime);
 		T -> Branch("TrackEnergy",&TrackEnergy);
 		T -> Branch("TrackKEnergy",&TrackKEnergy);
 	}
@@ -130,6 +131,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostTrackVX",&PostTrackVX);
 		T -> Branch("PostTrackVY",&PostTrackVY);
 		T -> Branch("PostTrackVZ",&PostTrackVZ);
+		T -> Branch("PostTrackTime",&PostTrackTime);
 		T -> Branch("PostTrackEnergy",&PostTrackEnergy);
 		T -> Branch("PostTrackKEnergy",&PostTrackKEnergy);
 
@@ -148,6 +150,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("StepVX"       ,&StepVX); 
 		T -> Branch("StepVY"       ,&StepVY);
 		T -> Branch("StepVZ"       ,&StepVZ);
+		T -> Branch("StepTime"     ,&StepTime);
 		T -> Branch("StepEdep"     ,&StepEdep);
 		T -> Branch("StepLength"   ,&StepLength);
 		T -> Branch("StepPrevKE"   ,&StepPrevKE);
@@ -275,6 +278,7 @@ void OpRunAction::clear_data()
 		TrackVX.clear();
 		TrackVY.clear();
 		TrackVZ.clear();
+		TrackTime.clear();
 		TrackEnergy.clear();
 		TrackKEnergy.clear();
 	}
@@ -291,6 +295,7 @@ void OpRunAction::clear_data()
 		PostTrackVX.clear();
 		PostTrackVY.clear();
 		PostTrackVZ.clear();
+		PostTrackTime.clear();
 		PostTrackEnergy.clear();
 		PostTrackKEnergy.clear();
 	}
@@ -308,6 +313,7 @@ void OpRunAction::clear_data()
 		StepVX.clear();
 		StepVY.clear();
 		StepVZ.clear();
+		StepTime.clear();
 		StepEdep.clear();
 		StepLength.clear();
 		StepNSecondaryOP.clear();
@@ -394,7 +400,7 @@ void OpRunAction::clear_data()
 
 void OpRunAction::FillTrack
 (G4int opt, G4int trkID, G4int procID, G4int parentID, G4int pdg, G4int detID,
- G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy)
+ G4ThreeVector p, G4ThreeVector v, G4double time, G4double totenergy, G4double kinenergy)
 	// invoked in TrackingAction
 {
 	if(opt == MCTrack)	// data at the time of creation
@@ -410,6 +416,7 @@ void OpRunAction::FillTrack
 		TrackVX.push_back(v.x());
 		TrackVY.push_back(v.y());
 		TrackVZ.push_back(v.z());
+		TrackTime.push_back(time);
 		TrackEnergy.push_back(totenergy);
 		TrackKEnergy.push_back(kinenergy);
 		nTrack++;
@@ -425,6 +432,7 @@ void OpRunAction::FillTrack
 		PostTrackVX.push_back(v.x());
 		PostTrackVY.push_back(v.y());
 		PostTrackVZ.push_back(v.z());
+		PostTrackTime.push_back(time);
 		PostTrackEnergy.push_back(totenergy);
 		PostTrackKEnergy.push_back(kinenergy);
 		nPostTrack++;
@@ -511,7 +519,7 @@ void OpRunAction::FillOpticalPhotonBoundary
 
 
 void OpRunAction::FillStep
-(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double edep, G4double length, G4int nSecondaries, G4double prevKE)
+(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double time, G4double edep, G4double length, G4int nSecondaries, G4double prevKE)
 {
 	StepFromHit.push_back(fromHit);
 	StepTrackID.push_back(trkID);
@@ -524,6 +532,7 @@ void OpRunAction::FillStep
 	StepVX.push_back(v.x());
 	StepVY.push_back(v.y());
 	StepVZ.push_back(v.z());
+	StepTime.push_back(time);
 	StepEdep.push_back(edep);
 	StepLength.push_back(length);
 	StepNSecondaryOP.push_back(nSecondaries);

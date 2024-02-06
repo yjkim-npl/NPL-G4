@@ -55,7 +55,7 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 
 	if(track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
 			OpParameterContainer::GetInstance()->GetParBool("MCTrack"))
-		fRunAction -> FillTrack(MCTrack, trkID, processID, parentID, pdg, detID, p, v, totenergy, kinenergy);
+		fRunAction -> FillTrack(MCTrack, trkID, processID, parentID, pdg, detID, p, v, time, totenergy, kinenergy);
 }
 
 void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
@@ -93,5 +93,5 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	if(track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
 		 OpParameterContainer::GetInstance()->GetParBool("MCPostTrack"))
 		fRunAction -> FillTrack
-			(MCPostTrack, trkID, processID,parentID, pdg, detID, p, v, totenergy,kinenergy);
+			(MCPostTrack, trkID, processID,parentID, pdg, detID, p, v, time,totenergy,kinenergy);
 }

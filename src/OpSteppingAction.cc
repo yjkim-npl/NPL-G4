@@ -138,5 +138,5 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 
 	fRunAction -> FillStep
 		(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
-		 fedep,length,NSecondaryOP,prevKE);
+		 time, fedep, length,NSecondaryOP,prevKE);
 }
