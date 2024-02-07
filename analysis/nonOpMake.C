@@ -178,7 +178,6 @@ void nonOpMake(
 			H2_XYpos[a][b] = 
 				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
 						300,-150,150,300,-150,150);
-			cout << a << " " << b << endl;
 		}
 	}
 
@@ -191,6 +190,7 @@ void nonOpMake(
 	*/
 	for(int a=0; a<T->GetEntries(); a++)
 	{
+//		if(a!= 406) continue;
 		if(a%100 == 0)
 			cout << "Processing " << a << " th event" << endl;
 
@@ -207,19 +207,22 @@ void nonOpMake(
 			int idx = PDGtoIndex(pdg);
 			int proc = s_ProcID[b];
 			int detID = s_DetID[b] - stoi(map_para["SCID"]) -1;
+//			cout << s_DetID[b] << endl;
 			double edep = s_Edep[b];
 			double time = s_time[b];
 			double vx = s_vx[b];
 			double vy = s_vy[b];
+			if(idx <0) continue;
+			if(detID <0 || detID > 10) continue;
 			if(detID >= 0)
 			{
-				cout << Form("%d %d %d %.6f %.2f",idx, proc, detID,edep,time) << endl;
+//				cout << Form("%d %d %d %.6f %.2f",idx, proc, detID,edep,time) << endl;
 				H1_Edep[detID][idx] -> Fill(edep);
 				H1_Time[detID][idx] -> Fill(time);
 				H2_XYpos[detID][idx] -> Fill(vx,vy);
 			}
 		}
-		cout << " " << endl;
+//		cout << " " << endl;
 	}
 
 	// Write
