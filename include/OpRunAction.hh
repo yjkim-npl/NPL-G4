@@ -17,6 +17,9 @@
 #include <utility>
 #include <set>
 
+#define max_t 10000
+#define max_s 10000
+
 using namespace std;
 
 class OpParameterContainer;
@@ -81,55 +84,101 @@ class OpRunAction : public G4UserRunAction
 
 		// Track data
 		G4int nTrack;
-		vector<G4int> TrackID;
-		vector<G4int> TrackProcID;
-		vector<G4int> ParentID;
-		vector<G4int> TrackPDG;
-		vector<G4int> TrackDetID;
-		vector<G4double> TrackPX;
-		vector<G4double> TrackPY;
-		vector<G4double> TrackPZ;
-		vector<G4double> TrackVX;
-		vector<G4double> TrackVY;
-		vector<G4double> TrackVZ;
-		vector<G4double> TrackTime;
-		vector<G4double> TrackEnergy;
-		vector<G4double> TrackKEnergy;
-		vector<G4double> TrackEdepSum;
+		vector<G4int> v_TrackID;
+		vector<G4int> v_TrackProcID;
+		vector<G4int> v_ParentID;
+		vector<G4int> v_TrackPDG;
+		vector<G4int> v_TrackDetID;
+		vector<G4double> v_TrackPX;
+		vector<G4double> v_TrackPY;
+		vector<G4double> v_TrackPZ;
+		vector<G4double> v_TrackVX;
+		vector<G4double> v_TrackVY;
+		vector<G4double> v_TrackVZ;
+		vector<G4double> v_TrackTime;
+		vector<G4double> v_TrackEnergy;
+		vector<G4double> v_TrackKEnergy;
+		vector<G4double> v_TrackEdepSum;
+
+		G4int TrackID[max_t];
+		G4int TrackProcID[max_t];
+		G4int ParentID[max_t];
+		G4int TrackPDG[max_t];
+		G4int TrackDetID[max_t];
+		G4double TrackPX[max_t];
+		G4double TrackPY[max_t];
+		G4double TrackPZ[max_t];
+		G4double TrackVX[max_t];
+		G4double TrackVY[max_t];
+		G4double TrackVZ[max_t];
+		G4double TrackTime[max_t];
+		G4double TrackEnergy[max_t];
+		G4double TrackKEnergy[max_t];
+		G4double TrackEdepSum[max_t];
+
 
 		// PostTrack data
 		G4int nPostTrack;
-		vector<G4int> PostTrackID;
-		vector<G4int> PostTrackProcID;
-		vector<G4int> PostTrackPDG;
-		vector<G4int> PostTrackDetID;
-		vector<G4double> PostTrackPX;
-		vector<G4double> PostTrackPY;
-		vector<G4double> PostTrackPZ;
-		vector<G4double> PostTrackVX;
-		vector<G4double> PostTrackVY;
-		vector<G4double> PostTrackVZ;
-		vector<G4double> PostTrackTime;
-		vector<G4double> PostTrackEnergy;
-		vector<G4double> PostTrackKEnergy;
+		vector<G4int> v_PostTrackID;
+		vector<G4int> v_PostTrackProcID;
+		vector<G4int> v_PostTrackPDG;
+		vector<G4int> v_PostTrackDetID;
+		vector<G4double> v_PostTrackPX;
+		vector<G4double> v_PostTrackPY;
+		vector<G4double> v_PostTrackPZ;
+		vector<G4double> v_PostTrackVX;
+		vector<G4double> v_PostTrackVY;
+		vector<G4double> v_PostTrackVZ;
+		vector<G4double> v_PostTrackTime;
+		vector<G4double> v_PostTrackEnergy;
+		vector<G4double> v_PostTrackKEnergy;
 
+		G4int PostTrackID[max_t];
+		G4int PostTrackProcID[max_t];
+		G4int PostTrackPDG[max_t];
+		G4int PostTrackDetID[max_t];
+		G4double PostTrackPX[max_t];
+		G4double PostTrackPY[max_t];
+		G4double PostTrackPZ[max_t];
+		G4double PostTrackVX[max_t];
+		G4double PostTrackVY[max_t];
+		G4double PostTrackVZ[max_t];
+		G4double PostTrackTime[max_t];
+		G4double PostTrackEnergy[max_t];
+		G4double PostTrackKEnergy[max_t];
 		// Step data
 		G4int nStep;
-		vector<G4int> StepFromHit;
-		vector<G4int> StepTrackID;
-		vector<G4int> StepProcID;
-		vector<G4int> StepTrackPDG;
-		vector<G4int> StepPrevDetID;
-		vector<G4int> StepPostDetID;
-		vector<G4int> IsBoundary;		// for SteppingAction
-		vector<G4double> StepPrevKE;	// for SteppingAction
-		vector<G4double> StepVX;
-		vector<G4double> StepVY;
-		vector<G4double> StepVZ;
-		vector<G4double> StepTime;
-		vector<G4double> StepEdep;
-		vector<G4double> StepLength;
-		vector<G4int> StepNSecondaryOP;
+		vector<G4int> v_StepFromHit;
+		vector<G4int> v_StepTrackID;
+		vector<G4int> v_StepProcID;
+		vector<G4int> v_StepTrackPDG;
+		vector<G4int> v_StepPrevDetID;
+		vector<G4int> v_StepPostDetID;
+		vector<G4int> v_IsBoundary;		// for SteppingAction
+		vector<G4double> v_StepPrevKE;	// for SteppingAction
+		vector<G4double> v_StepVX;
+		vector<G4double> v_StepVY;
+		vector<G4double> v_StepVZ;
+		vector<G4double> v_StepTime;
+		vector<G4double> v_StepEdep;
+		vector<G4double> v_StepLength;
+		vector<G4int> v_StepNSecondaryOP;
+
+		G4int StepFromHit[max_s];
+		G4int StepTrackID[max_s];
+		G4int StepProcID[max_s];
+		G4int StepTrackPDG[max_s];
+		G4int StepPrevDetID[max_s];
+		G4int StepPostDetID[max_s];
+		G4int IsBoundary[max_s];		// for SteppingAction
+		G4double StepPrevKE[max_s];	// for SteppingAction
+		G4double StepVX[max_s];
+		G4double StepVY[max_s];
+		G4double StepVZ[max_s];
+		G4double StepTime[max_s];
+		G4double StepEdep[max_s];
+		G4double StepLength[max_s];
+		G4int StepNSecondaryOP[max_s];
 
 		// Optical photon
 		G4int NOp;

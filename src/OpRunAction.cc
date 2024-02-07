@@ -101,62 +101,124 @@ OpRunAction::~OpRunAction()
 // Link all variables into branch
 void OpRunAction::init_Tree()
 {
-	if(PC -> GetParBool("MCTrack"))
+	if(PC -> GetParBool("VectorOutput"))
 	{
-		T -> Branch("nTrack",&nTrack);
-		T -> Branch("TrackID",&TrackID);
-		T -> Branch("TrackProcID",&TrackProcID);
-		T -> Branch("ParentID",&ParentID);
-		T -> Branch("TrackPDG",&TrackPDG);
-		T -> Branch("TrackDetID",&TrackDetID);
-		T -> Branch("TrackPX",&TrackPX);
-		T -> Branch("TrackPY",&TrackPY);
-		T -> Branch("TrackPZ",&TrackPZ);
-		T -> Branch("TrackVX",&TrackVX);
-		T -> Branch("TrackVY",&TrackVY);
-		T -> Branch("TrackVZ",&TrackVZ);
-		T -> Branch("TrackTime",&TrackTime);
-		T -> Branch("TrackEnergy",&TrackEnergy);
-		T -> Branch("TrackKEnergy",&TrackKEnergy);
-	}
-	if(PC -> GetParBool("MCPostTrack"))
-	{
-		T -> Branch("nPostTrack",&nPostTrack);
-		T -> Branch("PostTrackID",&PostTrackID);
-		T -> Branch("PostTrackProcID",&PostTrackProcID);
-		T -> Branch("PostTrackDetID",&PostTrackDetID);
-		T -> Branch("PostTrackPX",&PostTrackPX);
-		T -> Branch("PostTrackPY",&PostTrackPY);
-		T -> Branch("PostTrackPZ",&PostTrackPZ);
-		T -> Branch("PostTrackVX",&PostTrackVX);
-		T -> Branch("PostTrackVY",&PostTrackVY);
-		T -> Branch("PostTrackVZ",&PostTrackVZ);
-		T -> Branch("PostTrackTime",&PostTrackTime);
-		T -> Branch("PostTrackEnergy",&PostTrackEnergy);
-		T -> Branch("PostTrackKEnergy",&PostTrackKEnergy);
-
-	}
-	if(PC -> GetParBool("MCStep"))
-	{
-		T -> Branch("nStep",&nStep);
-		T -> Branch("StepTrackID"  ,&StepTrackID);
-		T -> Branch("StepFromHit"  ,&StepFromHit);
-		T -> Branch("StepProcID"   ,&StepProcID);
-		T -> Branch("StepTrackPDG" ,&StepTrackPDG);
-		T -> Branch("StepPrevDetID",&StepPrevDetID);
-		T -> Branch("StepPostDetID",&StepPostDetID);
-		T -> Branch("IsBoundary"   ,&IsBoundary);
-
-		T -> Branch("StepVX"       ,&StepVX); 
-		T -> Branch("StepVY"       ,&StepVY);
-		T -> Branch("StepVZ"       ,&StepVZ);
-		T -> Branch("StepTime"     ,&StepTime);
-		T -> Branch("StepEdep"     ,&StepEdep);
-		T -> Branch("StepLength"   ,&StepLength);
-		T -> Branch("StepPrevKE"   ,&StepPrevKE);
-		if(PC->GetParBool("OpticalPhysics"))
+		if(PC -> GetParBool("MCTrack"))
 		{
-			T -> Branch("StepNSecondaryOP",&StepNSecondaryOP);
+			T -> Branch("nTrack",&nTrack);
+			T -> Branch("TrackID",&v_TrackID);
+			T -> Branch("TrackProcID",&v_TrackProcID);
+			T -> Branch("ParentID",&v_ParentID);
+			T -> Branch("TrackPDG",&v_TrackPDG);
+			T -> Branch("TrackDetID",&v_TrackDetID);
+			T -> Branch("TrackPX",&v_TrackPX);
+			T -> Branch("TrackPY",&v_TrackPY);
+			T -> Branch("TrackPZ",&v_TrackPZ);
+			T -> Branch("TrackVX",&v_TrackVX);
+			T -> Branch("TrackVY",&v_TrackVY);
+			T -> Branch("TrackVZ",&v_TrackVZ);
+			T -> Branch("TrackTime",&v_TrackTime);
+			T -> Branch("TrackEnergy",&v_TrackEnergy);
+			T -> Branch("TrackKEnergy",&v_TrackKEnergy);
+		}
+		if(PC -> GetParBool("MCPostTrack"))
+		{
+			T -> Branch("nPostTrack",&nPostTrack);
+			T -> Branch("PostTrackID",&v_PostTrackID);
+			T -> Branch("PostTrackProcID",&v_PostTrackProcID);
+			T -> Branch("PostTrackDetID",&v_PostTrackDetID);
+			T -> Branch("PostTrackPX",&v_PostTrackPX);
+			T -> Branch("PostTrackPY",&v_PostTrackPY);
+			T -> Branch("PostTrackPZ",&v_PostTrackPZ);
+			T -> Branch("PostTrackVX",&v_PostTrackVX);
+			T -> Branch("PostTrackVY",&v_PostTrackVY);
+			T -> Branch("PostTrackVZ",&v_PostTrackVZ);
+			T -> Branch("PostTrackTime",&v_PostTrackTime);
+			T -> Branch("PostTrackEnergy",&v_PostTrackEnergy);
+			T -> Branch("PostTrackKEnergy",&v_PostTrackKEnergy);
+
+		}
+		if(PC -> GetParBool("MCStep"))
+		{
+			T -> Branch("nStep",&nStep);
+			T -> Branch("StepTrackID"  ,&v_StepTrackID);
+			T -> Branch("StepFromHit"  ,&v_StepFromHit);
+			T -> Branch("StepProcID"   ,&v_StepProcID);
+			T -> Branch("StepTrackPDG" ,&v_StepTrackPDG);
+			T -> Branch("StepPrevDetID",&v_StepPrevDetID);
+			T -> Branch("StepPostDetID",&v_StepPostDetID);
+			T -> Branch("IsBoundary"   ,&v_IsBoundary);
+
+			T -> Branch("StepVX"       ,&v_StepVX); 
+			T -> Branch("StepVY"       ,&v_StepVY);
+			T -> Branch("StepVZ"       ,&v_StepVZ);
+			T -> Branch("StepTime"     ,&v_StepTime);
+			T -> Branch("StepEdep"     ,&v_StepEdep);
+			T -> Branch("StepLength"   ,&v_StepLength);
+			T -> Branch("StepPrevKE"   ,&v_StepPrevKE);
+			if(PC->GetParBool("OpticalPhysics"))
+			{
+				T -> Branch("StepNSecondaryOP",&v_StepNSecondaryOP);
+			}
+		}
+	}else{
+		if(PC -> GetParBool("MCTrack"))
+		{
+			T -> Branch("nTrack",&nTrack);
+			T -> Branch("TrackID",TrackID,"TrackID[nTrack]/I");
+			T -> Branch("TrackProcID",TrackProcID,"TrackProcID[nTrack]/I");
+			T -> Branch("ParentID",ParentID,"ParentID[nTrack]/I");
+			T -> Branch("TrackPDG",TrackPDG,"TrackPDG[nTrack]/I");
+			T -> Branch("TrackDetID",TrackDetID,"TrackDetID[nTrack]/I");
+			T -> Branch("TrackPX",TrackPX,"TrackPX[nTrack]/D");
+			T -> Branch("TrackPY",TrackPY,"TrackPY[nTrack]/D");
+			T -> Branch("TrackPZ",TrackPZ,"TrackPZ[nTrack]/D");
+			T -> Branch("TrackVX",TrackVX,"TrackVX[nTrack]/D");
+			T -> Branch("TrackVY",TrackVY,"TrackVY[nTrack]/D");
+			T -> Branch("TrackVZ",TrackVZ,"TrackVZ[nTrack]/D");
+			T -> Branch("TrackTime",TrackTime,"TrackTime[nTrack]/D");
+			T -> Branch("TrackEnergy",TrackEnergy,"TrackEnergy[nTrack]/D");
+			T -> Branch("TrackKEnergy",TrackKEnergy,"TrackKEnergy[nTrack]/D");
+		}
+		if(PC -> GetParBool("MCPostTrack"))
+		{
+			T -> Branch("nPostTrack",&nPostTrack);
+			T -> Branch("PostTrackID",PostTrackID,"PostTrackID[nPostTrack]/I");
+			T -> Branch("PostTrackProcID",PostTrackProcID,"PostTrackProcID[nPostTrack]/I");
+			T -> Branch("PostTrackDetID",PostTrackDetID,"PostTrackDetID[nPostTrack]/I");
+			T -> Branch("PostTrackPX",PostTrackPX,"PostTrackPX[nPostTrack]/D");
+			T -> Branch("PostTrackPY",PostTrackPY,"PostTrackPY[nPostTrack]/D");
+			T -> Branch("PostTrackPZ",PostTrackPZ,"PostTrackPZ[nPostTrack]/D");
+			T -> Branch("PostTrackVX",PostTrackVX,"PostTrackVX[nPostTrack]/D");
+			T -> Branch("PostTrackVY",PostTrackVY,"PostTrackVY[nPostTrack]/D");
+			T -> Branch("PostTrackVZ",PostTrackVZ,"PostTrackVZ[nPostTrack]/D");
+			T -> Branch("PostTrackTime",PostTrackTime,"PostTrackTime[nPostTrack]/D");
+			T -> Branch("PostTrackEnergy",PostTrackEnergy,"PostTrackEnergy[nPostTrack]/D");
+			T -> Branch("PostTrackKEnergy",PostTrackKEnergy,"PostTrackKEnergy[nPostTrack]/D");
+
+		}
+		if(PC -> GetParBool("MCStep"))
+		{
+			T -> Branch("nStep",&nStep);
+			T -> Branch("StepTrackID"  ,StepTrackID,  "StepTrackID[nStep]/I");
+			T -> Branch("StepFromHit"  ,StepFromHit,  "StepFromHit[nStep]/I");
+			T -> Branch("StepProcID"   ,StepProcID,   "StepProcID[nStep]/I");
+			T -> Branch("StepTrackPDG" ,StepTrackPDG, "StepTrackPDG[nStep]/I");
+			T -> Branch("StepPrevDetID",StepPrevDetID,"StepPrevDetID[nStep]/I");
+			T -> Branch("StepPostDetID",StepPostDetID,"StepPostDetID[nStep]/I");
+			T -> Branch("IsBoundary"   ,IsBoundary,   "IsBoundary[nStep]/I");
+
+			T -> Branch("StepVX"       ,StepVX,    "SetpVX[nStep]/D"); 
+			T -> Branch("StepVY"       ,StepVY,    "SetpVY[nStep]/D");
+			T -> Branch("StepVZ"       ,StepVZ,    "SetpVZ[nStep]/D");
+			T -> Branch("StepTime"     ,StepTime,  "StepTime[nStep]/D");
+			T -> Branch("StepEdep"     ,StepEdep,  "StepEdep[nStep]/D");
+			T -> Branch("StepLength"   ,StepLength,"StepLength[nStep]/D");
+			T -> Branch("StepPrevKE"   ,StepPrevKE,"StepPrevKE[nStep]/D");
+			if(PC->GetParBool("OpticalPhysics"))
+			{
+				T -> Branch("StepNSecondaryOP",StepNSecondaryOP,"StepNSecondaryOp[nStep]/I");
+			}
 		}
 	}
 	if(PC -> GetParBool("OpTrack"))
@@ -267,56 +329,100 @@ void OpRunAction::clear_data()
 	if(PC->GetParBool("MCTrack"))
 	{
 		nTrack = 0;
-		TrackID.clear();
-		TrackProcID.clear();
-		ParentID.clear();
-		TrackPDG.clear();
-		TrackDetID.clear();
-		TrackPX.clear();
-		TrackPY.clear();
-		TrackPZ.clear();
-		TrackVX.clear();
-		TrackVY.clear();
-		TrackVZ.clear();
-		TrackTime.clear();
-		TrackEnergy.clear();
-		TrackKEnergy.clear();
+		v_TrackID.clear();
+		v_TrackProcID.clear();
+		v_ParentID.clear();
+		v_TrackPDG.clear();
+		v_TrackDetID.clear();
+		v_TrackPX.clear();
+		v_TrackPY.clear();
+		v_TrackPZ.clear();
+		v_TrackVX.clear();
+		v_TrackVY.clear();
+		v_TrackVZ.clear();
+		v_TrackTime.clear();
+		v_TrackEnergy.clear();
+		v_TrackKEnergy.clear();
+
+		fill_n(TrackID,max_t,0);
+		fill_n(TrackProcID,max_t,0);
+		fill_n(ParentID,max_t,0);
+		fill_n(TrackPDG,max_t,0);
+		fill_n(TrackDetID,max_t,0);
+		fill_n(TrackPX,max_t,0);
+		fill_n(TrackPY,max_t,0);
+		fill_n(TrackPZ,max_t,0);
+		fill_n(TrackVX,max_t,0);
+		fill_n(TrackVY,max_t,0);
+		fill_n(TrackVZ,max_t,0);
+		fill_n(TrackTime,max_t,0);
+		fill_n(TrackEnergy,max_t,0);
+		fill_n(TrackKEnergy,max_t,0);
 	}
 	if(PC->GetParBool("MCPostTrack"))
 	{
 		nPostTrack = 0;
-		PostTrackID.clear();
-		PostTrackProcID.clear();
-		PostTrackPDG.clear();
-		PostTrackDetID.clear();
-		PostTrackPX.clear();
-		PostTrackPY.clear();
-		PostTrackPZ.clear();
-		PostTrackVX.clear();
-		PostTrackVY.clear();
-		PostTrackVZ.clear();
-		PostTrackTime.clear();
-		PostTrackEnergy.clear();
-		PostTrackKEnergy.clear();
+		v_PostTrackID.clear();
+		v_PostTrackProcID.clear();
+		v_PostTrackPDG.clear();
+		v_PostTrackDetID.clear();
+		v_PostTrackPX.clear();
+		v_PostTrackPY.clear();
+		v_PostTrackPZ.clear();
+		v_PostTrackVX.clear();
+		v_PostTrackVY.clear();
+		v_PostTrackVZ.clear();
+		v_PostTrackTime.clear();
+		v_PostTrackEnergy.clear();
+		v_PostTrackKEnergy.clear();
+
+		fill_n(PostTrackID,max_t,0);
+		fill_n(PostTrackProcID,max_t,0);
+		fill_n(PostTrackPDG,max_t,0);
+		fill_n(PostTrackDetID,max_t,0);
+		fill_n(PostTrackPX,max_t,0);
+		fill_n(PostTrackPY,max_t,0);
+		fill_n(PostTrackPZ,max_t,0);
+		fill_n(PostTrackVX,max_t,0);
+		fill_n(PostTrackVY,max_t,0);
+		fill_n(PostTrackVZ,max_t,0);
+		fill_n(PostTrackTime,max_t,0);
+		fill_n(PostTrackEnergy,max_t,0);
+		fill_n(PostTrackKEnergy,max_t,0);
 	}
 	if(PC->GetParBool("MCStep"))
 	{
 		nStep = 0;
-		StepTrackID.clear();
-		StepFromHit.clear();
-		StepProcID.clear();
-		StepTrackPDG.clear();
-		StepPrevDetID.clear();
-		StepPostDetID.clear();
-		IsBoundary.clear();
-		StepPrevKE.clear();
-		StepVX.clear();
-		StepVY.clear();
-		StepVZ.clear();
-		StepTime.clear();
-		StepEdep.clear();
-		StepLength.clear();
-		StepNSecondaryOP.clear();
+		v_StepTrackID.clear();
+		v_StepFromHit.clear();
+		v_StepProcID.clear();
+		v_StepTrackPDG.clear();
+		v_StepPrevDetID.clear();
+		v_StepPostDetID.clear();
+		v_IsBoundary.clear();
+		v_StepPrevKE.clear();
+		v_StepVX.clear();
+		v_StepVY.clear();
+		v_StepVZ.clear();
+		v_StepTime.clear();
+		v_StepEdep.clear();
+		v_StepLength.clear();
+		v_StepNSecondaryOP.clear();
+		fill_n(StepTrackID,max_s,0);
+		fill_n(StepFromHit,max_s,0);
+		fill_n(StepProcID,max_s,0);
+		fill_n(StepTrackPDG,max_s,0);
+		fill_n(StepPrevDetID,max_s,0);
+		fill_n(StepPostDetID,max_s,0);
+		fill_n(IsBoundary,max_s,0);
+		fill_n(StepPrevKE,max_s,0);
+		fill_n(StepVX,max_s,0);
+		fill_n(StepVY,max_s,0);
+		fill_n(StepVZ,max_s,0);
+		fill_n(StepTime,max_s,0);
+		fill_n(StepEdep,max_s,0);
+		fill_n(StepLength,max_s,0);
+		fill_n(StepNSecondaryOP,max_s,0);
 	}
 	if(PC->GetParBool("OpTrack"))
 	{
@@ -403,43 +509,77 @@ void OpRunAction::FillTrack
  G4ThreeVector p, G4ThreeVector v, G4double time, G4double totenergy, G4double kinenergy)
 	// invoked in TrackingAction
 {
-	if(opt == MCTrack)	// data at the time of creation
+	if(PC->GetParBool("VectorOutput"))
 	{
-		TrackID.push_back(trkID);
-		TrackProcID.push_back(procID);
-		ParentID.push_back(parentID);
-		TrackPDG.push_back(pdg);
-		TrackDetID.push_back(detID);
-		TrackPX.push_back(p.x());
-		TrackPY.push_back(p.y());
-		TrackPZ.push_back(p.z());
-		TrackVX.push_back(v.x());
-		TrackVY.push_back(v.y());
-		TrackVZ.push_back(v.z());
-		TrackTime.push_back(time);
-		TrackEnergy.push_back(totenergy);
-		TrackKEnergy.push_back(kinenergy);
-		nTrack++;
-	}
-	else if(opt == MCPostTrack)	// data at the time of died
-	{
-		PostTrackID.push_back(trkID);
-		PostTrackProcID.push_back(procID);
-		PostTrackDetID.push_back(detID);
-		PostTrackPX.push_back(p.x());
-		PostTrackPY.push_back(p.y());
-		PostTrackPZ.push_back(p.z());
-		PostTrackVX.push_back(v.x());
-		PostTrackVY.push_back(v.y());
-		PostTrackVZ.push_back(v.z());
-		PostTrackTime.push_back(time);
-		PostTrackEnergy.push_back(totenergy);
-		PostTrackKEnergy.push_back(kinenergy);
-		nPostTrack++;
-	}
-	else
-	{
-		G4cout << "Error in OpRunAction::FillTrack()" << G4endl;
+		if(opt == MCTrack)	// data at the time of creation
+		{
+			v_TrackID.push_back(trkID);
+			v_TrackProcID.push_back(procID);
+			v_ParentID.push_back(parentID);
+			v_TrackPDG.push_back(pdg);
+			v_TrackDetID.push_back(detID);
+			v_TrackPX.push_back(p.x());
+			v_TrackPY.push_back(p.y());
+			v_TrackPZ.push_back(p.z());
+			v_TrackVX.push_back(v.x());
+			v_TrackVY.push_back(v.y());
+			v_TrackVZ.push_back(v.z());
+			v_TrackTime.push_back(time);
+			v_TrackEnergy.push_back(totenergy);
+			v_TrackKEnergy.push_back(kinenergy);
+			nTrack++;
+		}
+		else if(opt == MCPostTrack)	// data at the time of died
+		{
+			v_PostTrackID.push_back(trkID);
+			v_PostTrackProcID.push_back(procID);
+			v_PostTrackDetID.push_back(detID);
+			v_PostTrackPX.push_back(p.x());
+			v_PostTrackPY.push_back(p.y());
+			v_PostTrackPZ.push_back(p.z());
+			v_PostTrackVX.push_back(v.x());
+			v_PostTrackVY.push_back(v.y());
+			v_PostTrackVZ.push_back(v.z());
+			v_PostTrackTime.push_back(time);
+			v_PostTrackEnergy.push_back(totenergy);
+			v_PostTrackKEnergy.push_back(kinenergy);
+			nPostTrack++;
+		}
+	}else{
+		if(opt == MCTrack)	// data at the time of creation
+		{
+			TrackID[nTrack]=trkID;
+			TrackProcID[nTrack]=procID;
+			ParentID[nTrack]=parentID;
+			TrackPDG[nTrack]=pdg;
+			TrackDetID[nTrack]=detID;
+			TrackPX[nTrack]=p.x();
+			TrackPY[nTrack]=p.y();
+			TrackPZ[nTrack]=p.z();
+			TrackVX[nTrack]=v.x();
+			TrackVY[nTrack]=v.y();
+			TrackVZ[nTrack]=v.z();
+			TrackTime[nTrack]=time;
+			TrackEnergy[nTrack]=totenergy;
+			TrackKEnergy[nTrack]=kinenergy;
+			nTrack++;
+		}
+		else if(opt == MCPostTrack)	// data at the time of died
+		{
+			PostTrackID[nPostTrack]=trkID;
+			PostTrackProcID[nPostTrack]=procID;
+			PostTrackDetID[nPostTrack]=detID;
+			PostTrackPX[nPostTrack]=p.x();
+			PostTrackPY[nPostTrack]=p.y();
+			PostTrackPZ[nPostTrack]=p.z();
+			PostTrackVX[nPostTrack]=v.x();
+			PostTrackVY[nPostTrack]=v.y();
+			PostTrackVZ[nPostTrack]=v.z();
+			PostTrackTime[nPostTrack]=time;
+			PostTrackEnergy[nPostTrack]=totenergy;
+			PostTrackKEnergy[nPostTrack]=kinenergy;
+			nPostTrack++;
+		}
 	}
 }
 
@@ -521,22 +661,42 @@ void OpRunAction::FillOpticalPhotonBoundary
 void OpRunAction::FillStep
 (G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, G4int prev_detID, G4int post_detID, G4ThreeVector v, G4double time, G4double edep, G4double length, G4int nSecondaries, G4double prevKE)
 {
-	StepFromHit.push_back(fromHit);
-	StepTrackID.push_back(trkID);
-	StepProcID.push_back(procID);
-	StepTrackPDG.push_back(pdg);
-	StepPrevDetID.push_back(prev_detID);
-	StepPostDetID.push_back(post_detID);
-	IsBoundary.push_back(boundary);
-	StepPrevKE.push_back(prevKE);
-	StepVX.push_back(v.x());
-	StepVY.push_back(v.y());
-	StepVZ.push_back(v.z());
-	StepTime.push_back(time);
-	StepEdep.push_back(edep);
-	StepLength.push_back(length);
-	StepNSecondaryOP.push_back(nSecondaries);
-	nStep++;
+	if(PC->GetParBool("VectorOutput"))
+	{
+		v_StepFromHit.push_back(fromHit);
+		v_StepTrackID.push_back(trkID);
+		v_StepProcID.push_back(procID);
+		v_StepTrackPDG.push_back(pdg);
+		v_StepPrevDetID.push_back(prev_detID);
+		v_StepPostDetID.push_back(post_detID);
+		v_IsBoundary.push_back(boundary);
+		v_StepPrevKE.push_back(prevKE);
+		v_StepVX.push_back(v.x());
+		v_StepVY.push_back(v.y());
+		v_StepVZ.push_back(v.z());
+		v_StepTime.push_back(time);
+		v_StepEdep.push_back(edep);
+		v_StepLength.push_back(length);
+		v_StepNSecondaryOP.push_back(nSecondaries);
+		nStep++;
+	}else{
+		StepFromHit[nStep]=fromHit;
+		StepTrackID[nStep]=trkID;
+		StepProcID[nStep]=procID;
+		StepTrackPDG[nStep]=pdg;
+		StepPrevDetID[nStep]=prev_detID;
+		StepPostDetID[nStep]=post_detID;
+		IsBoundary[nStep]=boundary;
+		StepPrevKE[nStep]=prevKE;
+		StepVX[nStep]=v.x();
+		StepVY[nStep]=v.y();
+		StepVZ[nStep]=v.z();
+		StepTime[nStep]=time;
+		StepEdep[nStep]=edep;
+		StepLength[nStep]=length;
+		StepNSecondaryOP[nStep]=nSecondaries;
+		nStep++;
+	}
 }
 
 void OpRunAction::FillSiPM

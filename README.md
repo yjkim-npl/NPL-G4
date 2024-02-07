@@ -40,3 +40,6 @@ The default setting of parameter container is "OpParameter.conf" in build direct
 ### 5. development log
 #### 06.Feb
  - `OpDetectorConstruction.cc` & `OpMaterials.cc`: modified the option for non-optical simulation 
+
+#### 07.Feb
+ - `OpRunAction.xx`: user can switch the output types between `vector` and `array` 
