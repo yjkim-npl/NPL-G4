@@ -172,9 +172,9 @@ void nonOpMake(
 		for(int b=0; b<npID; b++)
 		{
 			H1_Edep[a][b] = 
-				new TH1F(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]),"",100,0,100);
+				new TH1F(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]),"",200,0,10);
 			H1_Time[a][b] = 
-				new TH1F(Form("H1_Time_%s_%s",str_SC[a],str_pID[b]),"",100,0,100);
+				new TH1F(Form("H1_Time_%s_%s",str_SC[a],str_pID[b]),"",4000,10,50);
 			H2_XYpos[a][b] = 
 				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
 						300,-150,150,300,-150,150);
@@ -190,19 +190,17 @@ void nonOpMake(
 	*/
 	for(int a=0; a<T->GetEntries(); a++)
 	{
-//		if(a!= 406) continue;
 		if(a%100 == 0)
 			cout << "Processing " << a << " th event" << endl;
 
 		T -> GetEntry(a);
-//		for(int b=0; b<nTrack; b++)
-//		{
-//		}
-//		for(int b=0; b<nPostTrack; b++)
-//		{
-//		}
+
+		double EdepSum[nSC][npID]; memset(EdepSum,0,sizeof(EdepSum));
+
 		for(int b=0; b<nStep; b++)
 		{
+			int fromHit = s_FromHit[b];
+			if(fromHit == 1) continue;
 			int pdg = s_PDG[b];
 			int idx = PDGtoIndex(pdg);
 			int proc = s_ProcID[b];
@@ -216,11 +214,18 @@ void nonOpMake(
 			if(detID <0 || detID > 10) continue;
 			if(detID >= 0)
 			{
-//				cout << Form("%d %d %d %.6f %.2f",idx, proc, detID,edep,time) << endl;
-				H1_Edep[detID][idx] -> Fill(edep);
+				EdepSum[detID][idx] += edep;
+//				cout << Form("%d %d %d %d %.6f %.2f",fromHit,idx, proc, detID,edep,time) << endl;
+//				H1_Edep[detID][idx] -> Fill(edep);
 				H1_Time[detID][idx] -> Fill(time);
 				H2_XYpos[detID][idx] -> Fill(vx,vy);
 			}
+		}
+		for(int b=0; b<nSC; b++)
+		for(int c=0; c<npID; c++)
+		{
+			if(EdepSum[b][c] == 0) continue;
+			H1_Edep[b][c] -> Fill(EdepSum[b][c]);
 		}
 //		cout << " " << endl;
 	}
