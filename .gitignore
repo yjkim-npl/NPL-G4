@@ -7,5 +7,5 @@ build/*
 */*.swo
 
 analysis/fig/*
-analysis/data_root/*
+analysis/data/*
 analysis/out_root/*
