@@ -45,3 +45,6 @@ The default setting of parameter container is "OpParameter.conf" in build direct
  - `OpRunAction.xx`: user can switch the output types between `vector` and `array` 
  - `nonOpMake.C` & `nonOpDraw.C`: applied only array type container
  - comments: insert the SC frames & widen beam shape for BG estimation
+
+#### 08.Feb
+ - `OpDetectorConstrucrtion.C`: SC frames were implemented

@@ -275,6 +275,80 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		logicSC1 -> SetVisAttributes(attSC);
 		logicSC2 -> SetVisAttributes(attSC);
 	}
+	if(PC -> GetParBool("SCframeIn"))
+	{
+		G4int ID = PC -> GetParInt("SCframeID");
+		G4double sizeX = PC -> GetParDouble("SCframe_sizeX");
+		G4double sizeY1 = PC -> GetParDouble("SCframe_sizeY1");
+		G4double sizeY2 = PC -> GetParDouble("SCframe_sizeY2");
+		G4double sizeZ1 = PC -> GetParDouble("SCframe_sizeZ1");
+		G4double sizeZ2 = PC -> GetParDouble("SCframe_sizeZ2");
+		G4double Xgap1 = PC -> GetParDouble("SCframe_Xgap1");
+		G4double Xgap2 = PC -> GetParDouble("SCframe_Xgap2");
+		G4Material* mat = fMaterials -> GetMaterial("Aluminium");
+
+		G4Box* solid_frame1 = 
+			new G4Box("frame1",0.5*sizeX,0.5*sizeY1,0.5*sizeZ1);
+		G4Box* solid_frame2 = 
+			new G4Box("frame2",0.5*sizeX,0.5*sizeY2,0.5*sizeZ2);
+
+		G4LogicalVolume* logic_frame1 =
+			new G4LogicalVolume(solid_frame1,mat,"l_frame1");
+		G4LogicalVolume* logic_frame2 =
+			new G4LogicalVolume(solid_frame2,mat,"l_frame2");
+
+		G4VisAttributes* attframe = new G4VisAttributes(G4Colour(G4Colour::Grey()));
+		attframe -> SetVisibility(true);
+		attframe -> SetForceWireframe(true);
+		logic_frame1 -> SetVisAttributes(attframe);
+		logic_frame2 -> SetVisAttributes(attframe);
+		if(PC->GetParBool("SCIn"))
+		{
+			G4double SCZOffset1 = PC -> GetParDouble("SC_ZOffset1");
+			G4double SCZOffset2 = PC -> GetParDouble("SC_ZOffset2");
+			G4double SCZOffset3 = PC -> GetParDouble("SC_ZOffset3");
+			G4double SCZOffset4 = PC -> GetParDouble("SC_ZOffset4");
+			G4double Box_sizeZ = PC -> GetParDouble("SCBox_sizeZ");
+
+			// for SC1
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,-0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_DR",logicBox,false,ID+11,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,-0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_DC",logicBox,false,ID+12,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,-0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_DL",logicBox,false,ID+13,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,+0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_UR",logicBox,false,ID+14,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,+0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_UC",logicBox,false,ID+15,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,+0.5*(sizeY1+sizeY2),SCZOffset1-trans-0.5*Box_sizeZ),logic_frame1,"SC1_frame_UL",logicBox,false,ID+16,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,0,SCZOffset1-trans-0.5*Box_sizeZ),logic_frame2,"SC1_frame_CR",logicBox,false,ID+17,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,0,SCZOffset1-trans-0.5*Box_sizeZ),logic_frame2,"SC1_frame_CL",logicBox,false,ID+18,checkOverlaps);
+			// for SC2
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,-0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_DR",logicBox,false,ID+21,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,-0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_DC",logicBox,false,ID+22,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,-0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_DL",logicBox,false,ID+23,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,+0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_UR",logicBox,false,ID+24,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,+0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_UC",logicBox,false,ID+25,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,+0.5*(sizeY1+sizeY2),SCZOffset2-trans-0.5*Box_sizeZ),logic_frame1,"SC2_frame_UL",logicBox,false,ID+26,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap1,0,SCZOffset2-trans-0.5*Box_sizeZ),logic_frame2,"SC2_frame_CR",logicBox,false,ID+27,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap1,0,SCZOffset2-trans-0.5*Box_sizeZ),logic_frame2,"SC2_frame_CL",logicBox,false,ID+28,checkOverlaps);
+			// for SC3
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,-0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_DR",logicBox,false,ID+31,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,-0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_DC",logicBox,false,ID+32,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,-0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_DL",logicBox,false,ID+33,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,+0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_UR",logicBox,false,ID+34,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,+0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_UC",logicBox,false,ID+35,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,+0.5*(sizeY1+sizeY2),SCZOffset3-trans-0.5*Box_sizeZ),logic_frame1,"SC3_frame_UL",logicBox,false,ID+36,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,0,SCZOffset3-trans-0.5*Box_sizeZ),logic_frame2,"SC3_frame_CR",logicBox,false,ID+37,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,0,SCZOffset3-trans-0.5*Box_sizeZ),logic_frame2,"SC3_frame_CL",logicBox,false,ID+38,checkOverlaps);
+			// for SC4
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,-0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_DR",logicBox,false,ID+41,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,-0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_DC",logicBox,false,ID+42,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,-0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_DL",logicBox,false,ID+43,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,+0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_UR",logicBox,false,ID+44,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(0,+0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_UC",logicBox,false,ID+45,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,+0.5*(sizeY1+sizeY2),SCZOffset4-trans-0.5*Box_sizeZ),logic_frame1,"SC4_frame_UL",logicBox,false,ID+46,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(sizeX+Xgap2,0,SCZOffset4-trans-0.5*Box_sizeZ),logic_frame2,"SC4_frame_CR",logicBox,false,ID+47,checkOverlaps);
+			new G4PVPlacement(0,G4ThreeVector(-sizeX-Xgap2,0,SCZOffset4-trans-0.5*Box_sizeZ),logic_frame2,"SC4_frame_CL",logicBox,false,ID+48,checkOverlaps);
+		}
+
+	}
 	if(PC -> GetParBool("SiPMIn"))
 	{
 		G4int SiPMID = PC -> GetParInt("SiPMID");
