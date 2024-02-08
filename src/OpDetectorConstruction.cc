@@ -102,28 +102,33 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4double sizeY = PC -> GetParDouble("Slit_sizeY");
 		G4double sizeZ = PC -> GetParDouble("Slit_sizeZ");
 		G4double slitW = PC -> GetParDouble("Slit_slitW");
+		G4double slitH = PC -> GetParDouble("Slit_slitH");
 		G4double ZOffset1 = PC -> GetParDouble("Slit_ZOffset1");
 		G4double ZOffset2 = PC -> GetParDouble("Slit_ZOffset2");
 		G4Material* mat = fMaterials -> GetMaterial("PMMA");
 
 		G4Box* solid_Slit = 
 			new G4Box("Slit",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
-		G4Box* sub_Slit = 
-			new G4Box("sub_Slit",0.5*slitW,0.99*0.5*sizeY,0.5*sizeZ);
-		G4SubtractionSolid* solid_Slit_sub = 
-			new G4SubtractionSolid("Slit_sub",solid_Slit,sub_Slit,0,G4ThreeVector(0,0,0));
-		G4LogicalVolume* logic_Slit = 
-			new G4LogicalVolume(solid_Slit_sub,mat,"logic_Slit");
+		G4Box* sub_SlitW = 
+			new G4Box("sub_SlitW",0.5*slitW,0.99*0.5*sizeY,0.5*sizeZ);
+		G4Box* sub_SlitH = 
+			new G4Box("sub_SlitH",0.99*0.5*sizeX,0.5*slitH,0.5*sizeZ);
+		G4SubtractionSolid* solid_SlitW_sub = 
+			new G4SubtractionSolid("SlitW_sub",solid_Slit,sub_SlitW,0,G4ThreeVector(0,0,0));
+		G4SubtractionSolid* solid_SlitH_sub = 
+			new G4SubtractionSolid("SlitH_sub",solid_Slit,sub_SlitH,0,G4ThreeVector(0,0,0));
+		G4LogicalVolume* logic_SlitW = 
+			new G4LogicalVolume(solid_SlitW_sub,mat,"logic_SlitW");
+		G4LogicalVolume* logic_SlitH = 
+			new G4LogicalVolume(solid_SlitH_sub,mat,"logic_SlitH");
 		G4VisAttributes* att_Slit = new G4VisAttributes(G4Colour(G4Colour::Gray()));
 		att_Slit -> SetLineWidth(5);
 		att_Slit -> SetForceWireframe(true);
-		logic_Slit -> SetVisAttributes(att_Slit);
+		logic_SlitW -> SetVisAttributes(att_Slit);
+		logic_SlitH -> SetVisAttributes(att_Slit);
 
-		G4RotationMatrix* Rot = new G4RotationMatrix;
-		Rot->rotateZ(90*deg);
-		
-		new G4PVPlacement(0, G4ThreeVector(0,0,ZOffset1-trans-sizeZ/2),logic_Slit,"Slit1",logicWorld,ID,checkOverlaps);
-		new G4PVPlacement(Rot, G4ThreeVector(0,0,ZOffset2-trans-sizeZ/2),logic_Slit,"Slit2",logicWorld,ID,checkOverlaps);
+		new G4PVPlacement(0, G4ThreeVector(0,0,ZOffset1-trans-sizeZ/2),logic_SlitH,"Slit1",logicWorld,ID,checkOverlaps);
+		new G4PVPlacement(0, G4ThreeVector(0,0,ZOffset2-trans-sizeZ/2),logic_SlitW,"Slit2",logicWorld,ID,checkOverlaps);
 	}
 
 	if(PC->GetParBool("BoronIn"))

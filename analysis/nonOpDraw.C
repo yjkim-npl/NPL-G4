@@ -17,7 +17,7 @@ inline char* OutName(int opt, char* prefix, char* p, char* e, char* s, char* for
 void nonOpDraw(
 		char* particle = "proton",
 		char* energy = "100MeV",
-		char* suffix = "KOMACBeam")
+		char* suffix = "frame")
 {
 	/* HIST lists
 		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
@@ -74,8 +74,8 @@ void nonOpDraw(
 					(TH1F*) F -> Get(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]));
 				H1 -> SetStats(false);
 				if(b==0)
-					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
-				H1 -> GetXaxis() -> SetRangeUser(0,7);
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1e3* H1->GetMaximum());
+				H1 -> GetXaxis() -> SetRangeUser(0,10);
 				H1 -> GetXaxis() -> SetTitle("Edep [MeV]");
 				H1 -> GetXaxis() -> SetTitleSize(0.06);
 				H1 -> GetXaxis() -> SetLabelSize(0.045);
@@ -117,8 +117,8 @@ void nonOpDraw(
 				H1 -> SetStats(false);
 				H1 -> Rebin(10);
 				if(b==0)
-					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
-				H1 -> GetXaxis() -> SetRangeUser(15,30);
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1e3* H1->GetMaximum());
+				H1 -> GetXaxis() -> SetRangeUser(15,50);
 				H1 -> GetXaxis() -> SetTitle("Time [ns]");
 				H1 -> GetXaxis() -> SetTitleSize(0.06);
 				H1 -> GetXaxis() -> SetLabelSize(0.045);
@@ -159,8 +159,8 @@ void nonOpDraw(
 				H1 -> SetStats(false);
 				H1 -> Rebin(10);
 				if(b==0)
-					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
-				H1 -> GetXaxis() -> SetRangeUser(15,30);
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1e3* H1->GetMaximum());
+//				H1 -> GetXaxis() -> SetRangeUser(15,30);
 				H1 -> GetXaxis() -> SetTitle("Energy [MeV]");
 				H1 -> GetXaxis() -> SetTitleSize(0.06);
 				H1 -> GetXaxis() -> SetLabelSize(0.045);
