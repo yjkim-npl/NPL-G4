@@ -17,19 +17,19 @@ inline char* OutName(int opt, char* prefix, char* p, char* e, char* s, char* for
 void nonOpDraw(
 		char* particle = "proton",
 		char* energy = "100MeV",
-		char* suffix = "")
+		char* suffix = "KOMACBeam")
 {
 	/* HIST lists
 		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
 		 1. 1-D[SCs][] Time distribution with pID on SCs
-		 2. 2-D[SCs] Generation process & pID on SCs
+		 2. 1-D[SCs][] Energy distribution with pID on SCs
 		 3. 2-D[SCs][] Step position on SC
 	*/
 	const int n_Hist = 4;
 	bool Opt[n_Hist]; fill_n(Opt,n_Hist,0);
 	Opt[0] = 1;
 	Opt[1] = 1;
-	Opt[2] = 0; // not working
+	Opt[2] = 1; 
 	Opt[3] = 1;
 
 	TString str_p = particle;
@@ -69,11 +69,12 @@ void nonOpDraw(
 			{
 				c0 -> cd(a+1);
 				gPad -> SetMargin(.13,.05,.12,.05);
+				gPad -> SetLogy();
 				TH1F* H1 = 
 					(TH1F*) F -> Get(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]));
 				H1 -> SetStats(false);
 				if(b==0)
-					H1 -> GetYaxis() -> SetRangeUser(0,1.7* H1->GetMaximum());
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
 				H1 -> GetXaxis() -> SetRangeUser(0,7);
 				H1 -> GetXaxis() -> SetTitle("Edep [MeV]");
 				H1 -> GetXaxis() -> SetTitleSize(0.06);
@@ -110,12 +111,13 @@ void nonOpDraw(
 			{
 				c1 -> cd(a+1);
 				gPad -> SetMargin(.13,.05,.12,.05);
+				gPad -> SetLogy();
 				TH1F* H1 = 
 					(TH1F*) F -> Get(Form("H1_Time_%s_%s",str_SC[a],str_pID[b]));
 				H1 -> SetStats(false);
 				H1 -> Rebin(10);
 				if(b==0)
-					H1 -> GetYaxis() -> SetRangeUser(0,1.7* H1->GetMaximum());
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
 				H1 -> GetXaxis() -> SetRangeUser(15,30);
 				H1 -> GetXaxis() -> SetTitle("Time [ns]");
 				H1 -> GetXaxis() -> SetTitleSize(0.06);
@@ -135,17 +137,59 @@ void nonOpDraw(
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c1 -> SaveAs(outname);
 	}
+	// HIST 1 Energy distribution
+	if(Opt[2])
+	{
+		TCanvas* c2 = new TCanvas("c2","c2",1.2*400*2,400*2);
+		c2 -> Divide(2,2);
+		for(int a=0; a<nSC; a++)
+		{
+			TLegend* leg = new TLegend(.15,.93-0.06*5,.9,.93);
+			leg -> SetBorderSize(0);
+			leg -> SetFillStyle(0);
+			leg -> SetTextSize(0.05);
+			leg -> AddEntry("",Form("%s %s simulation", particle, energy),"h");
+			for(int b=0; b<npID; b++)
+			{
+				c2 -> cd(a+1);
+				gPad -> SetMargin(.13,.05,.12,.05);
+				gPad -> SetLogy();
+				TH1F* H1 = 
+					(TH1F*) F -> Get(Form("H1_Energy_%s_%s",str_SC[a],str_pID[b]));
+				H1 -> SetStats(false);
+				H1 -> Rebin(10);
+				if(b==0)
+					H1 -> GetYaxis() -> SetRangeUser(0.1,1.7* H1->GetMaximum());
+				H1 -> GetXaxis() -> SetRangeUser(15,30);
+				H1 -> GetXaxis() -> SetTitle("Energy [MeV]");
+				H1 -> GetXaxis() -> SetTitleSize(0.06);
+				H1 -> GetXaxis() -> SetLabelSize(0.045);
+//				H1 -> GetYaxis() -> SetTitle("Entries");
+				H1 -> GetYaxis() -> SetTitleSize(0.06);
+				H1 -> GetYaxis() -> SetLabelSize(0.045);
+				H1 -> SetLineColor(b==2?b+4:b+1);
+//				H1 -> SetLineWidth(2);
+				leg -> AddEntry(H1,Form("%s, Mean: %.2f, StdDev: %.2f",str_pID[b],H1->GetMean(),H1->GetStdDev()),"l");
+
+				H1 -> Draw("same");
+			}
+			leg -> Draw();
+		}
+		char* pref = "fig/fig_Time";
+		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
+		c2 -> SaveAs(outname);
+	}
 
 	// HIST 2 2D XY distribution
 	if(Opt[3])
 	{
-		TCanvas* c2 = new TCanvas("c2","c2",1.2*400*4,400*4);
-		c2 -> Divide(4,4);
+		TCanvas* c3 = new TCanvas("c3","c3",1.2*400*4,400*4);
+		c3 -> Divide(4,4);
 		for(int a=0; a<nSC; a++)
 		{
 			for(int b=0; b<npID; b++)
 			{
-				c2 -> cd(a+4*b+1);
+				c3 -> cd(a+4*b+1);
 				gPad -> SetMargin(.13,.05,.12,.05);
 				TH2F* H2 = 
 					(TH2F*) F -> Get(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]));
@@ -182,7 +226,7 @@ void nonOpDraw(
 		}
 		char* pref = "fig/fig_XYpos";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
-		c2 -> SaveAs(outname);
+		c3 -> SaveAs(outname);
 	}
 	
 }

@@ -13,12 +13,12 @@ int PDGtoIndex(int pID)
 void nonOpMake(
 		const char* particle = "proton",
 		const char* energy = "100MeV",
-		const char* suffix = "")
+		const char* suffix = "KOMACBeam")
 {
 	/* HIST lists
 		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
 		 1. 1-D[SCs][] Time distribution with pID on SCs
-		 2. 2-D[SCs] Generation process & pID on SCs
+		 2. 1-D[SCs][] Energy distribution with pID on SCs
 		 3. 2-D[SCs][] Step position on SC
 	*/
 
@@ -90,6 +90,7 @@ void nonOpMake(
 	int nStep;
 	int s_ID[max], s_FromHit[max], s_ProcID[max], s_PDG[max], s_DetID[max];
 	double s_vx[max], s_vy[max], s_vz[max], s_time[max], s_Edep[max];
+	double s_prevKE[max];
 //	vector<int> *s_ID, *s_FromHit, *s_ProcID, *s_PDG, *s_DetID;
 //	vector<double> *s_vx, *s_vy, *s_vz, *s_time, *s_Edep, *s_Length, *s_prevKE;
 
@@ -143,7 +144,7 @@ void nonOpMake(
 		T -> SetBranchAddress("StepTime",s_time);
 		T -> SetBranchAddress("StepEdep",s_Edep);
 //		T -> SetBranchAddress("StepLength",s_Length);
-//		T -> SetBranchAddress("StepPrevKE",s_prevKE);
+		T -> SetBranchAddress("StepPrevKE",s_prevKE);
 	}
 
 	// output root file
@@ -161,20 +162,20 @@ void nonOpMake(
 	// HIST 1
 	TH1F* H1_Time[nSC][npID];
 	// HIST 2
-	TH2F* H2_proc_pID[nSC];
+	TH1F* H1_Energy[nSC][npID];
 	// HIST 3
 	TH2F* H2_XYpos[nSC][npID];
 
 	for(int a=0; a<nSC; a++)
 	{
-		H2_proc_pID[a] = 
-			new TH2F(Form("H2_proc_pID_%s",str_SC[a]),"",100,0,100,4,0,4);
 		for(int b=0; b<npID; b++)
 		{
 			H1_Edep[a][b] = 
 				new TH1F(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]),"",200,0,10);
 			H1_Time[a][b] = 
 				new TH1F(Form("H1_Time_%s_%s",str_SC[a],str_pID[b]),"",4000,10,50);
+			H1_Energy[a][b] = 
+				new TH1F(Form("H1_Energy_%s_%s",str_SC[a],str_pID[b]),"",200,0,100);
 			H2_XYpos[a][b] = 
 				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
 						300,-150,150,300,-150,150);
@@ -206,6 +207,7 @@ void nonOpMake(
 			int proc = s_ProcID[b];
 			int detID = s_DetID[b] - stoi(map_para["SCID"]) -1;
 //			cout << s_DetID[b] << endl;
+			double energy = s_prevKE[b];
 			double edep = s_Edep[b];
 			double time = s_time[b];
 			double vx = s_vx[b];
@@ -218,6 +220,7 @@ void nonOpMake(
 //				cout << Form("%d %d %d %d %.6f %.2f",fromHit,idx, proc, detID,edep,time) << endl;
 //				H1_Edep[detID][idx] -> Fill(edep);
 				H1_Time[detID][idx] -> Fill(time);
+				H1_Energy[detID][idx] -> Fill(energy);
 				H2_XYpos[detID][idx] -> Fill(vx,vy);
 			}
 		}
@@ -231,13 +234,14 @@ void nonOpMake(
 	}
 
 	// Write
+	L_para -> Write();
 	for(int a=0; a<nSC; a++)
 	{
-		H2_proc_pID[a] -> Write();
 		for(int b=0; b<npID; b++)
 		{
 			H1_Edep[a][b] -> Write();
 			H1_Time[a][b] -> Write();
+			H1_Energy[a][b] -> Write();
 			H2_XYpos[a][b] -> Write();
 		}
 	}
