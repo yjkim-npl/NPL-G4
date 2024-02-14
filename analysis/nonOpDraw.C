@@ -17,7 +17,7 @@ inline char* OutName(int opt, char* prefix, char* p, char* e, char* s, char* for
 void nonOpDraw(
 		char* particle = "proton",
 		char* energy = "100MeV",
-		char* suffix = "frame")
+		char* suffix = "coll_SC")
 {
 	/* HIST lists
 		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
@@ -175,7 +175,7 @@ void nonOpDraw(
 			}
 			leg -> Draw();
 		}
-		char* pref = "fig/fig_Time";
+		char* pref = "fig/fig_Energy";
 		char* outname = OutName(name_opt,pref,particle,energy,suffix,"pdf");
 		c2 -> SaveAs(outname);
 	}
