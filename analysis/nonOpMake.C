@@ -16,11 +16,10 @@ void nonOpMake(
 		const char* suffix = "KOMACBeam")
 {
 	/* HIST lists
-		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
-		 1. 1-D[SCs][] Time distribution with pID on SCs
+		 0. 2-D[SCs][p,n,e,A] Time versus Edep distribution with pID on SCs
+		 1. 1-D[SCs][] Edep sum dist
 		 2. 1-D[SCs][] Energy distribution with pID on SCs
 		 3. 2-D[SCs][] Step position on SC
-		 4. 2-D[SCs][] Time vs Edep with pID on SCs
 	*/
 
 	const int n_Hist = 1;
@@ -158,43 +157,35 @@ void nonOpMake(
 	enum {pro,neu,ele,ion};
 	char* str_pID[] = {"pro","neu","ele","ion"};
 	const int npID = sizeof(str_pID)/sizeof(str_pID[0]);
-	// HIST 0
-	TH1F* H1_Edep[nSC][npID];
-	// HIST 1
-	TH1F* H1_Time[nSC][npID];
-	// HIST 2
-	TH1F* H1_Energy[nSC][npID];
-	// HIST 3
-	TH2F* H2_XYpos[nSC][npID];
-	// HIST 4
-	TH2F* H2_Time_Edep[nSC][npID];
+
+	TH2F* H2_Time_Edep[nSC][npID];  // HIST 0
+	TH1F* H1_EdepSum[nSC][npID];    // HIST 1
+	TH1F* H1_Energy[nSC][npID];     // HIST 2
+	TH2F* H2_XYpos[nSC][npID];      // HIST 3
 
 	for(int a=0; a<nSC; a++)
 	{
 		for(int b=0; b<npID; b++)
 		{
-			H1_Edep[a][b] = 
+			H2_Time_Edep[a][b] = 
+				new TH2F(Form("H2_Time_Edep_%s_%s",str_SC[a],str_pID[b]),"",
+						4000,10,50,200,0,10);
+			H1_EdepSum[a][b] = 
 				new TH1F(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]),"",200,0,10);
-			H1_Time[a][b] = 
-				new TH1F(Form("H1_Time_%s_%s",str_SC[a],str_pID[b]),"",4000,10,50);
 			H1_Energy[a][b] = 
 				new TH1F(Form("H1_Energy_%s_%s",str_SC[a],str_pID[b]),"",200,0,100);
 			H2_XYpos[a][b] = 
 				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
 						300,-150,150,300,-150,150);
-			H2_Time_Edep[a][b] = 
-				new TH2F(Form("H2_Time_Edep_%s_%s",str_SC[a],str_pID[b]),"",
-						4000,10,50,200,0,10);
 		}
 	}
 
 	// event loop
 	/* HIST lists
-		 0. 1-D[SCs][p,n,e,A] Edep distribution with pID on SCs
-		 1. 1-D[SCs][] Time distribution with pID on SCs
-		 2. 2-D[SCs] Generation process & pID on SCs
+		 0. 2-D[SCs][p,n,e,A] Time versus Edep distribution with pID on SCs
+		 1. 1-D[SCs][] Edep sum dist
+		 2. 1-D[SCs][] Energy distribution with pID on SCs
 		 3. 2-D[SCs][] Step position on SC
-		 4. 2-D[SCs][] Time vs Edep with pID on SCs
 	*/
 	for(int a=0; a<T->GetEntries(); a++)
 	{
@@ -226,17 +217,16 @@ void nonOpMake(
 				EdepSum[detID][idx] += edep;
 //				cout << Form("%d %d %d %d %.6f %.2f",fromHit,idx, proc, detID,edep,time) << endl;
 //				H1_Edep[detID][idx] -> Fill(edep);
-				H1_Time[detID][idx] -> Fill(time);
+				H2_Time_Edep[detID][idx] -> Fill(time,energy);
 				H1_Energy[detID][idx] -> Fill(energy);
 				H2_XYpos[detID][idx] -> Fill(vx,vy);
-				H2_Time_Edep[detID][idx] -> Fill(time,energy);
 			}
 		}
 		for(int b=0; b<nSC; b++)
 		for(int c=0; c<npID; c++)
 		{
 			if(EdepSum[b][c] == 0) continue;
-			H1_Edep[b][c] -> Fill(EdepSum[b][c]);
+			H1_EdepSum[b][c] -> Fill(EdepSum[b][c]);
 		}
 //		cout << " " << endl;
 	}
@@ -247,11 +237,10 @@ void nonOpMake(
 	{
 		for(int b=0; b<npID; b++)
 		{
-			H1_Edep[a][b] -> Write();
-			H1_Time[a][b] -> Write();
+			H2_Time_Edep[a][b] -> Write();
+			H1_EdepSum[a][b] -> Write();
 			H1_Energy[a][b] -> Write();
 			H2_XYpos[a][b] -> Write();
-			H2_Time_Edep[a][b] -> Write();
 		}
 	}
 	F -> Close();

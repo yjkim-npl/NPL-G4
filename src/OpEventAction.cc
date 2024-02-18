@@ -67,13 +67,13 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 {
 	// call all Hit Collections in this event
 	G4HCofThisEvent* HCE = event -> GetHCofThisEvent();
-	if(!HCE)
-	{
-		G4ExceptionDescription msg;
-		msg << "No hits collection of this event found.\n";
-		G4Exception("OpEventAction::EndOfEventAction()","EA001",JustWarning,msg);
-		return;
-	}
+//	if(!HCE)
+//	{
+//		G4ExceptionDescription msg;
+//		msg << "No hits collection of this event found.\n";
+//		G4Exception("OpEventAction::EndOfEventAction()","EA001",JustWarning,msg);
+//		return;
+//	}
 
 	// MCStep & Optical boundary data from hit
 	if(PC->GetParBool("MCStep") ||

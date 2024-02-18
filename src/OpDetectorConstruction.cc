@@ -208,6 +208,24 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		}
 	}
 
+	// Cut surface
+	if(PC -> GetParBool("CutIn"))
+	{
+		G4int ID = 999;
+		G4double sizeX = PC -> GetParDouble("World_sizeX");
+		G4double sizeY = PC -> GetParDouble("World_sizeY");
+		G4double sizeZ = 0.1;
+		G4double ZOffset = PC -> GetParDouble("CutZOffset");
+		G4Material* mat = fMaterials -> GetMaterial("G4_AIR");
+
+		G4Box* solid_cut = 
+			new G4Box("CutBox",0.49*sizeX,0.49*sizeY,0.005*sizeZ);
+
+		G4LogicalVolume* logic_cut = 
+			new G4LogicalVolume(solid_cut,mat,"logicCut");
+
+		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset),logic_cut,"Cut",logicWorld,ID,checkOverlaps);
+	}
 
 	// SC
 	if(PC -> GetParBool("SCIn"))
