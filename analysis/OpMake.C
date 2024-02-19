@@ -18,9 +18,9 @@ inline double FindEff(double wav, vector<double> vec_wav, vector<double> vec_eff
 
 void OpMake
 (
- const char* particle = "proton",
- const char* energy   = "100MeV",
- const char* suffix   = "gap_LR"
+ const char* particle = "temp",
+ const char* energy   = "",
+ const char* suffix   = ""
 )
 {
 	/*
@@ -41,7 +41,7 @@ void OpMake
 	 */
 	bool mIDcut = 1;
 	const int n_Hist = 12;
-	bool Opt[n_Hist]; fill_n(Opt,n_Hist,1);
+	bool Opt[n_Hist]; fill_n(Opt,n_Hist,0);
 	const int StepFromHit = 1;
 
 	char* infile;
@@ -111,9 +111,12 @@ void OpMake
 	const int m_o = 1e4;
 	// MCStep data
 	int nStep;
-	int s_ID[m_s], s_FromHit[m_s], s_ProcID[m_s], s_PDG[m_s], s_PrevDetID[m_s], s_PostDetID[m_s];
-	int s_IsBoundary[m_s], s_NSecondOP[m_s];
-	double s_PrevKE[m_s], s_Edep[m_s], s_Length[m_s], s_vx[m_s], s_vy[m_s], s_vz[m_s];
+//	int s_ID[m_s], s_FromHit[m_s], s_ProcID[m_s], s_PDG[m_s], s_PrevDetID[m_s], s_PostDetID[m_s];
+//	int s_IsBoundary[m_s], s_NSecondOP[m_s];
+//	double s_PrevKE[m_s], s_Edep[m_s], s_Length[m_s], s_vx[m_s], s_vy[m_s], s_vz[m_s];
+
+	vector<int> *s_ID, *s_FromHit, *s_ProcID, *s_PDG, *s_PrevDetID, *s_PostDetID, *s_IsBoundary, *s_NSecondOP;
+	vector<double> *s_PrevKE, *s_Edep, *s_Length, *s_vx, *s_vy, *s_vz;
 
 	// OpTrack data
 	int NOp;
@@ -138,9 +141,12 @@ void OpMake
 
 	// OpSiPM data
 	int NOpSiPM;
-	int os_ProcID[m_o], os_DetID[m_o];
-	double os_px[m_o], os_py[m_o], os_pz[m_o], os_vx[m_o], os_vy[m_o], os_vz[m_o];
-	double os_KE[m_o], os_Time[m_o];
+//	int os_ProcID[m_o], os_DetID[m_o];
+//	double os_px[m_o], os_py[m_o], os_pz[m_o], os_vx[m_o], os_vy[m_o], os_vz[m_o];
+//	double os_KE[m_o], os_Time[m_o];
+
+	vector<int> *os_ProcID, *os_DetID;
+	vector<double> *os_px, *os_py, *os_pz, *os_vx, *os_vy, *os_vz, *os_KE, *os_Time;
 
 	// OpBoundary
 	int NOpBoundary;
@@ -152,17 +158,17 @@ void OpMake
 	{
 		cout << "MCStep was called" << endl;
 		T -> SetBranchAddress("nStep",&nStep);
-		T -> SetBranchAddress("StepTrackID",s_ID);
-		T -> SetBranchAddress("StepFromHit",s_FromHit);
-		T -> SetBranchAddress("StepProcID",s_ProcID);
-		T -> SetBranchAddress("StepTrackPDG",s_PDG);
-		T -> SetBranchAddress("StepPrevDetID",s_PrevDetID);
-		T -> SetBranchAddress("StepPostDetID",s_PostDetID);
-		T -> SetBranchAddress("IsBoundary",s_IsBoundary);
-		T -> SetBranchAddress("StepNSecondaryOP",s_NSecondOP);
-		T -> SetBranchAddress("StepPrevKE",s_PrevKE);
-		T -> SetBranchAddress("StepEdep",s_Edep);
-		T -> SetBranchAddress("StepLength",s_Length);
+		T -> SetBranchAddress("StepTrackID",&s_ID);
+		T -> SetBranchAddress("StepFromHit",&s_FromHit);
+		T -> SetBranchAddress("StepProcID",&s_ProcID);
+		T -> SetBranchAddress("StepTrackPDG",&s_PDG);
+		T -> SetBranchAddress("StepPrevDetID",&s_PrevDetID);
+		T -> SetBranchAddress("StepPostDetID",&s_PostDetID);
+		T -> SetBranchAddress("IsBoundary",&s_IsBoundary);
+		T -> SetBranchAddress("StepNSecondaryOP",&s_NSecondOP);
+		T -> SetBranchAddress("StepPrevKE",&s_PrevKE);
+		T -> SetBranchAddress("StepEdep",&s_Edep);
+		T -> SetBranchAddress("StepLength",&s_Length);
 	}
 	if(map_parameters["OpTrack"] == "true")
 	{
@@ -202,18 +208,18 @@ void OpMake
 	{
 		cout << "OpSiPM was called" << endl;
 		T -> SetBranchAddress("NOpSiPM",&NOpSiPM);
-		T -> SetBranchAddress("OpSiPMProcID",os_ProcID);
-		T -> SetBranchAddress("OpSiPMDetID",os_DetID);
-		T -> SetBranchAddress("OpSiPMPX",os_px);
-		T -> SetBranchAddress("OpSiPMPY",os_py);
-		T -> SetBranchAddress("OpSiPMPZ",os_pz);
-		T -> SetBranchAddress("OpSiPMVX",os_vx);
-		T -> SetBranchAddress("OpSiPMVY",os_vy);
-		T -> SetBranchAddress("OpSiPMVZ",os_vz);
-		T -> SetBranchAddress("OpSiPMEnergy",os_KE);
-		T -> SetBranchAddress("OpSiPMTime",os_Time);
+		T -> SetBranchAddress("OpSiPMProcID",&os_ProcID);
+		T -> SetBranchAddress("OpSiPMDetID",&os_DetID);
+		T -> SetBranchAddress("OpSiPMPX",&os_px);
+		T -> SetBranchAddress("OpSiPMPY",&os_py);
+		T -> SetBranchAddress("OpSiPMPZ",&os_pz);
+		T -> SetBranchAddress("OpSiPMVX",&os_vx);
+		T -> SetBranchAddress("OpSiPMVY",&os_vy);
+		T -> SetBranchAddress("OpSiPMVZ",&os_vz);
+		T -> SetBranchAddress("OpSiPMEnergy",&os_KE);
+		T -> SetBranchAddress("OpSiPMTime",&os_Time);
 	}
-	if(map_parameters["OpBoundary"] == "true")
+	if(map_parameters["OpBoundary"] == "true" && false)
 	{
 		cout << "OpBoundary was called" << endl;
 		T -> SetBranchAddress("NOpBoundary",&NOpBoundary);
@@ -230,7 +236,6 @@ void OpMake
 
 	// define output root file
 	const char* output_prefix = "out_root";
-	TFile* G = new TFile(Form("%s/H_Op_%s",output_prefix,infile),"recreate");
 
 	// HIST 0
 	TH1F* H1_NOp = new TH1F("H1_NOp","",5000,0,5000);
@@ -299,6 +304,7 @@ void OpMake
 	int o_trans = 0;
 	int o_trans_to_world=0;
 	for(int a=0; a<T->GetEntriesFast(); a++)
+//	for(int a=0; a<1e4; a++)
 	{
 		if(a%100 == 0)
 			cout << "Processing " << a << " th event" << endl;
@@ -366,12 +372,13 @@ void OpMake
 			{
 				if(Opt[3])
 					H1_PostOpTime -> Fill(time);
-				if(Opt[6])
-					H1_OpTrackLength -> Fill(length);
 				if(Opt[10]){
 					H1_ratio -> Fill(1);
 					o_abs1++;
 				}
+			} else if (procID == 31){
+				if(Opt[6])
+					H1_OpTrackLength -> Fill(length);
 			}else{
 				if(Opt[10]){
 					H1_ratio -> Fill(2);
@@ -406,13 +413,13 @@ void OpMake
 		}
 		for(int b=0; b<NOpSiPM; b++)
 		{
-			int mID = os_DetID[b]%100;
+			int mID = os_DetID->at(b)%100;
 			if(mIDcut)
 			{
 				if(mID!=4 && mID!=7 && mID!=10 && mID!=13 && mID!=16)
 					continue;
 			}
-			double wav = 1.2398e-3/os_KE[b];
+			double wav = 1.2398e-3/os_KE->at(b);
 			int R_eff = rand()%100;
 			int R_geom;
 			if(map_parameters["SiPM_gapIn"] == "true")
@@ -424,7 +431,7 @@ void OpMake
 				R_geom = rand()%100;
 			if(Opt[4])
 			{
-				H2_XY_prof -> Fill(os_vx[b],os_vy[b]);
+				H2_XY_prof -> Fill(os_vx->at(b),os_vy->at(b));
 			}
 			if(Opt[10])
 			{
@@ -441,16 +448,16 @@ void OpMake
 			{
 				if(R_eff > 100* FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
 					continue;
-				if(os_DetID[b]/1000 == 11){
+				if(os_DetID->at(b)/1000 == 11){
 					NOp_Le++;	// Left + eff + geom
-				}else if (os_DetID[b]/1000 == 12){
+				}else if (os_DetID->at(b)/1000 == 12){
 					NOp_Re++; // Right + eff + geom
-				}else if (os_DetID[b]/1000 == 13){
+				}else if (os_DetID->at(b)/1000 == 13){
 					NOp_Ue++; // Up + eff + geom
-				}else if (os_DetID[b]/1000 == 14){
+				}else if (os_DetID->at(b)/1000 == 14){
 					NOp_De++; // Down + eff + geom
 				}else{
-					cout << a << " Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID[b] <<  endl;
+					cout << a << " Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID->at(b) <<  endl;
 					continue;
 				}
 			}
@@ -458,18 +465,18 @@ void OpMake
 			{
 				if(R_eff > 100*FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
 					continue;
-				if(os_DetID[b]/1000 == 11){
-					MeanTime_Le += os_KE[b]*os_Time[b];
-					MeanEnergy_Le += os_KE[b];
-				}else if(os_DetID[b]/1000 == 12){
-					MeanTime_Re += os_KE[b]*os_Time[b];
-					MeanEnergy_Re += os_KE[b];
-				}else if(os_DetID[b]/1000 == 13){
-					MeanTime_Ue += os_KE[b]*os_Time[b];
-					MeanEnergy_Ue += os_KE[b];
-				}else if(os_DetID[b]/1000 == 14){
-					MeanTime_De += os_KE[b]*os_Time[b];
-					MeanEnergy_De += os_KE[b];
+				if(os_DetID->at(b)/1000 == 11){
+					MeanTime_Le += os_KE->at(b)*os_Time->at(b);
+					MeanEnergy_Le += os_KE->at(b);
+				}else if(os_DetID->at(b)/1000 == 12){
+					MeanTime_Re += os_KE->at(b)*os_Time->at(b);
+					MeanEnergy_Re += os_KE->at(b);
+				}else if(os_DetID->at(b)/1000 == 13){
+					MeanTime_Ue += os_KE->at(b)*os_Time->at(b);
+					MeanEnergy_Ue += os_KE->at(b);
+				}else if(os_DetID->at(b)/1000 == 14){
+					MeanTime_De += os_KE->at(b)*os_Time->at(b);
+					MeanEnergy_De += os_KE->at(b);
 				} else {
 					continue;
 				}
@@ -535,16 +542,16 @@ void OpMake
 		map<int,double> map_TrkID_Length;
 		for(int b=0; b<nStep; b++)
 		{
-			if(s_PrevDetID[b] == 0 && s_PrevDetID[b] == 0) continue;
-			if(Opt[5] && s_FromHit[b] == StepFromHit && s_PDG[b] > 100){
-				if(map_TrkID_Edep[s_ID[b]] == 0 && map_TrkID_LY[s_ID[b]] == 0){
-					map_TrkID_Edep[s_ID[b]] = s_Edep[b];
-					map_TrkID_LY[s_ID[b]] = s_NSecondOP[b];
-					map_TrkID_Length[s_ID[b]] = s_Length[b];
+			if(s_PrevDetID->at(b) == 0 && s_PrevDetID->at(b) == 0) continue;
+			if(Opt[5] && s_FromHit->at(b) == StepFromHit && s_PDG->at(b) > 100){
+				if(map_TrkID_Edep[s_ID->at(b)] == 0 && map_TrkID_LY[s_ID->at(b)] == 0){
+					map_TrkID_Edep[s_ID->at(b)] = s_Edep->at(b);
+					map_TrkID_LY[s_ID->at(b)] = s_NSecondOP->at(b);
+					map_TrkID_Length[s_ID->at(b)] = s_Length->at(b);
 				} else {
-					map_TrkID_Edep[s_ID[b]] += s_Edep[b];
-					map_TrkID_LY[s_ID[b]] += s_NSecondOP[b];
-					map_TrkID_Length[s_ID[b]] += s_Length[b];
+					map_TrkID_Edep[s_ID->at(b)] += s_Edep->at(b);
+					map_TrkID_LY[s_ID->at(b)] += s_NSecondOP->at(b);
+					map_TrkID_Length[s_ID->at(b)] += s_Length->at(b);
 				}
 			}// Opt 5
 		}// each step in MCStep
@@ -552,7 +559,10 @@ void OpMake
 			H2_Edep_LY -> Fill(map_TrkID_Edep[1],map_TrkID_LY[1]);
 			H2_dEdx_dLdx -> Fill(map_TrkID_Edep[1]/map_TrkID_Length[1],map_TrkID_LY[1]/map_TrkID_Length[1]);
 		}
+//		cout << "done " << endl;
 	}// event
+	F -> Close();
+	TFile* G = new TFile(Form("%s/H_Op_%s",output_prefix,infile),"recreate");
 	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
 	if(Opt[0])
 		H1_NOp -> Write();
@@ -611,7 +621,6 @@ void OpMake
 	if(Opt[11]){
 		H2_dLY_TimeRes -> Write();
 	}
-	F -> Close();
 	G -> Close();
 //	cout << "gen: " << o_gen << endl;
 //	cout << "die: " << o_die << endl;

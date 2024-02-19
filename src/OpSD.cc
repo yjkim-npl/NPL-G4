@@ -43,7 +43,6 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4int boundary = 0;
 	if(step->GetPreStepPoint() -> GetStepStatus() == fGeomBoundary)
 	{
-//		G4cout << "ProcessHit::PreStepStatus is GeomBoundary" << G4endl;
 		boundary = 1;
 	}
 	if(step->GetPostStepPoint()->GetStepStatus()==fGeomBoundary)
@@ -76,8 +75,6 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		procName = process -> GetProcessName();
 		G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
 		if(OpParameterContainer::GetInstance() -> GetParInt("SDVerbosity") > 0)
-//			&&
-//			 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary)
 		{
 			G4cout << G4endl << "##########" <<G4endl;
 			G4cout << "OpSD::ProcessHit" << G4endl;
@@ -117,7 +114,6 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 			      (*fHitsCollection)[a] -> GetDetID() == prevNo &&
 			      SaveTrackSum)
 		{
-//			G4cout << "hit from HC" << G4endl;
 			hit = (*fHitsCollection)[a];
 			break;
 		}
@@ -188,7 +184,6 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 				procID = 0;
 				procName = "OtherProcesses";
 			}
-//			hit -> AddStep(procID,procName, mom, pos, time, fedep);
 			hit -> CountStep();
 			hit -> AddProcess(procID,procName);
 			hit -> AddMomentum(mom);

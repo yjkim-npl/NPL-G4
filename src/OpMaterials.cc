@@ -9,7 +9,7 @@ OpMaterials::OpMaterials()
 {
 	fNistMan = G4NistManager::Instance();
 	CreateMaterials();
-//	if(OpParameterContainer::GetInstance()->GetParBool("OptialPhysics"))
+	if(OpParameterContainer::GetInstance()->GetParBool("OpticalPhysics"))
 		ApplyMaterialProperties();
 	if(OpParameterContainer::GetInstance()->GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpMaterials" << G4endl;
@@ -59,7 +59,6 @@ void OpMaterials::CreateMaterials()
 	fNistMan -> FindOrBuildMaterial("G4_Galactic");
 	fNistMan -> FindOrBuildMaterial("G4_AIR");
 	fNistMan -> FindOrBuildMaterial("G4_POLYETHYLENE");
-//	fNistMan -> FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
 	G4String symbol;
 	G4double a, z, density;
@@ -106,8 +105,6 @@ void OpMaterials::CreateMaterials()
 	G4Material* fPVT = new G4Material("PVT", density=1.023*g/cm3, ncompo=2, kStateSolid);
 	G4double nH_per_cm3 = 5.15;
 	G4double nC_per_cm3 = 4.69;
-//	fPVT -> AddElement(H,nH_per_cm3/(nH_per_cm3+nC_per_cm3));
-//	fPVT -> AddElement(C,nC_per_cm3/(nH_per_cm3+nC_per_cm3));
 	fPVT -> AddElement(H,natoms=9);
 	fPVT -> AddElement(C,natoms=9);
 		map_mat.insert(make_pair("Scintillator",fPVT));
@@ -115,7 +112,6 @@ void OpMaterials::CreateMaterials()
 	G4Material* fC2H4 = G4Material::GetMaterial("G4_POLYETHYLENE");
 		map_mat.insert(make_pair("G4_POLYTEHTYLENE",fC2H4));
 	
-//	G4Material* fGraphite = G4Material::GetMaterial("G4_GRAPHITE");
 	G4Material* fGraphite = new G4Material("Graphite",density=1.95*g/cm3,ncompo=1,kStateSolid);
 	fGraphite -> AddElement(C,natoms = 6);
 		map_mat.insert(make_pair("Graphite",fGraphite));
@@ -132,7 +128,6 @@ void OpMaterials::CreateMaterials()
 	fP10 -> AddMaterial(fCH4,0.1*CH4GasD/d_p10);
 		map_mat.insert(make_pair("P10Gas",fP10));
 	G4Material* fPMMA = new G4Material("PMMA",	density=1.19*g/cm3, ncompo=3);
-		// Acryl, core material of cherenkov fiber
 	fPMMA -> AddElement(C,natoms=5);
 	fPMMA -> AddElement(H,natoms=8);
 	fPMMA -> AddElement(O,natoms=2);
@@ -142,15 +137,11 @@ void OpMaterials::CreateMaterials()
 	fPS -> AddElement(C,natoms=8);
 	fPS -> AddElement(H,natoms=8);
 		map_mat.insert(make_pair("Polystyrene",fPS));
-
-	G4OpticalSurface* fSiPMSurf = nullptr;	
-	map_surf["SiPMSurf"] = fSiPMSurf;
 }
 
 void OpMaterials::ApplyMaterialProperties()
 {
 	// photon energy spectrum
-//	G4bool PSmat = OpParameterContainer->GetParInt("");
 	vector<G4double> opEn_PVT = {
 		// from 900mm to 310mm with 10 nm step
 		1.3776*eV, 1.3930*eV, 1.4089*eV, 1.4251*eV, 1.4416*eV, 1.4586*eV, 1.4760*eV, 1.4937*eV, 
@@ -182,12 +173,12 @@ void OpMaterials::ApplyMaterialProperties()
 	G4Material* fAir = map_mat["Air"];
 	vector<G4double> RI_Air;
 	G4MaterialPropertiesTable* mp_air = new G4MaterialPropertiesTable();
-	if(OpParameterContainer::GetInstance() -> GetParInt("SC2matOpt") == 0)
+	if(OpParameterContainer::GetInstance() -> GetParInt("SCmatOpt") == 0)
 	{
 		RI_Air.assign(opEn_PS.size(),1.0);
 		mp_air -> AddProperty("RINDEX",opEn_PS,RI_Air);
 	}
-	else if (OpParameterContainer::GetInstance() -> GetParInt("SC2matOpt") == 1)
+	else if (OpParameterContainer::GetInstance() -> GetParInt("SCmatOpt") == 1)
 	{
 		RI_Air.assign(opEn_PVT.size(),1.0);
 		mp_air -> AddProperty("RINDEX",opEn_PVT,RI_Air);
@@ -200,19 +191,19 @@ void OpMaterials::ApplyMaterialProperties()
 	vector<G4double> RI_Glass;
 	vector<G4double> Abs_Glass; 
 	G4MaterialPropertiesTable* mp_Glass = new G4MaterialPropertiesTable();
-	if(OpParameterContainer::GetInstance()->GetParInt("SC2matOpt")==0){
+	if(OpParameterContainer::GetInstance()->GetParInt("SCmatOpt")==0){
 		RI_Glass.assign(opEn_PS.size(),1.55);
 		Abs_Glass.assign(opEn_PS.size(),420*cm);
 		mp_Glass -> AddProperty("RINDEX",opEn_PS,RI_Glass);
 		mp_Glass -> AddProperty("ABSLENGTH",opEn_PS,Abs_Glass);
-	}else if (OpParameterContainer::GetInstance()->GetParInt("SC2matOpt") == 1){
+	}else if (OpParameterContainer::GetInstance()->GetParInt("SCmatOpt") == 1){
 		RI_Glass.assign(opEn_PVT.size(),1.55);
 		Abs_Glass.assign(opEn_PVT.size(),420*cm);
 		mp_Glass -> AddProperty("RINDEX",opEn_PVT,RI_Glass);
 		mp_Glass -> AddProperty("ABSLENGTH",opEn_PVT,Abs_Glass);
 	}else{
-		G4cout << "SC2matOpt: " << OpParameterContainer::GetInstance()->GetParInt("SC2matOpt") << G4endl;
-		G4cout << "SC2 mat Opt should be the value 0 or 1" << G4endl;
+		G4cout << "SCmatOpt: " << OpParameterContainer::GetInstance()->GetParInt("SCmatOpt") << G4endl;
+		G4cout << "SC mat Opt should be the value 0 or 1" << G4endl;
 	}
 	fGlass -> SetMaterialPropertiesTable(mp_Glass);
 	map_mat["Glass"] = fGlass;
@@ -245,7 +236,6 @@ void OpMaterials::ApplyMaterialProperties()
 	mp_PVT -> AddConstProperty("FASTTIMECONSTANT",PVT_FC*ns);
 	mp_PVT -> AddConstProperty("FASTCINTILLATIONRISETIME",0.5*ns);
 	fScint -> SetMaterialPropertiesTable(mp_PVT);
-//	fScint -> GetIonisation() -> SetBirksConstant(0.252*mm/MeV);
 	fScint -> GetIonisation() -> SetBirksConstant(PVT_BC*mm/MeV);
 	map_mat["Scintillator"] = fScint;
 

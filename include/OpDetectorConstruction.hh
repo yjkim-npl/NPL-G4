@@ -26,11 +26,7 @@ class OpDetectorConstruction : public G4VUserDetectorConstruction
 		OpParameterContainer* PC;
 		OpMaterials* fMaterials;
 
-		G4LogicalVolume* logicSC1;
-		G4LogicalVolume* logicSC2;
-		G4LogicalVolume* logicSC3;
-		G4LogicalVolume* logicBDC;
-		G4LogicalVolume* logicBTOF;
+		G4LogicalVolume* logicSC;
 		G4LogicalVolume* logicSiPM;
 };
 

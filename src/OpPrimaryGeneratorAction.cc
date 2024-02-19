@@ -73,11 +73,9 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
 		fParticleGun -> SetParticleDefinition(particle);	// particle
 		G4double OpE = 1.2398e-3/PC->GetParDouble("OpWavlen") * MeV;
 		fParticleGun -> SetParticleEnergy(OpE);	// and its energy
-//		G4cout << "OpE: " << OpE*1e6 << G4endl;
 		// for optical photon beam, the polarization must be defined
 		if(fPolarized)
 		{
-//			  	G4cout << "yjkim" << G4endl;
 			SetOptPhotonPolar(fPolarization);
 		}else{
 			SetOptPhotonPolar();
@@ -90,10 +88,11 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
 		fParticleGun -> SetParticleDefinition(particle);	// particle
 		fParticleGun -> SetParticleEnergy(PC->GetParDouble("Beam_energy")*MeV);	// and its energy
 	}
-	fParticleGun -> SetParticleTime(0.0 * ns);	// generated time
 	G4double px = PC -> GetParDouble("Beam_px");
 	G4double py = PC -> GetParDouble("Beam_py");
 	G4double pz = PC -> GetParDouble("Beam_pz");
+	G4double time = PC -> GetParDouble("TimeWindow");
+	fParticleGun -> SetParticleTime(time * ns);	// generated time
 	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(px,py,pz));	// with momentum dir
 
 	G4int n_particle = PC -> GetParInt("NperEvent");
@@ -111,8 +110,6 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
 				(PC->GetParDouble("Beam_x0")+PC->GetParDouble("Beam_dx")*(G4UniformRand()-0.5)) * mm;
 			G4double y0 = 
 				(PC->GetParDouble("Beam_y0")+PC->GetParDouble("Beam_dy")*(G4UniformRand()-0.5)) * mm;
-//			G4double r0 = 
-//				(PC->GetParDouble("Beam_r0")+PC->GetParDouble("Beam_dr")*(G4UniformRand()-0.5)) * mm;
 			G4double z0 =
 				(PC->GetParDouble("Beam_z0")+PC->GetParDouble("Beam_dz")*(G4UniformRand()-0.5)) * mm;
 			G4double trans = PC -> GetParDouble("Translation");
@@ -214,5 +211,4 @@ void OpPrimaryGeneratorAction::SetOptPhotonPolar(G4double angle)	// Zero polariz
 	G4ThreeVector polar = 
 		std::cos(angle) * e_paralle + std::sin(angle) * e_perpend;
 	fParticleGun -> SetParticlePolarization(polar);
-//	G4cout << "yjkim invoked from SetOptPhotonPolar" << G4endl;
 }

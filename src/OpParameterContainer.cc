@@ -8,18 +8,17 @@
 
 OpParameterContainer* OpParameterContainer::fInstance = 0;
 
-OpParameterContainer* OpParameterContainer::GetInstance()
+OpParameterContainer* OpParameterContainer::GetInstance(G4String fName)
 {
 	if(fInstance == 0)
-		fInstance = new OpParameterContainer();
+		fInstance = new OpParameterContainer(fName);
 
 	return fInstance;
 }
 
-OpParameterContainer::OpParameterContainer()
+OpParameterContainer::OpParameterContainer(G4String fName)
 {
-//	par_Name = fileName;
-	par_Name = "OpParameters.conf";
+	par_Name = fName;
 	ReadParameters();
 	if(this -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpParameterContainer" << G4endl;
@@ -33,41 +32,41 @@ OpParameterContainer::~OpParameterContainer()
 
 void OpParameterContainer::ReadParameters()
 {
-    ifstream par_file(par_Name);
-    string line;
-    while(getline(par_file,line))
-    {
-        G4String val_name, val_type;
-        istringstream ss(line);
-        ss >> val_name >> val_type;
+	ifstream par_file(par_Name);
+	string line;
+	while(getline(par_file,line))
+	{
+		G4String val_name, val_type;
+		istringstream ss(line);
+		ss >> val_name >> val_type;
 
-        if(val_name[0] == '#') continue;
+		if(val_name[0] == '#') continue;
 
-        if(val_type.contains("b") || val_type.contains("bool"))
-        {
-            G4bool val = 0;
-            ss >> val;
-            par_bool.insert(make_pair(val_name,val));
-        }
-        if(val_type.contains("i") || val_type.contains("int"))
-        {
-            G4int val = -1;
-            ss >> val;
-            par_int.insert(make_pair(val_name,val));
+		if(val_type.contains("b") || val_type.contains("bool"))
+		{
+				G4bool val = 0;
+				ss >> val;
+				par_bool.insert(make_pair(val_name,val));
 		}
-        if(val_type.contains("d") || val_type.contains("double"))
-        {
-            G4double val = 0;
-            ss >> val;
-            par_double.insert(make_pair(val_name,val));
-        }
-        if(val_type.contains("s") || val_type.contains("string"))
-        {
-            G4String val;
-            ss >> val;
-            par_string.insert(make_pair(val_name,val));
-        }
-    }
+		if(val_type.contains("i") || val_type.contains("int"))
+		{
+				G4int val = -1;
+				ss >> val;
+				par_int.insert(make_pair(val_name,val));
+		}
+		if(val_type.contains("d") || val_type.contains("double"))
+		{
+				G4double val = 0;
+				ss >> val;
+				par_double.insert(make_pair(val_name,val));
+		}
+		if(val_type.contains("s") || val_type.contains("string"))
+		{
+				G4String val;
+				ss >> val;
+				par_string.insert(make_pair(val_name,val));
+		}
+	}
 }
 
 const OpParameterContainer& OpParameterContainer::operator=(const OpParameterContainer& right)

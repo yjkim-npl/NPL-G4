@@ -25,7 +25,6 @@ void OpActionInitialization::BuildForMaster() const
 {
   OpRunAction* runAction = new OpRunAction();
   SetUserAction(runAction);
-  
 }
 
 void OpActionInitialization::Build() const

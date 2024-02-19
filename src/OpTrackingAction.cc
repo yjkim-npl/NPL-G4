@@ -32,13 +32,6 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 	G4double time = track -> GetGlobalTime();
 	G4ThreeVector p = track -> GetMomentum();
 	G4ThreeVector v = track -> GetPosition();
-//	if(parentID == 0)
-//	{
-//		G4cout << "OpTrackingAction::PreUserTrackingAction" << G4endl;
-//		G4cout << "trackX: " << v.x() << G4endl;
-//		G4cout << "trackY: " << v.y() << G4endl;
-//		G4cout << "trackZ: " << v.z() << G4endl;
-//	}
 	G4double totenergy = track -> GetTotalEnergy();
 	G4double kinenergy = track -> GetKineticEnergy();
 
@@ -73,10 +66,7 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 	G4int detID = track -> GetVolume() -> GetCopyNo();
 	G4ThreeVector p = track -> GetMomentum();
 	G4ThreeVector v = track -> GetPosition();
-//	G4ThreeVector p = track -> GetStep() -> GetPreStepPoint() -> GetMomentum();
-//	G4ThreeVector v = track -> GetStep() -> GetPreStepPoint() -> GetPosition();
 	G4double time = track -> GetGlobalTime();
-//	G4double time = track -> GetStep() -> GetPreStepPoint() -> GetGlobalTime();
 	G4int processID = -999;
 	G4double totenergy = track -> GetStep() -> GetPreStepPoint() -> GetTotalEnergy();
 	G4double kinenergy = track -> GetStep() -> GetPreStepPoint() -> GetKineticEnergy();

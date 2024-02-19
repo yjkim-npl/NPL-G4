@@ -30,12 +30,11 @@ G4int OpSteppingAction::CalculatePostNo(G4ThreeVector pos)
 {
 	G4int postNo = 0;
 	G4double trans = PC -> GetParDouble("Translation");
-	const G4String det[] = {"SC1","SC2","SC3","BDC","BTOF"};
+	const G4String det[] = {"SC"};
 	const G4int ndet = sizeof(det)/sizeof(det[0]);
-//	const G4int ndet = 2;
-	for(G4int a=0; a<ndet-1; a++)
+	for(G4int a=0; a<ndet; a++)
 	{
-		// case of SC2
+		// case of SC
 		if(fabs(pos.x()) <= 0.5*PC->GetParDouble(det[a]+"_sizeX") &&
 			 fabs(pos.y()) <= 0.5*PC->GetParDouble(det[a]+"_sizeY") &&
 			 pos.z() >= PC->GetParDouble(det[a]+"_ZOffset")-trans-0.5*PC->GetParDouble(det[a]+"_sizeZ") &&
@@ -49,26 +48,6 @@ G4int OpSteppingAction::CalculatePostNo(G4ThreeVector pos)
 			break;
 		}
 	}
-	// case of BTOF1
-	if(fabs(pos.x()) <= 0.5*PC->GetParDouble("BTOF_sizeX") &&
-		 fabs(pos.y()) <= 0.5*PC->GetParDouble("BTOF_sizeY"))
-	{
-		if(pos.z()>=PC->GetParDouble("BTOF_ZOffset1")-trans-0.5*PC->GetParDouble("BTOF_sizeZ") &&
-			 pos.z()<=PC->GetParDouble("BTOF_ZOffset1")-trans+0.5*PC->GetParDouble("BTOF_sizeZ"))
-		{
-			postNo = PC->GetParInt("BTOFID")+1;
-		}
-		if(pos.z()>=PC->GetParDouble("BTOF_ZOffset2")-trans-0.5*PC->GetParDouble("BTOF_sizeZ") &&
-			 pos.z()<=PC->GetParDouble("BTOF_ZOffset2")-trans+0.5*PC->GetParDouble("BTOF_sizeZ"))
-		{
-			postNo = PC->GetParInt("BTOFID")+2;
-		}
-	}
-//	G4cout <<
-//		"x: " << pos.x() << " " <<
-//		"y: " << pos.y() << " " <<
-//		"z: " << pos.z() << " " <<
-//		"postNo: " << postNo << G4endl;
 	return postNo;
 }
 
@@ -135,7 +114,6 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 				" vz: " << strack -> GetPosition().z() << G4endl;
 		}
 	}
-//	G4cout << "NSecondaryOP: " << NSecondaryOP << G4endl << G4endl;
 
 	const G4VProcess *process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
 	G4int procID = process -> GetProcessSubType();
@@ -143,8 +121,6 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	fRunAction -> SetProcess(procID,procName);
 	G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
 
-//	if(boundary)// &&prevNo == 201 || postNo == 201)
-//	if(prevNo == 201 || postNo == 201)
 	if(PC -> GetParInt("StepVerbosity") > 0)
 	{
 		G4cout << G4endl << "##########" <<G4endl;
@@ -163,15 +139,4 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	fRunAction -> FillStep
 		(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
 		 fedep,length,NSecondaryOP,prevKE);
-//	G4int trkID = step -> GetTrack() -> GetTrackID();
-//	G4int trkPDG = step -> GetTrack() -> GetDefinition() -> GetPDGEncoding();
-//	G4double fedep = step -> GetTotalEnergyDeposit();
-//	G4int prevNo = step -> GetPreStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
-//	G4int postNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
-//	if(trkID == 1 &&  (prevNo == 201 || postNo == 201))
-//	{
-//		G4cout << "SteppingAction::edep " << trkPDG << " " << fedep << 
-//			" " << prevNo <<
-//			" " << postNo << G4endl;
-//	}
 }

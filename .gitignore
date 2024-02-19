@@ -9,3 +9,6 @@ build/*
 analysis/fig/*
 analysis/data_root/*
 analysis/out_root/*
+analysis/*/fig/*
+analysis/*/data_root/*
+analysis/*/out_root/*

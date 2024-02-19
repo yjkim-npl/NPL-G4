@@ -38,7 +38,6 @@ void OpSiPMSD::Initialize(G4HCofThisEvent* HCE)
 G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
 	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition())
-		//&& ( step->GetPreStepPoint()->GetStepStatus() == fWorldBoundary))
 	{
 		return false;
 	}
@@ -47,12 +46,9 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	G4double widthX;
 	G4double widthY;
 
-//	G4int prevNo = step -> GetPreStepPoint() -> GetTouchable()-> GetReplicaNumber(); // SiPMID
 	G4int prevNo = step -> GetPostStepPoint() -> GetPhysicalVolume() -> GetCopyNo();
-//	G4cout << "prevNo: " << prevNo << G4endl;
 	G4double prevKE = step -> GetPreStepPoint() -> GetKineticEnergy();
 	G4ThreeVector mom = step -> GetPreStepPoint() -> GetMomentum();
-//	G4double time = step -> GetPreStepPoint() -> GetGlobalTime();
 	G4double time = step -> GetTrack() -> GetGlobalTime();
 	G4int procID = -10;
 	G4String procName = "";
@@ -75,9 +71,6 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		hit -> AddHit(prevNo);
 		fHitsCollection -> insert(hit);
 	}
-//		G4cout << "###############" << G4endl;
-//		G4cout << "Create new hit" << G4endl;
-//		G4cout << "###############" << G4endl;
 	// new hit of optical photon
 	if(step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
 		OpParameterContainer::GetInstance() -> GetParBool("OpticalPhysics") &&

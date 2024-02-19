@@ -13,7 +13,7 @@ using namespace std;
 class OpParameterContainer
 {
 	public:
-		static OpParameterContainer* GetInstance();
+		static OpParameterContainer* GetInstance(G4String fName = "OpParameters.conf");
 		virtual ~OpParameterContainer();
 		const OpParameterContainer& operator=(const OpParameterContainer &right);
 		void ReadParameters();
@@ -31,7 +31,7 @@ class OpParameterContainer
 
 	private:
 		static OpParameterContainer* fInstance;
-		OpParameterContainer();
+		OpParameterContainer(G4String fName);
 
 		string par_Name;
 		map<G4String,G4bool> par_bool;

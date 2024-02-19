@@ -33,7 +33,6 @@ OpHit::OpHit(const OpHit &right)
 	vec_p = right.vec_p;
 	vec_v = right.vec_v;
 	vec_t = right.vec_t;
-//	pair_Eif = right.pair_Eif;
 }
 
 OpHit::~OpHit()
@@ -57,7 +56,6 @@ const OpHit& OpHit::operator=(const OpHit &right)
 	vec_p = right.vec_p;
 	vec_v = right.vec_v;
 	vec_t = right.vec_t;
-//	pair_Eif = right.pair_Eif;
 	return *this;
 }
 

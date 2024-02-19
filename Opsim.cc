@@ -19,12 +19,16 @@
 int main(int argc,char** argv)
 {
 	G4UIExecutive* ui = 0;
+	ui = new G4UIExecutive(argc, argv);
+	G4String parName;
 	if ( argc == 1 ) 
-		ui = new G4UIExecutive(argc, argv);
+		parName = "OpParameters.conf";
+	else
+		parName = argv[1];
 
 	G4RunManager* runManager = new G4RunManager;
 
-	OpParameterContainer* PC = OpParameterContainer::GetInstance();
+	OpParameterContainer* PC = OpParameterContainer::GetInstance(parName);
 //	PC -> PrintParameter("All");
 
 	// initialize the physics list
@@ -82,14 +86,14 @@ int main(int argc,char** argv)
 	{ 
 		// batch mode
 		G4String command = "/control/execute ";
-		if(argc == 1)
+		if(argc <= 2)
 		{
 			G4String fileName = PC -> GetParString("MacroFile");
 			UImanager->ApplyCommand(command+fileName);
 		}
-		else if (argc >= 2)
+		else if (argc >= 3)
 		{
-			G4String macroFile = argv[1];
+			G4String macroFile = argv[2];
 			UImanager -> ApplyCommand(command+macroFile);
 		}
 	} else { 
