@@ -48,7 +48,7 @@ class OpPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
 		vector<G4int> vec_eventID;
 		vector<G4int> vec_PDG;
-		vector<G4double> vec_vx, vec_vy, vec_vz, vec_px, vec_py, vec_pz;
+		vector<G4double> vec_vx, vec_vy, vec_vz, vec_px, vec_py, vec_pz, vec_vt;
 };
 
 #endif

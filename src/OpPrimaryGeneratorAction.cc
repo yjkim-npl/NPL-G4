@@ -23,7 +23,7 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 	PC = OpParameterContainer::GetInstance();
 	fParticleGun  = new G4ParticleGun();
 	if(PC->GetParInt("Beam_InputMode") == 1){
-		fInputName = PC->GetParString("InputFile");
+		fInputName = PC->GetParString("InputFileName");
 		ReadInputFile();
 	}
 	if(PC -> GetParInt("UserVerbosity") > 0)
@@ -135,7 +135,8 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode1(G4Event* anEvent)
 		if(a == anEvent -> GetEventID())
 		{
 			G4ParticleDefinition* particle;
-			if(vec_PDG[a] > 1000000000)
+			// for ion
+			if(vec_PDG[a] > 1e9)
 				particle = G4IonTable::GetIonTable()->GetIon(vec_PDG[a]);
 			else
 				particle = G4ParticleTable::GetParticleTable()->FindParticle(vec_PDG[a]);
@@ -145,39 +146,48 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode1(G4Event* anEvent)
 			fParticleGun -> SetParticleMomentumDirection(mom.unit());
 			fParticleGun -> SetParticleMomentum(mom.mag()*MeV);
 			fParticleGun -> SetParticlePosition(pos);
+			fParticleGun -> SetParticleTime(vec_vt[a]*ns);
 			fParticleGun -> GeneratePrimaryVertex(anEvent);
 			break;
 		}
 	}
+	return;
 }
 
 void OpPrimaryGeneratorAction::ReadInputFile()
 {
 	fInputFile.open(fInputName.data());
-	G4int nEvents;
-	fInputFile >> nEvents;
+	G4String line;
+	getline(fInputFile,line); // dummy line (p)
+	getline(fInputFile,line); // event
+	G4int nEvents = 0;
+	stringstream ss_E(line);
+	ss_E >> nEvents;
 	G4cout << "Input: " << fInputName << " contains " << nEvents << " events" << G4endl;
-	G4String line1, line2;
+	getline(fInputFile,line); // dummy line (idx)
 	G4int eventID, nTracks, pdg;
-	G4double vx, vy, vz, px, py, pz;
-	getline(fInputFile,line1);	// dummy line
-	for(G4int a=0; a<nEvents; a++)
+	G4double vx, vy, vz, vt, px, py, pz;
+//	for(G4int a=0; a<nEvents; a++)
+	while(getline(fInputFile,line))
 	{
-		getline(fInputFile,line1);
-		getline(fInputFile,line2);
-		stringstream ss1(line1);
-		stringstream ss2(line2);
-		ss1 >> eventID >> nTracks >> vx >> vy >> vz;
-		ss2 >> pdg >> px >> py >> pz;
+//		getline(fInputFile,line);
+		stringstream ss(line);
+		ss >> eventID >> pdg >> vx >> vy >> vz >> vt >> px >> py >> pz;
 		vec_eventID.push_back(eventID);
 		vec_PDG.push_back(pdg);
 		vec_vx.push_back(vx);
 		vec_vy.push_back(vy);
 		vec_vz.push_back(vz);
+		vec_vt.push_back(vt);
 		vec_px.push_back(px);
 		vec_py.push_back(py);
 		vec_pz.push_back(pz);
 	}
+
+	// modify run macro
+	ofstream runmac("run1.mac");
+	runmac << "/run/initialize" << G4endl;
+	runmac << "/run/beamOn " << nEvents << G4endl;
 }
 void OpPrimaryGeneratorAction::SetOptPhotonPolar()
 {
