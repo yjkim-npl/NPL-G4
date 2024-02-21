@@ -69,16 +69,7 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	if(step -> GetPostStepPoint() -> GetStepStatus() == fGeomBoundary)
 	{
 		post_boundary = 1;
-//		if(step -> GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() ==
-//			 CalculatePostNo(step->GetPostStepPoint()->GetPosition()))
-//		{
-//			return;
-//		}
 	}
-//	if(step -> GetPreStepPoint() -> GetStepStatus() != fGeomBoundary)
-//		return;
-//	if(step -> GetPostStepPoint() -> GetStepStatus() != fGeomBoundary)
-//		return;
 	G4bool boundary = 0;
 	if(prev_boundary!=0 || post_boundary!=0)
 		boundary = 1;
@@ -138,5 +129,5 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 
 	fRunAction -> FillStep
 		(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,
-		 fedep,length,NSecondaryOP,prevKE);
+		 time,fedep,length,NSecondaryOP,prevKE);
 }

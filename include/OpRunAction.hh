@@ -40,7 +40,7 @@ class OpRunAction : public G4UserRunAction
 
 		void FillTrack
 			(G4int opt, G4int trkID, G4int procID, G4int parentID, G4int pdg, G4int detID,
-			 G4ThreeVector p, G4ThreeVector v, G4double totenergy, G4double kinenergy);
+			 G4ThreeVector p, G4ThreeVector v, G4double time, G4double totenergy, G4double kinenergy);
 
 		void FillOpticalPhoton
 			(G4int opt, G4int trkID, G4int creProcID, G4int parentID, G4int detID, G4ThreeVector p, G4ThreeVector v, G4double time, G4double energy, G4double kenergy,G4double length=0);
@@ -51,7 +51,7 @@ class OpRunAction : public G4UserRunAction
 		void FillStep
 			(G4bool boundary, G4bool fromHit, G4int trkID, G4int procID, G4int pdg, 
 			 G4int prev_detID, G4int post_detID,
-			 G4ThreeVector v, G4double edep, G4double length, G4int nSecondaries, G4double prevKE=0);
+			 G4ThreeVector v, G4double time, G4double edep, G4double length, G4int nSecondaries, G4double prevKE=0);
 
 		void FillSiPM
 			(G4int detID, G4int procID, G4String procName,
@@ -92,6 +92,7 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> TrackVX;
 		vector<G4double> TrackVY;
 		vector<G4double> TrackVZ;
+		vector<G4double> TrackTime;
 		vector<G4double> TrackEnergy;
 		vector<G4double> TrackKEnergy;
 		vector<G4double> TrackEdepSum;
@@ -108,6 +109,7 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> PostTrackVX;
 		vector<G4double> PostTrackVY;
 		vector<G4double> PostTrackVZ;
+		vector<G4double> PostTrackTime;
 		vector<G4double> PostTrackEnergy;
 		vector<G4double> PostTrackKEnergy;
 
@@ -124,17 +126,13 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> StepVX;
 		vector<G4double> StepVY;
 		vector<G4double> StepVZ;
+		vector<G4double> StepTime;
 		vector<G4double> StepEdep;
 		vector<G4double> StepLength;
 		vector<G4int> StepNSecondaryOP;
 
 		// Optical photon
 		G4int NOp;
-
-//		G4double OpPX[1000];
-//		G4double OpPY[1000];
-//		G4double OpPZ[1000];
-
 		vector<G4int> OpTrackID;
 		vector<G4int> OpProcessID;
 		vector<G4int> OpParentID;
@@ -150,11 +148,6 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> OpTime;
 
 		G4int PostNOp;
-//
-//		G4int PostProcID[1000];
-//		G4double PostOpPX[1000];
-//		G4double PostOpPY[1000];
-//		G4double PostOpPZ[1000];
 		vector<G4int> PostOpTrackID;
 		vector<G4int> PostOpDetID;
 		vector<G4int> PostProcID;
@@ -170,16 +163,6 @@ class OpRunAction : public G4UserRunAction
 		vector<G4double> PostOpTime;
 
 		G4int NOpBoundary;
-//		G4int OpTrackIDBoundary[1000];
-//		G4int OpProcIDBoundary[1000];
-//		G4double OpPXBoundary[1000];
-//		G4double OpPYBoundary[1000];
-//		G4double OpPZBoundary[1000];
-//		G4double OpVXBoundary[1000];
-//		G4double OpVYBoundary[1000];
-//		G4double OpVZBoundary[1000];
-//		G4double OpTBoundary[1000];
-
 		vector<G4int> OpTrackIDBoundary;
 		vector<G4int> OpProcIDBoundary;
 		vector<G4double> OpPXBoundary;
