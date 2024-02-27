@@ -15,9 +15,9 @@ inline char *OutName(int opt, char *prefix, char *p, char *e, char *s, char *for
 }
 
 void OpDraw(
-		char *particle = "alpha",
-		char *energy = "5.48MeV",
-		char *suffix = "SY9700")
+		char *particle = "Sn",
+		char *energy = "250MeVu",
+		char *suffix = "SY9700_1.0")
 {
 	/*
 		 HIST LISTs
@@ -46,9 +46,9 @@ void OpDraw(
 	DrawOpt[4] = 0;
 	DrawOpt[5] = 0;
 	DrawOpt[6] = 0;
-	DrawOpt[7] = 0;
+	DrawOpt[7] = 1;
 	DrawOpt[8] = 0;
-	DrawOpt[9] = 0;
+	DrawOpt[9] = 1;
 	DrawOpt[10] = 0;
 	DrawOpt[11] = 1;
 	bool text_output_LY_res = 1;
@@ -432,7 +432,7 @@ void OpDraw(
 	double m_LY_L = 0, e_LY_L = 0, m_LY_R = 0, e_LY_R = 0, m_LY_U = 0, e_LY_U = 0, m_LY_D = 0, e_LY_D = 0;
 	if (DrawOpt[7])
 	{
-		const int x_edge = 1000; // for SY1000
+		const int x_edge = 3000; // for SY1000
 														 //		const int x_edge = 700; // for SY1000
 														 //		const int x_edge = 100; // for SY100
 														 //		const int x_edge = 30; // for SY10
@@ -477,10 +477,14 @@ void OpDraw(
 		TF1 *fRe;
 		TF1 *fUe;
 		TF1 *fDe;
+		TH1F* H1_temp;
 		if (LR)
 		{
 			H1_NOpSiPM_Le = (TH1F *)F->Get("H1_NOpSiPM_Le");
 			H1_NOpSiPM_Re = (TH1F *)F->Get("H1_NOpSiPM_Re");
+			H1_temp = (TH1F*) H1_NOpSiPM_Le -> Clone();
+		//	H1_temp -> Add(H1_NOpSiPM_Re);
+			cout << H1_temp -> GetMean();
 			H2_NOpSiPMLR = (TH2F*) F -> Get("H2_NOpSiPMLR");
 			fLe = new TF1("fL", "gaus", fit_xe_min, fit_xe_max);
 			fRe = new TF1("fR", "gaus", fit_xe_min, fit_xe_max);
@@ -491,7 +495,7 @@ void OpDraw(
 			H1_NOpSiPM_Re->Rebin(rebin);
 			H2_NOpSiPMLR ->Rebin2D(rebin,rebin);
 //			y_max = H1_NOpSiPM_Le->GetMaximum();
-			y_max = 3000;
+			y_max = 100;
 			H1_NOpSiPM_Le->GetXaxis()->SetTitle("Number of photons");
 			H1_NOpSiPM_Le->SetLineStyle(1);
 			H1_NOpSiPM_Le->SetLineColor(2);
@@ -517,8 +521,8 @@ void OpDraw(
 			fRe->SetLineWidth(3);
 			H1_NOpSiPM_Re->Fit(fRe, "R0Q");
 
-			H2_NOpSiPMLR -> GetXaxis() -> SetRangeUser(0,300);
-			H2_NOpSiPMLR -> GetYaxis() -> SetRangeUser(0,300);
+			H2_NOpSiPMLR -> GetXaxis() -> SetRangeUser(0,x_edge);
+			H2_NOpSiPMLR -> GetYaxis() -> SetRangeUser(0,x_edge);
 			H2_NOpSiPMLR -> GetXaxis() -> SetTitle("Number of photons (Left)");
 			H2_NOpSiPMLR -> GetYaxis() -> SetTitle("Number of photons (Right)");
 			H2_NOpSiPMLR -> GetXaxis() -> SetTitleSize(0.06);
@@ -576,9 +580,9 @@ void OpDraw(
 		if (LR)
 		{
 			m_LY_L = H1_NOpSiPM_Le->GetMean();
-			e_LY_L = H1_NOpSiPM_Le->GetStdDev();
+			e_LY_L = H1_NOpSiPM_Le->GetMeanError();
 			m_LY_R = H1_NOpSiPM_Re->GetMean();
-			e_LY_R = H1_NOpSiPM_Re->GetStdDev();
+			e_LY_R = H1_NOpSiPM_Re->GetMeanError();
 			//			m_LY_L = fLe->GetParameter(1);
 			//			e_LY_L = fLe->GetParameter(2);
 			//			m_LY_R = fRe->GetParameter(1);
@@ -602,8 +606,8 @@ void OpDraw(
 		{
 			c7 -> cd(1);
 			gPad -> SetMargin(.13,.05,.12,.05);
-			H1_NOpSiPM_Le->GetXaxis()->SetRangeUser(0, 300);
-			H1_NOpSiPM_Re->GetXaxis()->SetRangeUser(0, 300);
+//			H1_NOpSiPM_Le->GetXaxis()->SetRangeUser(0, 1500);
+//			H1_NOpSiPM_Re->GetXaxis()->SetRangeUser(0, 1500);
 			H1_NOpSiPM_Le->Draw("hist same");
 			H1_NOpSiPM_Re->Draw("hist same");
 			leg->Draw();
@@ -900,7 +904,8 @@ void OpDraw(
 			fLR->SetLineWidth(4);
 			H1_SiPMTimeDiff_LR->Fit(fLR, "R0Q");
 			mean_LR = H1_SiPMTimeDiff_LR -> GetMean();
-			res_LR = H1_SiPMTimeDiff_LR -> GetStdDev();
+			res_LR = 0.5*H1_SiPMTimeDiff_LR -> GetStdDev();
+			err_LR = 0.5*H1_SiPMTimeDiff_LR -> GetStdDevError();
 //			mean_LR = fLR->GetParameter(1);
 //			res_LR = fLR->GetParameter(2);
 //			err_LR = fLR->GetParError(2);
@@ -1169,7 +1174,7 @@ void OpDraw(
 										 vec_resUD[a].c_str(), vec_resUD_e[a].c_str())
 						 << endl;
 			}
-			data << particle << " " << energy << " " << SY << " " << suffix << " " << Form("%02d ", 10 * LR + UD) << Form("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f ", m_LY_L, e_LY_L, m_LY_R, e_LY_R, m_LY_U, e_LY_U, m_LY_D, e_LY_D) << Form("%.3f %.3f %.3f %.3f", res_LR, err_LR, res_UD, err_UD) << endl;
+			data << particle << " " << energy << " " << SY << " " << suffix << " " << Form("%02d ", 10 * LR + UD) << Form("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f ", m_LY_L, e_LY_L, m_LY_R, e_LY_R, m_LY_U, e_LY_U, m_LY_D, e_LY_D) << Form("%.3f %.3f %.3f %.3f", 1e3*res_LR, 1e3*err_LR, res_UD, err_UD) << endl;
 			data.close();
 		}
 	}

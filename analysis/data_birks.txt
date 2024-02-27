@@ -1,2 +1,0 @@
-p E suffix dEdx dEdx_e dLdx dLdx_e
-alpha 5.48MeV  0 0 0 0
