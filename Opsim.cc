@@ -82,7 +82,7 @@ int main(int argc,char** argv)
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
 	// Process macro or start UI session
-	if ( PC -> GetParBool("Visualisation") == false ) 
+	if ( PC -> GetParBool("Visualization") == false ) 
 	{ 
 		// batch mode
 		G4String command = "/control/execute ";
