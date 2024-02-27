@@ -147,62 +147,61 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 		G4double YOffset2 = PC -> GetParDouble("Boron_YOffset2");
 		G4Material* mat = fMaterials -> GetMaterial("BoratedPolyethylene");
 
-		G4Box* solid_B1 = new G4Box("solid_B1",sizeX/2,sizeY/2,sizeZ/2);
-		G4Box* solid_B2 = new G4Box("solid_B2",sizeX/2,sizeZ/2,sizeY/2);
+		G4Box* solid_B1 = new G4Box("solid_B1",sizeX/2,sizeZ/2,sizeY/2);
+		G4Box* solid_B2 = new G4Box("solid_B2",sizeX/2,sizeY/2,sizeZ/2);
 		G4LogicalVolume* logicB1 = new G4LogicalVolume(solid_B1,mat,"logicB1");
-		G4LogicalVolume* logicB2 = new G4LogicalVolume(solid_B2,mat,"logicB1");
+		G4LogicalVolume* logicB2 = new G4LogicalVolume(solid_B2,mat,"logicB2");
 		G4VisAttributes* attB = new G4VisAttributes(G4Colour(G4Colour::Brown()));
 		attB -> SetForceWireframe(true);
 		attB -> SetLineWidth(5);
 		logicB1->SetVisAttributes(attB);
 		logicB2->SetVisAttributes(attB);
 
-		if(PC->GetParBool("BoronWall1In"))
-		{
-			for(G4int row=0; row<4; row++)
-			{
-				if(row<2)
-				{
-					G4ThreeVector pos0(-sizeX,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					G4ThreeVector pos1(0,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					G4ThreeVector pos2(+sizeX,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					new G4PVPlacement(0,pos0,logicB1,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
-					new G4PVPlacement(0,pos1,logicB1,Form("B1_%d_1",row),logicWorld,false,ID,checkOverlaps);
-					new G4PVPlacement(0,pos2,logicB1,Form("B1_%d_2",row),logicWorld,false,ID,checkOverlaps);
-				}
-				else if (row==2)
-				{
-					G4ThreeVector pos0(-sizeX/2-holeX1/2,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					G4ThreeVector pos1(+sizeX/2+holeX1/2,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					new G4PVPlacement(0,pos0,logicB1,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
-					new G4PVPlacement(0,pos1,logicB1,Form("B1_%d_1",row),logicWorld,false,ID,checkOverlaps);
-				}
-				else if(row==3)
-				{
-					G4ThreeVector pos0(0,(2*row+1)*sizeY/2+YOffset2,ZOffset1+trans+sizeZ/2);
-					new G4PVPlacement(0,pos0,logicB1,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
-				}
-			}
-		}
-
 		//wall
-		if(PC -> GetParBool("BoronWall2In"))
+		if(PC -> GetParBool("BoronWall1In"))
 		{
 			for(G4int row=0; row<7; row++)
 			{
 				if(row !=4)
 				{
-					G4ThreeVector pos0(-sizeX/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset2+trans+sizeY/2);
-					G4ThreeVector pos1(+sizeX/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset2+trans+sizeY/2);
-					new G4PVPlacement(0,pos0,logicB2,Form("B2_%d_0",row),logicWorld,false,ID,checkOverlaps);
-					new G4PVPlacement(0,pos1,logicB2,Form("B2_%d_1",row),logicWorld,false,ID,checkOverlaps);
+					G4ThreeVector pos0(-sizeX/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset1-trans+sizeY/2);
+					G4ThreeVector pos1(+sizeX/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset1-trans+sizeY/2);
+					new G4PVPlacement(0,pos0,logicB1,Form("B2_%d_0",row),logicWorld,false,ID,checkOverlaps);
+					new G4PVPlacement(0,pos1,logicB1,Form("B2_%d_1",row),logicWorld,false,ID,checkOverlaps);
 				}
 				else
 				{
-					G4ThreeVector pos0(-sizeX/2-holeX2/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset2+trans+sizeY/2);
-					G4ThreeVector pos1(+sizeX/2+holeX2/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset2+trans+sizeY/2);
-					new G4PVPlacement(0,pos0,logicB2,Form("B2_%d_0",row),logicWorld,false,ID,checkOverlaps);
-					new G4PVPlacement(0,pos1,logicB2,Form("B2_%d_1",row),logicWorld,false,ID,checkOverlaps);
+					G4ThreeVector pos0(-sizeX/2-holeX2/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset1-trans+sizeY/2);
+					G4ThreeVector pos1(+sizeX/2+holeX2/2,(2*row+1)*sizeZ/2+YOffset1,ZOffset1-trans+sizeY/2);
+					new G4PVPlacement(0,pos0,logicB1,Form("B2_%d_0",row),logicWorld,false,ID,checkOverlaps);
+					new G4PVPlacement(0,pos1,logicB1,Form("B2_%d_1",row),logicWorld,false,ID,checkOverlaps);
+				}
+			}
+		}
+		if(PC->GetParBool("BoronWall2In"))
+		{
+			for(G4int row=0; row<4; row++)
+			{
+				if(row<2)
+				{
+					G4ThreeVector pos0(-sizeX,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					G4ThreeVector pos1(0,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					G4ThreeVector pos2(+sizeX,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					new G4PVPlacement(0,pos0,logicB2,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
+					new G4PVPlacement(0,pos1,logicB2,Form("B1_%d_1",row),logicWorld,false,ID,checkOverlaps);
+					new G4PVPlacement(0,pos2,logicB2,Form("B1_%d_2",row),logicWorld,false,ID,checkOverlaps);
+				}
+				else if (row==2)
+				{
+					G4ThreeVector pos0(-sizeX/2-holeX1/2,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					G4ThreeVector pos1(+sizeX/2+holeX1/2,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					new G4PVPlacement(0,pos0,logicB2,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
+					new G4PVPlacement(0,pos1,logicB2,Form("B1_%d_1",row),logicWorld,false,ID,checkOverlaps);
+				}
+				else if(row==3)
+				{
+					G4ThreeVector pos0(0,(2*row+1)*sizeY/2+YOffset2,ZOffset2-trans+sizeZ/2);
+					new G4PVPlacement(0,pos0,logicB2,Form("B1_%d_0",row),logicWorld,false,ID,checkOverlaps);
 				}
 			}
 		}
