@@ -1,12 +1,12 @@
 int PDGtoIndex(int pID)
 {
-	enum {pro,neu,ele,ion};
+	enum {pro,neu,ele,ion,ELSE};
 	int idx=0;
 	if(pID == 2212)       idx = pro;
 	else if (pID == 2112) idx = neu;
 	else if (pID == 11 || pID == -11) idx = ele;
 	else if (pID > 1000000000) idx = ion;
-	else idx = -1;
+	else idx = ELSE;
 	return idx;
 }
 
@@ -16,10 +16,10 @@ void nonOpMake(
 		const char* suffix = "KOMACBeam")
 {
 	/* HIST lists
-		 0. 2-D[SCs][p,n,e,A] Time versus Edep distribution with pID on SCs
-		 1. 1-D[SCs][] Edep sum dist
-		 2. 1-D[SCs][] Energy distribution with pID on SCs
-		 3. 2-D[SCs][] Step position on SC
+		 0. 1-D Trig cond (1&2, 2&3, 3&4)
+		 1. 2-D[SCs] incident particle - nStep at each SC
+		 2. 1-D[SCs][p,n,e,I,else] Edep sum with track tagging
+		 3. 2-D[SCs-1][] delta energy weighted T - avg edep
 	*/
 
 	const int n_Hist = 1;
@@ -155,53 +155,79 @@ void nonOpMake(
 	char* str_SC[] = {"SC1","SC2","SC3","SC4"};
 	const int nSC = sizeof(str_SC)/sizeof(str_SC[0]);
 	enum {pro,neu,ele,ion};
-	char* str_pID[] = {"pro","neu","ele","ion"};
+	char* str_pID[] = {"pro","neu","ele","ion","ELSE"};
 	const int npID = sizeof(str_pID)/sizeof(str_pID[0]);
 
-	TH2F* H2_Time_Edep[nSC][npID];  // HIST 0
-	TH1F* H1_EdepSum[nSC][npID];    // HIST 1
-	TH1F* H1_Energy[nSC][npID];     // HIST 2
-	TH2F* H2_XYpos[nSC][npID];      // HIST 3
+	/* HIST lists
+		 0. 1-D Trig cond (1&2, 2&3, 3&4)
+		 1. 2-D[SCs] incident particle - nStep at each SC
+		 2. 1-D[SCs][p,n,e,I,else] Edep sum with track tagging
+		 3. 2-D[SCs-1][] delta energy weighted T - avg edep
+	*/
+	TH1D* H1_Trig = new TH1D("H1_Trig","",3,0,3); // HIST 0
+	TH2F* H2_Beam_nStep[nSC];
+	TH1F* H1_EdepSum[nSC][npID];                  // HIST 1
+	TH2F* H2_Time_Edep[nSC-1][npID];              // HIST 2
 
 	for(int a=0; a<nSC; a++)
 	{
+		H2_Beam_nStep[a] = 
+			new TH2F(Form("H2_Beam_nSteps_%s",str_SC[a]),"",npID,0,npID,100,0,100);
 		for(int b=0; b<npID; b++)
 		{
-			H2_Time_Edep[a][b] = 
-				new TH2F(Form("H2_Time_Edep_%s_%s",str_SC[a],str_pID[b]),"",
-						4000,10,50,200,0,10);
+//			H2_Time_Edep[a][b] = 
+//				new TH2F(Form("H2_Time_Edep_%s_%s",str_SC[a],str_pID[b]),"",
+//						4000,10,50,200,0,10);
 			H1_EdepSum[a][b] = 
 				new TH1F(Form("H1_Edep_%s_%s",str_SC[a],str_pID[b]),"",200,0,10);
-			H1_Energy[a][b] = 
-				new TH1F(Form("H1_Energy_%s_%s",str_SC[a],str_pID[b]),"",200,0,100);
-			H2_XYpos[a][b] = 
-				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
-						300,-150,150,300,-150,150);
+//			H1_Energy[a][b] = 
+//				new TH1F(Form("H1_Energy_%s_%s",str_SC[a],str_pID[b]),"",200,0,100);
+//			H2_XYpos[a][b] = 
+//				new TH2F(Form("H2_XYpos_%s_%s",str_SC[a],str_pID[b]),"",
+//						300,-150,150,300,-150,150);
 		}
+	}
+	for(int a=0; a<nSC-1; a++)
+	for(int b=0; b<npID; b++)
+	{
+
+		H2_Time_Edep[a][b] = 
+			new TH2F(Form("H2_Time_Edep_%s_%s_%s",str_SC[a],str_SC[a+1],str_pID[b]),"",
+					6000,-10,50,400,0,20);
 	}
 
 	// event loop
 	/* HIST lists
-		 0. 2-D[SCs][p,n,e,A] Time versus Edep distribution with pID on SCs
-		 1. 1-D[SCs][] Edep sum dist
-		 2. 1-D[SCs][] Energy distribution with pID on SCs
-		 3. 2-D[SCs][] Step position on SC
+		 0. 1-D Trig cond (1&2, 2&3, 3&4)
+		 1. 2-D[SCs] incident particle - nStep at each SC
+		 2. 1-D[SCs][p,n,e,I,else] Edep sum with track tagging
+		 3. 2-D[SCs-1][] delta energy weighted T - avg edep
 	*/
 	for(int a=0; a<T->GetEntries(); a++)
 	{
 		if(a%100 == 0)
 			cout << "Processing " << a << " th event" << endl;
-
 		T -> GetEntry(a);
+		int pri_pdg = 0;
 
-		double EdepSum[nSC][npID]; memset(EdepSum,0,sizeof(EdepSum));
+		for(int b=0; b<nTrack; b++)
+		{
+			int pdg = t_PDG[b];
+			int parentID = t_ParentID[b];
+			if(parentID==0)
+				pri_pdg = PDGtoIndex(pdg);
+		}
 
+		int nStepSC[nSC];    fill_n(nStepSC,nSC,0);
+		double EdepSum[nSC]; fill_n(EdepSum,nSC,0);
+		double EwTime[nSC];  fill_n(EwTime,nSC,0);
+		bool b_SCs[nSC];     fill_n(b_SCs,nSC,0);
 		for(int b=0; b<nStep; b++)
 		{
 			int fromHit = s_FromHit[b];
 			if(fromHit == 1) continue;
-			int pdg = s_PDG[b];
-			int idx = PDGtoIndex(pdg);
+//			int pdg = s_PDG[b];
+//			int idx = PDGtoIndex(pdg);
 			int proc = s_ProcID[b];
 			int detID = s_DetID[b] - stoi(map_para["SCID"]) -1;
 //			cout << s_DetID[b] << endl;
@@ -212,36 +238,62 @@ void nonOpMake(
 			double vy = s_vy[b];
 			if(idx <0) continue;
 			if(detID <0 || detID > 10) continue;
-			if(detID >= 0)
+			if(detID >= 0 && edep > 0)
 			{
-				EdepSum[detID][idx] += edep;
-//				cout << Form("%d %d %d %d %.6f %.2f",fromHit,idx, proc, detID,edep,time) << endl;
-//				H1_Edep[detID][idx] -> Fill(edep);
-				H2_Time_Edep[detID][idx] -> Fill(time,energy);
-				H1_Energy[detID][idx] -> Fill(energy);
-				H2_XYpos[detID][idx] -> Fill(vx,vy);
+				nStepSC[detID]++;
+				EdepSum[detID] += edep;
+				EwTime[detID] += edep*time;
 			}
 		}
+
 		for(int b=0; b<nSC; b++)
-		for(int c=0; c<npID; c++)
 		{
-			if(EdepSum[b][c] == 0) continue;
-			H1_EdepSum[b][c] -> Fill(EdepSum[b][c]);
+			if(EdepSum[b] !=0)
+			{
+				b_SCs[b] = true;
+				EwTime[b] = EwTime[b]/EdepSum[b];
+			}
+			else
+			{
+				b_SC[b] = false;
+				EwTime[b] = -1;
+			}
+			// HIST 1
+			H2_Beam_nStep[b] -> Fill(pri_pdg,nStepSC[b]);
+			// HIST 2
+			H1_EdepSum[b][pri_pdg] -> Fill(EdepSum[b]);
 		}
-//		cout << " " << endl;
+		// HIST 0
+		if(b_SCs[SC1] && b_SCs[SC2])
+			H1_Trig -> Fill(0.5);
+		if(b_SCs[SC2] && b_SCs[SC3])
+			H1_Trig -> Fill(1.5);
+		if(b_SCs[SC3] && b_SCs[SC4])
+			H1_Trig -> Fill(2.5);
+
+		// HIST 3
+		for(int b=0; b<nSC-1; b++)
+		{
+			if(b_SCs[b] && b_SCs[b+1])
+				H2_Time_Edep[b][pri_pdg] -> Fill(EwTime[b+1] - EwTime[b],0.5*EdepSum[b]+0.5*EdepSum[b+1]);
+		}
 	}
 
 	// Write
 	L_para -> Write();
+	H1_Trig -> Write();
 	for(int a=0; a<nSC; a++)
 	{
+		H2_Beam_nStep[a] -> Write();
 		for(int b=0; b<npID; b++)
 		{
-			H2_Time_Edep[a][b] -> Write();
 			H1_EdepSum[a][b] -> Write();
-			H1_Energy[a][b] -> Write();
-			H2_XYpos[a][b] -> Write();
 		}
+	}
+	for(int a=0; a<nSC-1; a++)
+	for(int b=0; b<npID; b++)
+	{
+			H2_Time_Edep[a][b] -> Write();
 	}
 	F -> Close();
 	G -> Close();

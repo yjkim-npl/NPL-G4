@@ -143,12 +143,12 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode1(G4Event* anEvent)
 			fParticleGun -> SetParticleDefinition(particle);
 			G4ThreeVector mom(vec_px[a],vec_py[a],vec_pz[a]);
 			G4ThreeVector pos(vec_vx[a],vec_vy[a],vec_vz[a]);
-			fParticleGun -> SetParticleMomentumDirection(mom.unit());
-			fParticleGun -> SetParticleMomentum(mom.mag()*MeV);
+			G4cout << vec_px[a] << " " << vec_py[a] << " " << vec_pz[a] << G4endl;
 			fParticleGun -> SetParticlePosition(pos);
 			fParticleGun -> SetParticleTime(vec_vt[a]*ns);
+			fParticleGun -> SetParticleMomentumDirection(mom.unit());
+			fParticleGun -> SetParticleMomentum(mom.mag()*MeV);
 			fParticleGun -> GeneratePrimaryVertex(anEvent);
-			break;
 		}
 	}
 	return;
