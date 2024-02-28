@@ -250,12 +250,16 @@ void OpMake
 	TH1F* H1_OpTrackLength = new TH1F("H1_OpTrackLength","",1000,0,1000);   // HIST 6
 	TH1F* H1_NOpSiPM[n_SiPM_opt];                                           // HIST 7
 	TH1F* H1_OpSiPMTime[n_SiPM_opt];                                        // HIST 8
+	TH1F* H1_OpSiPMEnergy[n_SiPM_opt];
+	TH1F* H1_OpSiPM_Mean_Time[n_SiPM_opt];
 	for(int a=0; a<n_SiPM_opt; a++)
 	{
 		if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
 			continue;
 		H1_NOpSiPM[a] = new TH1F(Form("H1_NOpSiPM_%s",str_SiPM_opt[a]),"",5000,0,5000);
 		H1_OpSiPMTime[a] = new TH1F(Form("H1_OpSiPMTime_%s",str_SiPM_opt[a]),"",1000,0,50);
+		H1_OpSiPMEnergy[a] = new TH1F(Form("H1_OpSiPMEnergy_%s",str_SiPM_opt[a]),"",1000,0,50);
+		H1_OpSiPM_Mean_Time[a] = new TH1F(Form("H1_OpSiPM_Mean_Time_%s",str_SiPM_opt[a]),"",1000,0,50);
 	}
 	TH1F* H1_SiPMTimeDiff[n_pos];                                           // HIST 9
 	for(int a=0; a<n_pos; a++)
@@ -334,7 +338,7 @@ void OpMake
 					H1_ratio -> Fill(1);
 					o_abs1++;
 				}
-			} else if (procID == 31){
+			} else if (procID == 31){ // OpAbsorption
 				if(Opt[6])
 					H1_OpTrackLength -> Fill(length);
 			}else{
@@ -425,9 +429,13 @@ void OpMake
 				if(os_DetID[b]/1000 == 11){
 					MeanTime_Le += os_KE[b]*os_Time[b];
 					MeanEnergy_Le += os_KE[b];
+					H1_OpSiPMTime[Le] -> Fill(os_Time[b]);
+					H1_OpSiPMEnergy[Le] -> Fill(os_KE[b]);
 				}else if(os_DetID[b]/1000 == 12){
 					MeanTime_Re += os_KE[b]*os_Time[b];
 					MeanEnergy_Re += os_KE[b];
+					H1_OpSiPMTime[Re] -> Fill(os_Time[b]);
+					H1_OpSiPMEnergy[Re] -> Fill(os_KE[b]);
 				}else if(os_DetID[b]/1000 == 13){
 					MeanTime_Ue += os_KE[b]*os_Time[b];
 					MeanEnergy_Ue += os_KE[b];
@@ -469,8 +477,8 @@ void OpMake
 			{
 				if(map_parameters["SiPMLR"] == "true")
 				{
-					H1_OpSiPMTime[Le] -> Fill(MeanTime_Le);
-					H1_OpSiPMTime[Re] -> Fill(MeanTime_Re);
+					H1_OpSiPM_Mean_Time[Le] -> Fill(MeanTime_Le);
+					H1_OpSiPM_Mean_Time[Re] -> Fill(MeanTime_Re);
 				}
 				if(map_parameters["SiPMUD"] == "true")
 				{
@@ -499,7 +507,7 @@ void OpMake
 		map<int,double> map_TrkID_Length;
 		for(int b=0; b<nStep; b++)
 		{
-			if(s_PrevDetID[b] == 0 && s_PrevDetID[b] == 0) continue;
+			if(s_PrevDetID[b] == 0 ) continue;
 			if(Opt[5] && s_FromHit[b] == StepFromHit && s_PDG[b] > 100){
 				if(map_TrkID_Edep[s_ID[b]] == 0 && map_TrkID_LY[s_ID[b]] == 0){
 					map_TrkID_Edep[s_ID[b]] = s_Edep[b];
@@ -559,6 +567,8 @@ void OpMake
 			if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
 				continue;
 			H1_OpSiPMTime[a] -> Write();
+			H1_OpSiPMEnergy[a] -> Write();
+			H1_OpSiPM_Mean_Time[a] -> Write();
 		}
 	}
 	if(Opt[9]){

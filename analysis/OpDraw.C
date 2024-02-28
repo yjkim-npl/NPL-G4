@@ -41,16 +41,16 @@ void OpDraw(
 	bool DrawOpt[n_Hist];
 	DrawOpt[0] = 0;
 	DrawOpt[1] = 0;
-	DrawOpt[2] = 1;
+	DrawOpt[2] = 0;
 	DrawOpt[3] = 0;
-	DrawOpt[4] = 0;
+	DrawOpt[4] = 0; // not used
 	DrawOpt[5] = 0;
-	DrawOpt[6] = 0;
+	DrawOpt[6] = 0; // you should turn off `SiPMIn` for the correct figure
 	DrawOpt[7] = 0;
 	DrawOpt[8] = 0;
 	DrawOpt[9] = 0;
 	DrawOpt[10] = 0;
-	DrawOpt[11] = 0;
+	DrawOpt[11] = 1;
 	bool text_output_LY_res = 1;
 
 	char *in_pref = "out_root/H_Op_out";
@@ -90,13 +90,15 @@ void OpDraw(
 		gPad->SetMargin(.13, .05, .12, .05);
 		TH1F *H1_NOp = (TH1F *)F->Get("H1_NOp");
 		H1_NOp->SetStats(false);
-		H1_NOp->Rebin(100);
-		H1_NOp->GetXaxis()->SetTitle("# of photons");
+		H1_NOp->Rebin(1);
+		H1_NOp->GetXaxis()->SetTitle("# of generated photons");
 		H1_NOp->GetXaxis()->SetTitleSize(0.05);
-		H1_NOp->GetXaxis()->SetRangeUser(1000, 5000);
+		double min = H1_NOp->GetMean() - 4* H1_NOp->GetStdDev();
+		double max = H1_NOp->GetMean() + 6* H1_NOp->GetStdDev();
+		H1_NOp->GetXaxis()->SetRangeUser(min,max);
 		H1_NOp->Draw("hist");
 
-		TLegend *leg = new TLegend(0.5, 0.6, 0.9, 0.6 + 0.05 * 4);
+		TLegend *leg = new TLegend(0.65, 0.6, 0.93, 0.6 + 0.05 * 4);
 		leg->SetBorderSize(0);
 		leg->SetFillStyle(0);
 		leg->SetTextSize(0.045);
@@ -214,8 +216,7 @@ void OpDraw(
 		c2->Divide(2);
 		c2->cd(1);
 		gPad->SetMargin(.13, .05, .12, .05);
-		cout << map_MatProp["SC2matOpt"] << endl;
-		const int SC2mat = stoi(map_MatProp["SC2matOpt"]);
+		const int SCmatOpt = 1;
 		TLegend *leg1 = new TLegend(.43, .6, .9, .6 + .05 * 6);
 		leg1->SetBorderSize(0);
 		leg1->SetFillStyle(0);
@@ -227,13 +228,13 @@ void OpDraw(
 		leg1->AddEntry("","Geant4 simulation","h");
 		leg1->AddEntry((TObject *)0, "Emission spectra (Wavelength)", "h");
 		leg1->AddEntry((TObject *)0, Form("Beam: 5.48 MeV %s", particle, energy), "h");
-		leg1->AddEntry((TObject *)0, Form("Scintillator: %s", SC2mat == 0 ? "PS" : "PVT"), "h");
+		leg1->AddEntry((TObject *)0, Form("Scintillator: %s", SCmatOpt == 0 ? "PS" : "PVT"), "h");
 //		leg1->AddEntry((TObject *)0, Form("SY: %.0f / MeV", SY), "h");
 		leg1->AddEntry(g_wav, Form("Simulation Input"), "l");
 		leg2->AddEntry("","Geant4 simulation","h");
 		leg2->AddEntry((TObject *)0, "Emission spectra (Energy)", "h");
 		leg2->AddEntry((TObject *)0, Form("Beam: 5.48 MeV %s", particle, energy), "h");
-		leg2->AddEntry((TObject *)0, Form("Scintillator: %s", SC2mat == 0 ? "PS" : "PVT"), "h");
+		leg2->AddEntry((TObject *)0, Form("Scintillator: %s", SCmatOpt == 0 ? "PS" : "PVT"), "h");
 //		leg2->AddEntry((TObject *)0, Form("SY: %.0f / MeV", SY), "h");
 		leg2->AddEntry(g_E, Form("Simulation Input"), "l");
 		for (int a = 0; a < n_cre; a++)
@@ -289,9 +290,9 @@ void OpDraw(
 		leg->SetBorderSize(0);
 		leg->SetFillStyle(0);
 		leg->SetTextSize(0.045);
-		const int SC2mat = stoi(map_MatProp["SC2matOpt"]);
+		const int SCmatOpt = 1;
 		leg->AddEntry((TObject *)0, Form("%s %s simulation", particle, energy), "h");
-		leg->AddEntry((TObject *)0, Form("Scintillator: %s", SC2mat == 0 ? "PS" : "PVT"), "h");
+		leg->AddEntry((TObject *)0, Form("Scintillator: %s", SCmatOpt == 0 ? "PS" : "PVT"), "h");
 		leg->AddEntry((TObject *)0, Form("Decay Time: %.1f ns", 1.5), "h");
 		leg->AddEntry(H1_OpTime, "Generation Time", "l");
 		leg->AddEntry(fit_decay, Form("fit = N_{0} exp(-x/#tau)"), "l");
@@ -345,14 +346,18 @@ void OpDraw(
 		H2_Edep_LY->SetStats(false);
 		H2_Edep_LY->GetXaxis()->SetTitle("Edep[MeV]");
 		H2_Edep_LY->GetYaxis()->SetTitle("LightYield");
-		H2_Edep_LY->GetXaxis()->SetRangeUser(0, 100);
-		H2_Edep_LY->GetYaxis()->SetRangeUser(0, 5000);
+		double x_max = H2_Edep_LY->ProjectionX()->GetMean()+6*H2_Edep_LY->ProjectionX()->GetStdDev();
+		double y_max = H2_Edep_LY->ProjectionY()->GetMean()+6*H2_Edep_LY->ProjectionY()->GetStdDev();
+		H2_Edep_LY->GetXaxis()->SetRangeUser(0, x_max);
+		H2_Edep_LY->GetYaxis()->SetRangeUser(0, y_max);
 		TH2F *H2_dEdx_dLdx = (TH2F *)F->Get("H2_dEdx_dLdx");
 		H2_dEdx_dLdx->SetStats(false);
+		double dx_max = H2_dEdx_dLdx->ProjectionX()->GetMean()+6*H2_dEdx_dLdx->ProjectionX()->GetStdDev();
+		double dy_max = H2_dEdx_dLdx->ProjectionY()->GetMean()+6*H2_dEdx_dLdx->ProjectionY()->GetStdDev();
 		H2_dEdx_dLdx->GetXaxis()->SetTitle("dEdx[MeV/mm]");
 		H2_dEdx_dLdx->GetYaxis()->SetTitle("dLdx[mm^{-1}]");
-		H2_dEdx_dLdx->GetXaxis()->SetRangeUser(0.1, 200);
-		H2_dEdx_dLdx->GetYaxis()->SetRangeUser(0.1, 100000);
+		H2_dEdx_dLdx->GetXaxis()->SetRangeUser(0.1, dx_max);
+		H2_dEdx_dLdx->GetYaxis()->SetRangeUser(0.1, dy_max);
 		double m_dEdx = H2_dEdx_dLdx -> ProjectionX() -> GetMean();
 		double e_dEdx = H2_dEdx_dLdx -> ProjectionX() -> GetStdDev();
 		double m_dLdx = H2_dEdx_dLdx -> ProjectionY() -> GetMean();
@@ -409,8 +414,10 @@ void OpDraw(
 		H1_OpTrackLength->SetStats(false);
 		H1_OpTrackLength->GetXaxis()->SetTitle("TrackLength[mm]");
 		H1_OpTrackLength->GetXaxis()->SetTitleSize(0.05);
+
+		double y_max = H1_OpTrackLength -> GetMaximum();
 		H1_OpTrackLength->GetXaxis()->SetRangeUser(0, 1000);
-		H1_OpTrackLength->GetYaxis()->SetRangeUser(1, 5e5);
+		H1_OpTrackLength->GetYaxis()->SetRangeUser(1, 3* y_max);
 		TCanvas *c6 = new TCanvas("c6", "c6", 1.2 * 600, 600);
 		gPad->SetMargin(.13, .05, .12, .05);
 		gPad->SetLogy();
@@ -485,16 +492,12 @@ void OpDraw(
 			H1_NOpSiPM_Re = (TH1F *)F->Get("H1_NOpSiPM_Re");
 			H1_temp = (TH1F*) H1_NOpSiPM_Le -> Clone();
 		//	H1_temp -> Add(H1_NOpSiPM_Re);
-			cout << H1_temp -> GetMean();
-			H2_NOpSiPMLR = (TH2F*) F -> Get("H2_NOpSiPMLR");
 			fLe = new TF1("fL", "gaus", fit_xe_min, fit_xe_max);
 			fRe = new TF1("fR", "gaus", fit_xe_min, fit_xe_max);
 			H1_NOpSiPM_Le->SetStats(false);
 			H1_NOpSiPM_Re->SetStats(false);
-			H2_NOpSiPMLR ->SetStats(false);
 			H1_NOpSiPM_Le->Rebin(rebin);
 			H1_NOpSiPM_Re->Rebin(rebin);
-			H2_NOpSiPMLR ->Rebin2D(rebin,rebin);
 //			y_max = H1_NOpSiPM_Le->GetMaximum();
 			y_max = 100;
 			H1_NOpSiPM_Le->GetXaxis()->SetTitle("Number of photons");
@@ -521,16 +524,6 @@ void OpDraw(
 			fRe->SetLineStyle(1);
 			fRe->SetLineWidth(3);
 			H1_NOpSiPM_Re->Fit(fRe, "R0Q");
-
-			H2_NOpSiPMLR -> GetXaxis() -> SetRangeUser(0,x_edge);
-			H2_NOpSiPMLR -> GetYaxis() -> SetRangeUser(0,x_edge);
-			H2_NOpSiPMLR -> GetXaxis() -> SetTitle("Number of photons (Left)");
-			H2_NOpSiPMLR -> GetYaxis() -> SetTitle("Number of photons (Right)");
-			H2_NOpSiPMLR -> GetXaxis() -> SetTitleSize(0.06);
-			H2_NOpSiPMLR -> GetYaxis() -> SetTitleSize(0.06);
-			H2_NOpSiPMLR -> GetYaxis() -> SetTitleOffset(1.1);
-			H2_NOpSiPMLR -> GetXaxis() -> SetLabelSize(0.045);
-			H2_NOpSiPMLR -> GetYaxis() -> SetLabelSize(0.045);
 		}
 		if (UD)
 		{
@@ -600,12 +593,10 @@ void OpDraw(
 			leg->AddEntry(fUe, Form("Mean_{U}: %.1f, #sigma_{U}: %.1f", m_LY_U, e_LY_U), "l");
 			leg->AddEntry(fDe, Form("Mean_{D}: %.1f, #sigma_{D}: %.1f", m_LY_D, e_LY_D), "l");
 		}
-		TCanvas *c7 = new TCanvas("c7", "c7", 1.2 * 600 * 2, 600);
-		c7->Divide(2);
+		TCanvas *c7 = new TCanvas("c7", "c7", 1.2 * 600 , 600);
 		gPad->SetMargin(.13, .05, .12, .05);
 		if (LR)
 		{
-			c7 -> cd(1);
 			gPad -> SetMargin(.13,.05,.12,.05);
 //			H1_NOpSiPM_Le->GetXaxis()->SetRangeUser(0, 1500);
 //			H1_NOpSiPM_Re->GetXaxis()->SetRangeUser(0, 1500);
@@ -614,9 +605,6 @@ void OpDraw(
 			leg->Draw();
 			//			fLe -> Draw("same");
 			//			fRe -> Draw("same");
-			c7 -> cd(2);
-			gPad -> SetMargin(.13,.05,.12,.05);
-			H2_NOpSiPMLR -> Draw("colz same");
 		}
 		if (UD)
 		{
