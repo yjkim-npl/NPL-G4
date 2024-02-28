@@ -174,11 +174,6 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 				new G4LogicalVolume(solid_sensor,mat_SiPM,"logicSiPM");
 			G4LogicalVolume* logic_Glass = 
 				new G4LogicalVolume(solid_glass,mat_Glass,"logicGlass");
-			if(PC->GetParBool("OpticalPhysics"))
-			{
-				G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
-				new G4LogicalSkinSurface("SiPM_surf",logicSiPM,surf_SiPM);
-			}
 			if(PC->GetParBool("SCIn"))
 			{
 				G4RotationMatrix* rot = new G4RotationMatrix(); rot->rotateX(90*deg);
@@ -201,6 +196,11 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			attGlass -> SetVisibility(true);
 			attGlass -> SetForceWireframe(true);
 			logic_Glass -> SetVisAttributes(attGlass);
+		}
+		if(PC->GetParBool("OpticalPhysics"))
+		{
+			G4OpticalSurface* surf_SiPM = fMaterials -> GetOpticalSurface("SiPMSurf");
+			new G4LogicalSkinSurface("SiPM_surf",logicSiPM,surf_SiPM);
 		}
 		G4VisAttributes* attSiPM = new G4VisAttributes(G4Colour(G4Colour::Grey()));
 		attSiPM -> SetVisibility(true);

@@ -38,7 +38,7 @@ int main(int argc,char** argv)
 	G4VModularPhysicsList* physicsList = physListFac ->GetReferencePhysList(physListStr.c_str());
 
 	// define optical physics
-	if(PC -> GetParBool("OpticalPhysics") == true)
+	if(PC -> GetParBool("OpticalPhysics"))
 	{
 		G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
 		auto opticalParams = G4OpticalParameters::Instance();
@@ -52,7 +52,7 @@ int main(int argc,char** argv)
 //		G4cout << "InvokeSD: " << opticalParams->GetBoundaryInvokeSD() << G4endl;
 		physicsList -> RegisterPhysics(opticalPhysics);
 	}
-	if(PC -> GetParBool("StepLimiter") == true)
+	if(PC -> GetParBool("StepLimiter"))
 	{
 		G4StepLimiterPhysics* stepLimitPhys = new G4StepLimiterPhysics();
 		physicsList -> RegisterPhysics(stepLimitPhys);

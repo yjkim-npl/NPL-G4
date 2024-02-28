@@ -41,7 +41,7 @@ void OpMake
 	 */
 	bool mIDcut = 1;
 	const int n_Hist = 12;
-	bool Opt[n_Hist]; fill_n(Opt,n_Hist,0);
+	bool Opt[n_Hist]; fill_n(Opt,n_Hist,1);
 	const int StepFromHit = 1;
 
 	char* infile;
@@ -559,13 +559,15 @@ void OpMake
 			H2_Edep_LY -> Fill(map_TrkID_Edep[1],map_TrkID_LY[1]);
 			H2_dEdx_dLdx -> Fill(map_TrkID_Edep[1]/map_TrkID_Length[1],map_TrkID_LY[1]/map_TrkID_Length[1]);
 		}
-//		cout << "done " << endl;
 	}// event
 	F -> Close();
 	TFile* G = new TFile(Form("%s/H_Op_%s",output_prefix,infile),"recreate");
 	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
 	if(Opt[0])
+	{
 		H1_NOp -> Write();
+	cout << "done" << endl;
+	}
 	if(Opt[1])
 		H1_OpProcID -> Write();
 	if(Opt[2]){

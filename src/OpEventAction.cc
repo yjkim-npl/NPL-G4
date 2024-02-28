@@ -52,10 +52,12 @@ void OpEventAction::BeginOfEventAction(const G4Event* event)
 		if(fSCID == -1 && PC ->GetParBool("SCIn"))
 		{
 			fSCID = SDman -> GetCollectionID("SCC");
+//			G4cout << "fSCID: " << fSCID << G4endl;
 		}
 		if(fSiPMID == -1 && PC -> GetParBool("SiPMIn"))
 		{
 			fSiPMID = SDman -> GetCollectionID("SCSiPMC");
+//			G4cout << "fSiPMID: " << fSiPMID << G4endl;
 		}
 	}
 
@@ -137,10 +139,19 @@ void OpEventAction::EndOfEventAction(const G4Event* event)
 		// OpSiPM data
 		if(PC->GetParBool("OpticalPhysics") && PC->GetParBool("SiPMIn"))
 		{
+			OpHitsCollection* HC_SCn = 
+				static_cast<OpHitsCollection*>(HCE->GetHC(fSCID));
+			if(HC_SCn == nullptr)
+				return;
+			G4int n_hit = HC_SCn -> entries();
+
 			OpSiPMHitsCollection* HC_SiPM = 
 				static_cast<OpSiPMHitsCollection*>(HCE->GetHC(fSiPMID));
+//			G4cout << "fSiPMID: " << HC_SiPM->GetName() << G4endl;
+
 			if(HC_SiPM != nullptr)
 			{
+//				G4cout << "HC_SiPM->entries(): " << HC_SiPM->entries() << G4endl;
 				for(G4int b=0; b<HC_SiPM->entries(); b++)
 				{
 					OpSiPMHit* hit = (*HC_SiPM)[b];
