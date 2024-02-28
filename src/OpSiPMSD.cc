@@ -37,7 +37,6 @@ void OpSiPMSD::Initialize(G4HCofThisEvent* HCE)
 
 G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
-	G4cout << "Processing OpSiPMHit" << G4endl;
 	if(step->GetTrack()->GetDefinition()!=G4OpticalPhoton::OpticalPhotonDefinition())
 	{
 		return false;
