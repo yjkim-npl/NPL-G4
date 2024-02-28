@@ -41,8 +41,7 @@ void OpMake
 	 */
 	bool mIDcut = 1;
 	const int n_Hist = 12;
-	bool Opt[n_Hist]; fill_n(Opt,n_Hist,0);
-	Opt[0] = 1;
+	bool Opt[n_Hist]; fill_n(Opt,n_Hist,1);
 	const int StepFromHit = 1;
 
 	char* infile;
@@ -415,7 +414,6 @@ void OpMake
 		for(int b=0; b<NOpSiPM; b++)
 		{
 			int mID = os_DetID->at(b)%100;
-			cout << "done" << endl;
 			if(mIDcut)
 			{
 				if(mID!=4 && mID!=7 && mID!=10 && mID!=13 && mID!=16)
@@ -562,13 +560,12 @@ void OpMake
 			H2_dEdx_dLdx -> Fill(map_TrkID_Edep[1]/map_TrkID_Length[1],map_TrkID_LY[1]/map_TrkID_Length[1]);
 		}
 	}// event
-
-	F -> Close();
 	TFile* G = new TFile(Form("%s/H_Op_%s",output_prefix,infile),"recreate");
-	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
+//	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
 	if(Opt[0])
 	{
 		H1_NOp -> Write();
+	cout << "done" << endl;
 	}
 	if(Opt[1])
 		H1_OpProcID -> Write();
@@ -625,6 +622,7 @@ void OpMake
 	if(Opt[11]){
 		H2_dLY_TimeRes -> Write();
 	}
+	F -> Close();
 	G -> Close();
 //	cout << "gen: " << o_gen << endl;
 //	cout << "die: " << o_die << endl;
