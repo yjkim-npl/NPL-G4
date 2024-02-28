@@ -561,7 +561,7 @@ void OpMake
 		}
 	}// event
 	TFile* G = new TFile(Form("%s/H_Op_%s",output_prefix,infile),"recreate");
-//	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
+	L_out.Write("ConstMaterialProperties",TObject::kSingleKey);
 	if(Opt[0])
 	{
 		H1_NOp -> Write();

@@ -28,8 +28,6 @@ OpDetectorConstruction::OpDetectorConstruction()
 {
 	PC = OpParameterContainer::GetInstance();
 	fMaterials = new OpMaterials();
-	G4double max_step_length = 1*mm;
-	fStepLimit = new G4UserLimits(max_step_length);
 
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpDetectorConstruction" << G4endl;
@@ -84,7 +82,6 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 			new G4Box("SC",0.5*sizeX,0.5*sizeY,0.5*sizeZ);
 		logicSC = 
 			new G4LogicalVolume(solidSC,mat,"SC");
-		logicSC -> SetUserLimits(fStepLimit);
 
 		new G4PVPlacement(0,G4ThreeVector(0,0,ZOffset-trans),logicSC,"SC",logicWorld,false,ID+1,checkOverlaps);
 

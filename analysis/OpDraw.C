@@ -15,9 +15,9 @@ inline char *OutName(int opt, char *prefix, char *p, char *e, char *s, char *for
 }
 
 void OpDraw(
-		char *particle = "Sn",
-		char *energy = "250MeVu",
-		char *suffix = "SY9700_1.0")
+		char *particle = "temp",
+		char *energy = "",
+		char *suffix = "")
 {
 	/*
 		 HIST LISTs
@@ -41,16 +41,16 @@ void OpDraw(
 	bool DrawOpt[n_Hist];
 	DrawOpt[0] = 0;
 	DrawOpt[1] = 0;
-	DrawOpt[2] = 0;
+	DrawOpt[2] = 1;
 	DrawOpt[3] = 0;
 	DrawOpt[4] = 0;
 	DrawOpt[5] = 0;
 	DrawOpt[6] = 0;
-	DrawOpt[7] = 1;
+	DrawOpt[7] = 0;
 	DrawOpt[8] = 0;
-	DrawOpt[9] = 1;
+	DrawOpt[9] = 0;
 	DrawOpt[10] = 0;
-	DrawOpt[11] = 1;
+	DrawOpt[11] = 0;
 	bool text_output_LY_res = 1;
 
 	char *in_pref = "out_root/H_Op_out";
@@ -214,6 +214,7 @@ void OpDraw(
 		c2->Divide(2);
 		c2->cd(1);
 		gPad->SetMargin(.13, .05, .12, .05);
+		cout << map_MatProp["SC2matOpt"] << endl;
 		const int SC2mat = stoi(map_MatProp["SC2matOpt"]);
 		TLegend *leg1 = new TLegend(.43, .6, .9, .6 + .05 * 6);
 		leg1->SetBorderSize(0);

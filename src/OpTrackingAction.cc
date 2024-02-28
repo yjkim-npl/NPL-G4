@@ -36,7 +36,6 @@ void OpTrackingAction::PreUserTrackingAction(const G4Track* track)
 	G4double kinenergy = track -> GetKineticEnergy();
 
 	const G4VProcess* process = track -> GetCreatorProcess();
-//	G4ProcessType processType = process -> GetProcessType();
 	G4int processID = 0;
 	if(parentID != 0)
 	{
@@ -77,7 +76,6 @@ void OpTrackingAction::PostUserTrackingAction(const G4Track* track)
 		trkLength = 0;
 
 	const G4VProcess* process = track -> GetStep() -> GetPostStepPoint() -> GetProcessDefinedStep();
-//	G4ProcessType processType = process -> GetProcessType();
 	processID = process -> GetProcessSubType();
 	fRunAction -> SetProcess(processID, process -> GetProcessName());
 	// Transportation 91

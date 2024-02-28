@@ -74,33 +74,12 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		procID = process -> GetProcessSubType();
 		procName = process -> GetProcessName();
 		G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
-		if(OpParameterContainer::GetInstance() -> GetParInt("SDVerbosity") > 0)
-		{
-			G4cout << G4endl << "##########" <<G4endl;
-			G4cout << "OpSD::ProcessHit" << G4endl;
-			G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
-			G4cout << "Boundary: " << boundary << G4endl;
-			G4cout << "Edep: " << fedep << G4endl;
-			G4cout << "ProcID: " << procID << G4endl;
-			G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
-			G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
-			G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
-			G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
-			G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
-			G4cout << "NSecondaryInStep in ProcessHit: " << NSecondaryInStep << G4endl << G4endl;;
-
-//			auto NSecondaryInStep1 = secondary -> size();
-//			auto NSecondaryInStep2 = step -> GetNumberOfSecondariesInCurrentStep();
-//			G4cout << "NSecondaryInStep1: " << NSecondaryInStep1 << G4endl;
-//			G4cout << "NSecondaryInStep2: " << NSecondaryInStep2 << G4endl << G4endl;
-		}
 	}
 	OpHit* hit = NULL;
 	G4int NofHits = fHitsCollection -> entries();
-	G4bool SaveTrackSum = OpParameterContainer::GetInstance() -> GetParBool("SaveTrackSum");
 	for(G4int a=0; a<NofHits; a++)
 	{
-		// for optical photon hit
+		// for boundary interaction of optical photon
 		if((*fHitsCollection)[a] -> GetTrackID() == trackID &&
 			 (*fHitsCollection)[a] -> GetTrackPDG() == -22 &&
 			 (*fHitsCollection)[a] -> GetDetID() == prevNo)
@@ -111,8 +90,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 		// for other particle hit
 		// save hit with detector
 		else if((*fHitsCollection)[a] -> GetTrackID() == trackID &&
-			      (*fHitsCollection)[a] -> GetDetID() == prevNo &&
-			      SaveTrackSum)
+			      (*fHitsCollection)[a] -> GetDetID() == prevNo)
 		{
 			hit = (*fHitsCollection)[a];
 			break;
@@ -126,7 +104,7 @@ G4bool OpSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 	}
 	// add hit of other particles 
 	if(step->GetTrack()->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition() &&
-		 OpParameterContainer::GetInstance() -> GetParBool("MCStep"))
+		 OpParameterContainer::GetInstance() -> GetParBool("MCStepHit"))
 	{
 		hit -> CountStep();
 		hit -> AddMomentum(mom);

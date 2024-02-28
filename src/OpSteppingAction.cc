@@ -99,11 +99,6 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 		if(sTrkPDG != -22)
 			continue;
 		NSecondaryOP++;
-		if(PC->GetParInt("StepVerbosity") > 0)
-		{
-			G4cout << "sTrackID(PDG): " << sTrkID << "(" << sTrkPDG << ")" << 
-				" vz: " << strack -> GetPosition().z() << G4endl;
-		}
 	}
 
 	const G4VProcess *process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
@@ -111,21 +106,6 @@ void OpSteppingAction::UserSteppingAction(const G4Step* step)
 	G4String procName = process -> GetProcessName();
 	fRunAction -> SetProcess(procID,procName);
 	G4String procTypeName = process -> GetProcessTypeName(process->GetProcessType());
-
-	if(PC -> GetParInt("StepVerbosity") > 0)
-	{
-		G4cout << G4endl << "##########" <<G4endl;
-		G4cout << "OpSteppingAction::UserSteppingAction" << G4endl;
-		G4cout << "PrevBoundary : " << prev_boundary << " PostBoundary: " << post_boundary << G4endl;
-		G4cout << "TrackID(PDG): " << trackID << "(" << trackPDG << ")" << G4endl;
-		G4cout << "ProcID: " << procID << G4endl;
-		G4cout << "ProcName(Type): " << procName << "(" << procTypeName << ")" << G4endl;
-		G4cout << "DetID: " <<prevNo << " -> " << postNo << G4endl;
-		G4cout << "KE: " << prevKE << " -> " << postKE << G4endl;
-		G4cout << "Edep: " << fedep << G4endl;
-		G4cout << "posZ: " << pos.z() << " -> " << post_pos.z() << G4endl;
-		G4cout << "StepLength: " << step -> GetStepLength() << G4endl;
-	}
 
 	fRunAction -> FillStep
 		(prevNo==postNo?0:1,0,trackID,procID,trackPDG,prevNo,postNo,pos,

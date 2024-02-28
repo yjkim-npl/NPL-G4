@@ -6,7 +6,6 @@
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
 #include "G4HadronicParameters.hh"
-#include "G4StepLimiterPhysics.hh"
 #include "G4OpticalPhysics.hh"
 
 #include "G4VisExecutive.hh"
@@ -51,11 +50,6 @@ int main(int argc,char** argv)
 		opticalParams -> SetBoundaryInvokeSD(true);
 //		G4cout << "InvokeSD: " << opticalParams->GetBoundaryInvokeSD() << G4endl;
 		physicsList -> RegisterPhysics(opticalPhysics);
-	}
-	if(PC -> GetParBool("StepLimiter"))
-	{
-		G4StepLimiterPhysics* stepLimitPhys = new G4StepLimiterPhysics();
-		physicsList -> RegisterPhysics(stepLimitPhys);
 	}
 	G4HadronicParameters::Instance() -> SetVerboseLevel(0);
 	physicsList -> SetVerboseLevel(0);

@@ -23,7 +23,7 @@ OpPrimaryGeneratorAction::OpPrimaryGeneratorAction()
 	PC = OpParameterContainer::GetInstance();
 	fParticleGun  = new G4ParticleGun();
 	if(PC->GetParInt("Beam_InputMode") == 1){
-		fInputName = PC->GetParString("InputFile");
+		fInputName = PC->GetParString("InputFileName");
 		ReadInputFile();
 	}
 	if(PC -> GetParInt("UserVerbosity") > 0)
@@ -92,7 +92,7 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
 	G4double py = PC -> GetParDouble("Beam_py");
 	G4double pz = PC -> GetParDouble("Beam_pz");
 	G4double time = PC -> GetParDouble("TimeWindow");
-	fParticleGun -> SetParticleTime(time * ns);	// generated time
+	fParticleGun -> SetParticleTime(time*G4UniformRand()* ns);	// generated time
 	fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(px,py,pz));	// with momentum dir
 
 	G4int n_particle = PC -> GetParInt("NperEvent");
@@ -143,14 +143,14 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode1(G4Event* anEvent)
 			fParticleGun -> SetParticleDefinition(particle);
 			G4ThreeVector mom(vec_px[a],vec_py[a],vec_pz[a]);
 			G4ThreeVector pos(vec_vx[a],vec_vy[a],vec_vz[a]);
+			fParticleGun -> SetParticlePosition(pos);
 			fParticleGun -> SetParticleTime(vec_vt[a]*ns);
 			fParticleGun -> SetParticleMomentumDirection(mom.unit());
 			fParticleGun -> SetParticleMomentum(mom.mag()*MeV);
-			fParticleGun -> SetParticlePosition(pos);
 			fParticleGun -> GeneratePrimaryVertex(anEvent);
-			break;
 		}
 	}
+	return;
 }
 
 void OpPrimaryGeneratorAction::ReadInputFile()

@@ -55,7 +55,6 @@ G4bool OpSiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 
 	OpSiPMHit* hit = NULL;
 	G4int NofHits = fHitsCollection -> entries();
-	G4bool SaveTrackSum = OpParameterContainer::GetInstance() -> GetParBool("SaveTrackSum");
 	for(G4int a=0; a<NofHits; a++)
 	{
 		// for optical photon hit
