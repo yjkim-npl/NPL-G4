@@ -111,42 +111,26 @@ void OpMake
 	const int m_o = 1e4;
 	// MCStep data
 	int nStep;
-//	int s_ID[m_s], s_FromHit[m_s], s_ProcID[m_s], s_PDG[m_s], s_PrevDetID[m_s], s_PostDetID[m_s];
-//	int s_IsBoundary[m_s], s_NSecondOP[m_s];
-//	double s_PrevKE[m_s], s_Edep[m_s], s_Length[m_s], s_vx[m_s], s_vy[m_s], s_vz[m_s];
-
-	vector<int> *s_ID, *s_FromHit, *s_ProcID, *s_PDG, *s_PrevDetID, *s_PostDetID, *s_IsBoundary, *s_NSecondOP;
-	vector<double> *s_PrevKE, *s_Edep, *s_Length, *s_vx, *s_vy, *s_vz;
+	int s_ID[m_s], s_FromHit[m_s], s_ProcID[m_s], s_PDG[m_s], s_PrevDetID[m_s], s_PostDetID[m_s];
+	int s_IsBoundary[m_s], s_NSecondOP[m_s];
+	double s_PrevKE[m_s], s_Edep[m_s], s_Length[m_s], s_vx[m_s], s_vy[m_s], s_vz[m_s];
 
 	// OpTrack data
 	int NOp;
-	// array
-//	int o_ID[m_o], o_ProcID[m_o], o_ParentID[m_o], o_DetID[m_o];
-//	double o_px[m_o], o_py[m_o], o_pz[m_o], o_vx[m_o], o_vy[m_o], o_vz[m_o], o_KE[m_o], o_Time[m_o];
-
-	// vector
-	vector<int> *o_ID, *o_ProcID, *o_ParentID, *o_DetID;
-	vector<double> *o_px, *o_py, *o_pz, *o_vx, *o_vy, *o_vz, *o_KE, *o_Time;
+	int o_ID[m_o], o_ProcID[m_o], o_ParentID[m_o], o_DetID[m_o];
+	double o_px[m_o], o_py[m_o], o_pz[m_o], o_vx[m_o], o_vy[m_o], o_vz[m_o], o_KE[m_o], o_Time[m_o];
 
 	// OpPostTrack data
 	int PostNOp;
-	// array
-//	int op_ID[m_o], op_ProcID[m_o], op_DetID[m_o];
-//	double op_px[m_o], op_py[m_o], op_pz[m_o], op_vx[m_o], op_vy[m_o], op_vz[m_o];
-//	double op_KE[m_o], op_Time[m_o], op_Length[m_o];
-	// vector
-	vector<int> *op_ID, *op_ProcID, *op_DetID;
-	vector<double> *op_px, *op_py, *op_pz, *op_vx, *op_vy, *op_vz;
-	vector<double> *op_KE, *op_Time, *op_Length;
+	int op_ID[m_o], op_ProcID[m_o], op_DetID[m_o];
+	double op_px[m_o], op_py[m_o], op_pz[m_o], op_vx[m_o], op_vy[m_o], op_vz[m_o];
+	double op_KE[m_o], op_Time[m_o], op_Length[m_o];
 
 	// OpSiPM data
 	int NOpSiPM;
-//	int os_ProcID[m_o], os_DetID[m_o];
-//	double os_px[m_o], os_py[m_o], os_pz[m_o], os_vx[m_o], os_vy[m_o], os_vz[m_o];
-//	double os_KE[m_o], os_Time[m_o];
-
-	vector<int> *os_ProcID, *os_DetID;
-	vector<double> *os_px, *os_py, *os_pz, *os_vx, *os_vy, *os_vz, *os_KE, *os_Time;
+	int os_ProcID[m_o], os_DetID[m_o];
+	double os_px[m_o], os_py[m_o], os_pz[m_o], os_vx[m_o], os_vy[m_o], os_vz[m_o];
+	double os_KE[m_o], os_Time[m_o];
 
 	// OpBoundary
 	int NOpBoundary;
@@ -158,68 +142,68 @@ void OpMake
 	{
 		cout << "MCStep was called" << endl;
 		T -> SetBranchAddress("nStep",&nStep);
-		T -> SetBranchAddress("StepTrackID",&s_ID);
-		T -> SetBranchAddress("StepFromHit",&s_FromHit);
-		T -> SetBranchAddress("StepProcID",&s_ProcID);
-		T -> SetBranchAddress("StepTrackPDG",&s_PDG);
-		T -> SetBranchAddress("StepPrevDetID",&s_PrevDetID);
-		T -> SetBranchAddress("StepPostDetID",&s_PostDetID);
-		T -> SetBranchAddress("IsBoundary",&s_IsBoundary);
-		T -> SetBranchAddress("StepNSecondaryOP",&s_NSecondOP);
-		T -> SetBranchAddress("StepPrevKE",&s_PrevKE);
-		T -> SetBranchAddress("StepEdep",&s_Edep);
-		T -> SetBranchAddress("StepLength",&s_Length);
+		T -> SetBranchAddress("StepTrackID",s_ID);
+		T -> SetBranchAddress("StepFromHit",s_FromHit);
+		T -> SetBranchAddress("StepProcID",s_ProcID);
+		T -> SetBranchAddress("StepTrackPDG",s_PDG);
+		T -> SetBranchAddress("StepPrevDetID",s_PrevDetID);
+		T -> SetBranchAddress("StepPostDetID",s_PostDetID);
+		T -> SetBranchAddress("IsBoundary",s_IsBoundary);
+		T -> SetBranchAddress("StepNSecondaryOP",s_NSecondOP);
+		T -> SetBranchAddress("StepPrevKE",s_PrevKE);
+		T -> SetBranchAddress("StepEdep",s_Edep);
+		T -> SetBranchAddress("StepLength",s_Length);
 	}
 	if(map_parameters["OpTrack"] == "true")
 	{
 		cout << "OpTrack was called" << endl;
 		T -> SetBranchAddress("NOp",&NOp);
-		T -> SetBranchAddress("OpTrackID",&o_ID);
-		T -> SetBranchAddress("OpProcessID",&o_ProcID);
-		T -> SetBranchAddress("OpParentID",&o_ParentID);
-		T -> SetBranchAddress("OpDetID",&o_DetID);
-		T -> SetBranchAddress("OpPX",&o_px);
-		T -> SetBranchAddress("OpPY",&o_py);
-		T -> SetBranchAddress("OpPZ",&o_pz);
-		T -> SetBranchAddress("OpVX",&o_vx);
-		T -> SetBranchAddress("OpVY",&o_vy);
-		T -> SetBranchAddress("OpVZ",&o_vz);
-		T -> SetBranchAddress("OpKEnergy",&o_KE);
-		T -> SetBranchAddress("OpTime",&o_Time);
+		T -> SetBranchAddress("OpTrackID",o_ID);
+		T -> SetBranchAddress("OpProcessID",o_ProcID);
+		T -> SetBranchAddress("OpParentID",o_ParentID);
+		T -> SetBranchAddress("OpDetID",o_DetID);
+		T -> SetBranchAddress("OpPX",o_px);
+		T -> SetBranchAddress("OpPY",o_py);
+		T -> SetBranchAddress("OpPZ",o_pz);
+		T -> SetBranchAddress("OpVX",o_vx);
+		T -> SetBranchAddress("OpVY",o_vy);
+		T -> SetBranchAddress("OpVZ",o_vz);
+		T -> SetBranchAddress("OpKEnergy",o_KE);
+		T -> SetBranchAddress("OpTime",o_Time);
 	}
 	if(map_parameters["OpPostTrack"] == "true")
 	{
 		cout << "OpPostTrack was called" << endl;
 		T -> SetBranchAddress("PostNOp",&PostNOp);
-		T -> SetBranchAddress("PostOpTrackID",&op_ID);
-		T -> SetBranchAddress("PostProcID",&op_ProcID);
-		T -> SetBranchAddress("PostOpDetID",&op_DetID);
-		T -> SetBranchAddress("PostOpPX",&op_px);
-		T -> SetBranchAddress("PostOpPY",&op_py);
-		T -> SetBranchAddress("PostOpPZ",&op_pz);
-		T -> SetBranchAddress("PostOpVX",&op_vx);
-		T -> SetBranchAddress("PostOpVY",&op_vy);
-		T -> SetBranchAddress("PostOpVZ",&op_vz);
-		T -> SetBranchAddress("PostOpKEnergy",&op_KE);
-		T -> SetBranchAddress("PostOpTime",&op_Time);
-		T -> SetBranchAddress("OpTrackLength",&op_Length);
+		T -> SetBranchAddress("PostOpTrackID",op_ID);
+		T -> SetBranchAddress("PostProcID",op_ProcID);
+		T -> SetBranchAddress("PostOpDetID",op_DetID);
+		T -> SetBranchAddress("PostOpPX",op_px);
+		T -> SetBranchAddress("PostOpPY",op_py);
+		T -> SetBranchAddress("PostOpPZ",op_pz);
+		T -> SetBranchAddress("PostOpVX",op_vx);
+		T -> SetBranchAddress("PostOpVY",op_vy);
+		T -> SetBranchAddress("PostOpVZ",op_vz);
+		T -> SetBranchAddress("PostOpKEnergy",op_KE);
+		T -> SetBranchAddress("PostOpTime",op_Time);
+		T -> SetBranchAddress("OpTrackLength",op_Length);
 	}
 	if(map_parameters["OpSiPM"] == "true")
 	{
 		cout << "OpSiPM was called" << endl;
 		T -> SetBranchAddress("NOpSiPM",&NOpSiPM);
-		T -> SetBranchAddress("OpSiPMProcID",&os_ProcID);
-		T -> SetBranchAddress("OpSiPMDetID",&os_DetID);
-		T -> SetBranchAddress("OpSiPMPX",&os_px);
-		T -> SetBranchAddress("OpSiPMPY",&os_py);
-		T -> SetBranchAddress("OpSiPMPZ",&os_pz);
-		T -> SetBranchAddress("OpSiPMVX",&os_vx);
-		T -> SetBranchAddress("OpSiPMVY",&os_vy);
-		T -> SetBranchAddress("OpSiPMVZ",&os_vz);
-		T -> SetBranchAddress("OpSiPMEnergy",&os_KE);
-		T -> SetBranchAddress("OpSiPMTime",&os_Time);
+		T -> SetBranchAddress("OpSiPMProcID",os_ProcID);
+		T -> SetBranchAddress("OpSiPMDetID",os_DetID);
+		T -> SetBranchAddress("OpSiPMPX",os_px);
+		T -> SetBranchAddress("OpSiPMPY",os_py);
+		T -> SetBranchAddress("OpSiPMPZ",os_pz);
+		T -> SetBranchAddress("OpSiPMVX",os_vx);
+		T -> SetBranchAddress("OpSiPMVY",os_vy);
+		T -> SetBranchAddress("OpSiPMVZ",os_vz);
+		T -> SetBranchAddress("OpSiPMEnergy",os_KE);
+		T -> SetBranchAddress("OpSiPMTime",os_Time);
 	}
-	if(map_parameters["OpBoundary"] == "true" && false)
+	if(map_parameters["OpBoundary"] == "true")
 	{
 		cout << "OpBoundary was called" << endl;
 		T -> SetBranchAddress("NOpBoundary",&NOpBoundary);
@@ -237,64 +221,50 @@ void OpMake
 	// define output root file
 	const char* output_prefix = "out_root";
 
-	// HIST 0
-	TH1F* H1_NOp = new TH1F("H1_NOp","",5000,0,5000);
-	// HIST 1
-	TH1F* H1_OpProcID = new TH1F("H1_OpProcID","",4,19.5,23.5);
-	// HIST 2
-	enum {Total,Scint,Cheren,ELSE};
+	enum {Total,Scint,Cheren,ELSE};  // for HIST 2
 	const char* cre_opt[] = {"Total","Scintillation","Cherenkov","ELSE"};
 	const int n_opt = sizeof(cre_opt)/sizeof(cre_opt[0]);
-	TH1F* H1_OpWav[n_opt];
+
+	enum {Le,Re,Ue,De};  // for HIST 7,8
+	const char* str_SiPM_opt[] = {"Le","Re","Ue","De"};
+	const int n_SiPM_opt = sizeof(str_SiPM_opt)/sizeof(str_SiPM_opt[0]);
+
+	enum {LR,UD};  // for HIST 9
+	const char* str_SiPM_pos[] = {"LR","UD"};
+	const int n_pos = sizeof(str_SiPM_pos)/sizeof(str_SiPM_pos[0]);
+
+	TH1F* H1_NOp = new TH1F("H1_NOp","",5000,0,5000);                       // HIST 0
+	TH1F* H1_OpProcID = new TH1F("H1_OpProcID","",4,19.5,23.5);             // HIST 1
+	TH1F* H1_OpWav[n_opt];                                                  // HIST 2
 	TH1F* H1_OpE[n_opt];
 	for(int a=0; a<n_opt; a++)
 	{
 		H1_OpWav[a] = new TH1F(Form("H1_OpWav_%s",cre_opt[a]),"",600,300,900);
 		H1_OpE[a] = new TH1F(Form("H1_OpE_%s",cre_opt[a]),"",350,1,4.5);
 	}
-	// HIST 3
-	TH1F* H1_OpTime = new TH1F("H1_OpTime","",200,0,20);
+	TH1F* H1_OpTime = new TH1F("H1_OpTime","",200,0,20);                    // HIST 3
 	TH1F* H1_PostOpTime = new TH1F("H1_PostOpTime","",500,0,50);
-	// HIST 4
-	TH2F* H2_XY_prof = new TH2F("H2_XY_prof","",300,-150,150,300,-150,150);
-	// HIST 5
-	TH2F* H2_Edep_LY = new TH2F("H2_Edep_LY","",100,0,100,5000,0,5000);
+	TH2F* H2_XY_prof = new TH2F("H2_XY_prof","",300,-150,150,300,-150,150); // HIST 4
+	TH2F* H2_Edep_LY = new TH2F("H2_Edep_LY","",100,0,100,5000,0,5000);     // HIST 5
 	TH2F* H2_dEdx_dLdx = new TH2F("H2_dEdx_dLdx","",100,0,100,5000,0,5000);
-	// HIST 6
-	TH1F* H1_OpTrackLength = new TH1F("H1_OpTrackLength","",1000,0,1000);
-	// HIST 7
-	enum {Le,Re,Ue,De};
-	const char* str_SiPM_opt[] = {"Le","Re","Ue","De"};
-	const int n_SiPM_opt = sizeof(str_SiPM_opt)/sizeof(str_SiPM_opt[0]);
-	TH1F* H1_NOpSiPM[n_SiPM_opt];
+	TH1F* H1_OpTrackLength = new TH1F("H1_OpTrackLength","",1000,0,1000);   // HIST 6
+	TH1F* H1_NOpSiPM[n_SiPM_opt];                                           // HIST 7
+	TH1F* H1_OpSiPMTime[n_SiPM_opt];                                        // HIST 8
 	for(int a=0; a<n_SiPM_opt; a++)
 	{
 		if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
 			continue;
 		H1_NOpSiPM[a] = new TH1F(Form("H1_NOpSiPM_%s",str_SiPM_opt[a]),"",5000,0,5000);
-	}
-	// HIST 8
-	TH1F* H1_OpSiPMTime[n_SiPM_opt];
-	for(int a=0; a<n_SiPM_opt; a++)
-	{
-		if((a > 1 && map_parameters["SiPMUD"] != "true") || (a < 2 && map_parameters["SiPMLR"] != "true"))
-			continue;
 		H1_OpSiPMTime[a] = new TH1F(Form("H1_OpSiPMTime_%s",str_SiPM_opt[a]),"",1000,0,50);
 	}
-	// HIST 9
-	enum {LR,UD};
-	const char* str_SiPM_pos[] = {"LR","UD"};
-	const int n_pos = sizeof(str_SiPM_pos)/sizeof(str_SiPM_pos[0]);
-	TH1F* H1_SiPMTimeDiff[n_pos];
+	TH1F* H1_SiPMTimeDiff[n_pos];                                           // HIST 9
 	for(int a=0; a<n_pos; a++)
 	{
 		if(map_parameters[Form("SiPM%s",str_SiPM_pos[a])] == "true")
 			H1_SiPMTimeDiff[a] = new TH1F(Form("H1_SiPMTimeDiff_%s",str_SiPM_pos[a]),"",10000,-50,50);
 	}
-	// HIST 10
-	TH1F* H1_ratio = new TH1F("H1_ratio","",6,0,6);
-	// HIST 11
-	TH2F* H2_dLY_TimeRes = new TH2F(Form("H2_dLY_TimeRes"),"",5000,0,5000,200,-3,3);
+	TH1F* H1_ratio = new TH1F("H1_ratio","",6,0,6);                         // HIST 10
+	TH2F* H2_dLY_TimeRes = new TH2F(Form("H2_dLY_TimeRes"),"",5000,0,5000,200,-3,3); // HIST 11
 
 	// event loop
 	int o_gen = 0;
@@ -319,16 +289,10 @@ void OpMake
 		}
 		for(int b=0; b<NOp; b++)
 		{
-			// for vector
-			double wav = 1.2398e-3/o_KE->at(b);
-			double E = 1e6*o_KE->at(b);
-			int procID = o_ProcID->at(b);
-			double time = o_Time->at(b);
-			// for array
-//			double wav = 1.2398e-3/o_KE[b];
-//			double E = 1e6*o_KE[b];
-//			int procID = o_ProcID[b];
-//			double time = o_Time[b];
+			double wav = 1.2398e-3/o_KE[b];
+			double E = 1e6*o_KE[b];
+			int procID = o_ProcID[b];
+			double time = o_Time[b];
 			if(Opt[1])
 			{
 				H1_OpProcID -> Fill(20); // Fill total entries
@@ -358,16 +322,10 @@ void OpMake
 		}// each optical photon at OpTrack
 		for(int b=0; b<PostNOp; b++)
 		{
-			// for vector
-			int procID = op_ProcID->at(b);
-			int detID = op_DetID->at(b);
-			double time = op_Time->at(b);
-			double length = op_Length->at(b);
-			// for array
-//			int procID = op_ProcID[b];
-//			int detID = op_DetID[b];
-//			double time = op_Time[b];
-//			double length = op_Length[b];
+			int procID = op_ProcID[b];
+			int detID = op_DetID[b];
+			double time = op_Time[b];
+			double length = op_Length[b];
 			if(detID == 201)
 			{
 				if(Opt[3])
@@ -388,7 +346,6 @@ void OpMake
 			if(procID == 31 && Opt[10])
 			{
 				o_abs2++;
-//				H1_ratio -> Fill(3);
 			}
 		}// each optical photon at PostOpTrack
 
@@ -413,13 +370,13 @@ void OpMake
 		}
 		for(int b=0; b<NOpSiPM; b++)
 		{
-			int mID = os_DetID->at(b)%100;
+			int mID = os_DetID[b]%100;
 			if(mIDcut)
 			{
 				if(mID!=4 && mID!=7 && mID!=10 && mID!=13 && mID!=16)
 					continue;
 			}
-			double wav = 1.2398e-3/os_KE->at(b);
+			double wav = 1.2398e-3/os_KE[b];
 			int R_eff = rand()%100;
 			int R_geom;
 			if(map_parameters["SiPM_gapIn"] == "true")
@@ -431,7 +388,7 @@ void OpMake
 				R_geom = rand()%100;
 			if(Opt[4])
 			{
-				H2_XY_prof -> Fill(os_vx->at(b),os_vy->at(b));
+				H2_XY_prof -> Fill(os_vx[b],os_vy[b]);
 			}
 			if(Opt[10])
 			{
@@ -448,16 +405,16 @@ void OpMake
 			{
 				if(R_eff > 100* FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
 					continue;
-				if(os_DetID->at(b)/1000 == 11){
+				if(os_DetID[b]/1000 == 11){
 					NOp_Le++;	// Left + eff + geom
-				}else if (os_DetID->at(b)/1000 == 12){
+				}else if (os_DetID[b]/1000 == 12){
 					NOp_Re++; // Right + eff + geom
-				}else if (os_DetID->at(b)/1000 == 13){
+				}else if (os_DetID[b]/1000 == 13){
 					NOp_Ue++; // Up + eff + geom
-				}else if (os_DetID->at(b)/1000 == 14){
+				}else if (os_DetID[b]/1000 == 14){
 					NOp_De++; // Down + eff + geom
 				}else{
-					cout << a << " Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID->at(b) <<  endl;
+					cout << a << " Opt[7] || Opt[9] :: DetID is not assigned in LRUD: " << os_DetID[b] <<  endl;
 					continue;
 				}
 			}
@@ -465,18 +422,18 @@ void OpMake
 			{
 				if(R_eff > 100*FindEff(wav,vec_wav,vec_eff) || R_geom > 65)
 					continue;
-				if(os_DetID->at(b)/1000 == 11){
-					MeanTime_Le += os_KE->at(b)*os_Time->at(b);
-					MeanEnergy_Le += os_KE->at(b);
-				}else if(os_DetID->at(b)/1000 == 12){
-					MeanTime_Re += os_KE->at(b)*os_Time->at(b);
-					MeanEnergy_Re += os_KE->at(b);
-				}else if(os_DetID->at(b)/1000 == 13){
-					MeanTime_Ue += os_KE->at(b)*os_Time->at(b);
-					MeanEnergy_Ue += os_KE->at(b);
-				}else if(os_DetID->at(b)/1000 == 14){
-					MeanTime_De += os_KE->at(b)*os_Time->at(b);
-					MeanEnergy_De += os_KE->at(b);
+				if(os_DetID[b]/1000 == 11){
+					MeanTime_Le += os_KE[b]*os_Time[b];
+					MeanEnergy_Le += os_KE[b];
+				}else if(os_DetID[b]/1000 == 12){
+					MeanTime_Re += os_KE[b]*os_Time[b];
+					MeanEnergy_Re += os_KE[b];
+				}else if(os_DetID[b]/1000 == 13){
+					MeanTime_Ue += os_KE[b]*os_Time[b];
+					MeanEnergy_Ue += os_KE[b];
+				}else if(os_DetID[b]/1000 == 14){
+					MeanTime_De += os_KE[b]*os_Time[b];
+					MeanEnergy_De += os_KE[b];
 				} else {
 					continue;
 				}
@@ -542,16 +499,16 @@ void OpMake
 		map<int,double> map_TrkID_Length;
 		for(int b=0; b<nStep; b++)
 		{
-			if(s_PrevDetID->at(b) == 0 && s_PrevDetID->at(b) == 0) continue;
-			if(Opt[5] && s_FromHit->at(b) == StepFromHit && s_PDG->at(b) > 100){
-				if(map_TrkID_Edep[s_ID->at(b)] == 0 && map_TrkID_LY[s_ID->at(b)] == 0){
-					map_TrkID_Edep[s_ID->at(b)] = s_Edep->at(b);
-					map_TrkID_LY[s_ID->at(b)] = s_NSecondOP->at(b);
-					map_TrkID_Length[s_ID->at(b)] = s_Length->at(b);
+			if(s_PrevDetID[b] == 0 && s_PrevDetID[b] == 0) continue;
+			if(Opt[5] && s_FromHit[b] == StepFromHit && s_PDG[b] > 100){
+				if(map_TrkID_Edep[s_ID[b]] == 0 && map_TrkID_LY[s_ID[b]] == 0){
+					map_TrkID_Edep[s_ID[b]] = s_Edep[b];
+					map_TrkID_LY[s_ID[b]] = s_NSecondOP[b];
+					map_TrkID_Length[s_ID[b]] = s_Length[b];
 				} else {
-					map_TrkID_Edep[s_ID->at(b)] += s_Edep->at(b);
-					map_TrkID_LY[s_ID->at(b)] += s_NSecondOP->at(b);
-					map_TrkID_Length[s_ID->at(b)] += s_Length->at(b);
+					map_TrkID_Edep[s_ID[b]] += s_Edep[b];
+					map_TrkID_LY[s_ID[b]] += s_NSecondOP[b];
+					map_TrkID_Length[s_ID[b]] += s_Length[b];
 				}
 			}// Opt 5
 		}// each step in MCStep
@@ -624,10 +581,4 @@ void OpMake
 	}
 	F -> Close();
 	G -> Close();
-//	cout << "gen: " << o_gen << endl;
-//	cout << "die: " << o_die << endl;
-//	cout << "abs1: " << o_abs1 << endl;
-//	cout << "abs2: " << o_abs2 << endl;
-//	cout << "trans: " << o_trans << endl;
-//	cout << "trans to world: " << o_trans_to_world << endl;
 }
