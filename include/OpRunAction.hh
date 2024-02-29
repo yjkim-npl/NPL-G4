@@ -29,7 +29,7 @@ class OpParameterContainer;
 
 class G4Run;
 
-enum {MCTrack,MCPostTrack, OpticalPhoton, Process};	// Opt for FillTrack
+enum {MCTrack,MCPostTrack,OpticalPhoton,Process};	// Opt for FillTrack
 
 class OpRunAction : public G4UserRunAction
 {
@@ -168,6 +168,7 @@ class OpRunAction : public G4UserRunAction
 		G4double PostOpKEnergy[max_o];
 		G4double PostOpTime[max_o];
 
+		// for boundary interactions
 		G4int NOpBoundary;
 		G4int OpTrackIDBoundary[max_ob];
 		G4int OpProcIDBoundary[max_ob];

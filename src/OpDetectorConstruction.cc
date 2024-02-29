@@ -62,6 +62,19 @@ G4VPhysicalVolume* OpDetectorConstruction::Construct()
 
 	G4double trans = PC -> GetParDouble("Translation");
 
+	/*  
+	//HandsOn (Volume)
+	G4Box* solid_temp = 
+		new G4Box("temp",50,50,50);
+	G4LogicalVolume* logic_temp = 
+		new G4LogicalVolume(solid_temp,fMaterials->GetMaterial("G4_AIR"),"temp");
+	new G4PVPlacement(0,G4ThreeVector(0,0,100),logic_temp,"temp",logicWorld,false,0,checkOverlaps);
+	G4VisAttributes* att_temp = new G4VisAttributes(G4Colour(G4Colour::Green()));
+	att_temp -> SetVisibility(true);
+	att_temp -> SetForceWireframe(true);
+	logic_temp -> SetVisAttributes(att_temp);
+	*/
+
 	// SC
 	if(PC -> GetParBool("SCIn"))
 	{

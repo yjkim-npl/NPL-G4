@@ -22,7 +22,6 @@ class OpDetectorConstruction : public G4VUserDetectorConstruction
 		virtual void ConstructSDandField();
 
 	private:
-		G4UserLimits* fStepLimit;
 		OpParameterContainer* PC;
 		OpMaterials* fMaterials;
 

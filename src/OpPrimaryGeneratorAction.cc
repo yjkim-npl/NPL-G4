@@ -100,6 +100,24 @@ void OpPrimaryGeneratorAction::GeneratePrimariesMode0(G4Event* anEvent)
 	if(PC -> GetParInt("Beam_shape") == 0)
 	{
 		fParticleGun -> SetParticlePosition(G4ThreeVector(PC->GetParDouble("Beam_x0"),PC->GetParDouble("Beam_y0"),PC->GetParDouble("Beam_z0")-PC->GetParDouble("Translation")));
+		/*
+		// HandsOn Gun control1
+		G4ParticleDefinition* particle = 
+			particleTable -> FindParticle("e-");
+		fParticleGun -> SetParticleDefinition(particle);
+		fParticleGun -> SetParticleEnergy(1*MeV);
+		fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(0,0,1));
+		fParticleGun -> SetParticlePosition(G4ThreeVector(50*mm,50*mm,0*mm));
+		*/
+		/*
+		// HandsOn Gun control2
+		G4ParticleDefinition* particle = 
+			particleTable -> FindParticle("mu-");
+		fParticleGun -> SetParticleDefinition(particle);
+		fParticleGun -> SetParticleEnergy(1000*MeV);
+		fParticleGun -> SetParticleMomentumDirection(G4ThreeVector(-1,-1,0));
+		fParticleGun -> SetParticlePosition(G4ThreeVector(0*mm,200*mm,0*mm));
+		*/
 		fParticleGun -> GeneratePrimaryVertex(anEvent);
 	}
 	else if(PC->GetParInt("Beam_shape") > 0)
