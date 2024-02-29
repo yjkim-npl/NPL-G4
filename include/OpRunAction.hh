@@ -17,8 +17,11 @@
 #include <utility>
 #include <set>
 
-#define max_t 10000
-#define max_s 10000
+#define max_t 1000     // maximum number of (post)track 
+#define max_s 5000     // maximum number of step 
+#define max_o 30000    // maximum number of optical photon (post)track
+#define max_ob 100000  // maximum number of boundary interactions 
+#define max_os 20000   // maximum number of optical photon hits at SiPM
 
 using namespace std;
 
@@ -26,7 +29,7 @@ class OpParameterContainer;
 
 class G4Run;
 
-enum {MCTrack,MCPostTrack, OpticalPhoton, Process};	// Opt for FillTrack
+enum {MCTrack,MCPostTrack,OpticalPhoton,Process};	// Opt for FillTrack
 
 class OpRunAction : public G4UserRunAction
 {
@@ -84,22 +87,6 @@ class OpRunAction : public G4UserRunAction
 
 		// Track data
 		G4int nTrack;
-		vector<G4int> v_TrackID;
-		vector<G4int> v_TrackProcID;
-		vector<G4int> v_ParentID;
-		vector<G4int> v_TrackPDG;
-		vector<G4int> v_TrackDetID;
-		vector<G4double> v_TrackPX;
-		vector<G4double> v_TrackPY;
-		vector<G4double> v_TrackPZ;
-		vector<G4double> v_TrackVX;
-		vector<G4double> v_TrackVY;
-		vector<G4double> v_TrackVZ;
-		vector<G4double> v_TrackTime;
-		vector<G4double> v_TrackEnergy;
-		vector<G4double> v_TrackKEnergy;
-		vector<G4double> v_TrackEdepSum;
-
 		G4int TrackID[max_t];
 		G4int TrackProcID[max_t];
 		G4int ParentID[max_t];
@@ -116,23 +103,8 @@ class OpRunAction : public G4UserRunAction
 		G4double TrackKEnergy[max_t];
 		G4double TrackEdepSum[max_t];
 
-
 		// PostTrack data
 		G4int nPostTrack;
-		vector<G4int> v_PostTrackID;
-		vector<G4int> v_PostTrackProcID;
-		vector<G4int> v_PostTrackPDG;
-		vector<G4int> v_PostTrackDetID;
-		vector<G4double> v_PostTrackPX;
-		vector<G4double> v_PostTrackPY;
-		vector<G4double> v_PostTrackPZ;
-		vector<G4double> v_PostTrackVX;
-		vector<G4double> v_PostTrackVY;
-		vector<G4double> v_PostTrackVZ;
-		vector<G4double> v_PostTrackTime;
-		vector<G4double> v_PostTrackEnergy;
-		vector<G4double> v_PostTrackKEnergy;
-
 		G4int PostTrackID[max_t];
 		G4int PostTrackProcID[max_t];
 		G4int PostTrackPDG[max_t];
@@ -146,24 +118,9 @@ class OpRunAction : public G4UserRunAction
 		G4double PostTrackTime[max_t];
 		G4double PostTrackEnergy[max_t];
 		G4double PostTrackKEnergy[max_t];
+
 		// Step data
 		G4int nStep;
-		vector<G4int> v_StepFromHit;
-		vector<G4int> v_StepTrackID;
-		vector<G4int> v_StepProcID;
-		vector<G4int> v_StepTrackPDG;
-		vector<G4int> v_StepPrevDetID;
-		vector<G4int> v_StepPostDetID;
-		vector<G4int> v_IsBoundary;		// for SteppingAction
-		vector<G4double> v_StepPrevKE;	// for SteppingAction
-		vector<G4double> v_StepVX;
-		vector<G4double> v_StepVY;
-		vector<G4double> v_StepVZ;
-		vector<G4double> v_StepTime;
-		vector<G4double> v_StepEdep;
-		vector<G4double> v_StepLength;
-		vector<G4int> v_StepNSecondaryOP;
-
 		G4int StepFromHit[max_s];
 		G4int StepTrackID[max_s];
 		G4int StepProcID[max_s];
@@ -182,79 +139,60 @@ class OpRunAction : public G4UserRunAction
 
 		// Optical photon
 		G4int NOp;
-
-//		G4double OpPX[1000];
-//		G4double OpPY[1000];
-//		G4double OpPZ[1000];
-
-		vector<G4int> OpTrackID;
-		vector<G4int> OpProcessID;
-		vector<G4int> OpParentID;
-		vector<G4int> OpDetID;
-		vector<G4double> OpPX;
-		vector<G4double> OpPY;
-		vector<G4double> OpPZ;
-		vector<G4double> OpVX;
-		vector<G4double> OpVY;
-		vector<G4double> OpVZ;
-		vector<G4double> OpEnergy;
-		vector<G4double> OpKEnergy;
-		vector<G4double> OpTime;
+		G4int OpTrackID[max_o];
+		G4int OpProcessID[max_o];
+		G4int OpParentID[max_o];
+		G4int OpDetID[max_o];
+		G4double OpPX[max_o];
+		G4double OpPY[max_o];
+		G4double OpPZ[max_o];
+		G4double OpVX[max_o];
+		G4double OpVY[max_o];
+		G4double OpVZ[max_o];
+		G4double OpEnergy[max_o];
+		G4double OpKEnergy[max_o];
+		G4double OpTime[max_o];
 
 		G4int PostNOp;
+		G4int PostOpTrackID[max_o];
+		G4int PostOpDetID[max_o];
+		G4int PostProcID[max_o];
+		G4double OpTrackLength[max_o];
+		G4double PostOpPX[max_o];
+		G4double PostOpPY[max_o];
+		G4double PostOpPZ[max_o];
+		G4double PostOpVX[max_o];
+		G4double PostOpVY[max_o];
+		G4double PostOpVZ[max_o];
+		G4double PostOpEnergy[max_o];
+		G4double PostOpKEnergy[max_o];
+		G4double PostOpTime[max_o];
 
-//		G4int PostProcID[1000];
-//		G4double PostOpPX[1000];
-//		G4double PostOpPY[1000];
-//		G4double PostOpPZ[1000];
-		vector<G4int> PostOpTrackID;
-		vector<G4int> PostOpDetID;
-		vector<G4int> PostProcID;
-		vector<G4double> OpTrackLength;
-		vector<G4double> PostOpPX;
-		vector<G4double> PostOpPY;
-		vector<G4double> PostOpPZ;
-		vector<G4double> PostOpVX;
-		vector<G4double> PostOpVY;
-		vector<G4double> PostOpVZ;
-		vector<G4double> PostOpEnergy;
-		vector<G4double> PostOpKEnergy;
-		vector<G4double> PostOpTime;
-
+		// for boundary interactions
 		G4int NOpBoundary;
-//		G4int OpTrackIDBoundary[1000];
-//		G4int OpProcIDBoundary[1000];
-//		G4double OpPXBoundary[1000];
-//		G4double OpPYBoundary[1000];
-//		G4double OpPZBoundary[1000];
-//		G4double OpVXBoundary[1000];
-//		G4double OpVYBoundary[1000];
-//		G4double OpVZBoundary[1000];
-//		G4double OpTBoundary[1000];
-
-		vector<G4int> OpTrackIDBoundary;
-		vector<G4int> OpProcIDBoundary;
-		vector<G4double> OpPXBoundary;
-		vector<G4double> OpPYBoundary;
-		vector<G4double> OpPZBoundary;
-		vector<G4double> OpVXBoundary;
-		vector<G4double> OpVYBoundary;
-		vector<G4double> OpVZBoundary;
-		vector<G4double> OpTBoundary;
+		G4int OpTrackIDBoundary[max_ob];
+		G4int OpProcIDBoundary[max_ob];
+		G4double OpPXBoundary[max_ob];
+		G4double OpPYBoundary[max_ob];
+		G4double OpPZBoundary[max_ob];
+		G4double OpVXBoundary[max_ob];
+		G4double OpVYBoundary[max_ob];
+		G4double OpVZBoundary[max_ob];
+		G4double OpTBoundary[max_ob];
 
 		// for SiPM readout
 		G4int NOpSiPM;
-		vector<G4int> OpSiPMProcID;
-		vector<G4int> OpSiPMDetID;
-		vector<G4double> OpSiPMVX;
-		vector<G4double> OpSiPMVY;
-		vector<G4double> OpSiPMVZ;
-		vector<G4double> OpSiPMPX;
-		vector<G4double> OpSiPMPY;
-		vector<G4double> OpSiPMPZ;
-		vector<G4double> OpSiPMTime;
-		vector<G4double> OpSiPMEnergy;
-		vector<G4String> OpSiPMProcName;
+		G4int OpSiPMProcID[max_os];
+		G4int OpSiPMDetID[max_os];
+		G4double OpSiPMVX[max_os];
+		G4double OpSiPMVY[max_os];
+		G4double OpSiPMVZ[max_os];
+		G4double OpSiPMPX[max_os];
+		G4double OpSiPMPY[max_os];
+		G4double OpSiPMPZ[max_os];
+		G4double OpSiPMTime[max_os];
+		G4double OpSiPMEnergy[max_os];
+		G4String OpSiPMProcName[max_os];
 };
 #endif
 

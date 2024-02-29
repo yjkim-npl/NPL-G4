@@ -29,7 +29,6 @@ OpDetectorConstruction::OpDetectorConstruction()
 	PC = OpParameterContainer::GetInstance();
 	fMaterials = new OpMaterials();
 	G4double max_step_length = 1*mm;
-	fStepLimit = new G4UserLimits(max_step_length);
 
 	if(PC -> GetParInt("UserVerbosity") > 0)
 		G4cout << "Constructor of OpDetectorConstruction" << G4endl;
