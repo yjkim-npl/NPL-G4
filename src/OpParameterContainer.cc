@@ -109,8 +109,6 @@ void OpParameterContainer::PrintParameter(G4String par)
 			G4cout << par << " " << pard << G4endl;
 		else if (pars)
 			G4cout << par << " " << pars << G4endl;
-		else
-			G4cout << "yjkim in Parameter Container" << G4endl;
 	}
 }
 

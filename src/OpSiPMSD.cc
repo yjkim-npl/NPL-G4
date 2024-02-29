@@ -19,7 +19,6 @@ OpSiPMSD::OpSiPMSD(const G4String &name, const G4String &HCname)
 	fHCID(-1)
 {
 	collectionName.insert(HCname);
-	G4cout << "OpSiPMSD: " << name << " " << HCname << G4endl;
 }
 
 OpSiPMSD::~OpSiPMSD()

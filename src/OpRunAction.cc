@@ -134,7 +134,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("PostTrackKEnergy",PostTrackKEnergy,"PostTrackKEnergy[nPostTrack]/D");
 
 	}
-	if(PC -> GetParBool("MCStep"))
+	if(PC -> GetParBool("MCStep") || PC -> GetParBool("MCStepHit"))
 	{
 		T -> Branch("nStep",&nStep);
 		T -> Branch("StepTrackID"  ,StepTrackID    ,"StepTrackID[nStep]/I");
@@ -280,7 +280,7 @@ void OpRunAction::clear_data()
 		fill_n(PostTrackEnergy,max_t,0);
 		fill_n(PostTrackKEnergy,max_t,0);
 	}
-	if(PC->GetParBool("MCStep"))
+	if(PC->GetParBool("MCStep") || PC->GetParBool("MCStepHit"))
 	{
 		nStep = 0;
 		fill_n(StepTrackID,max_s,0);
