@@ -154,7 +154,7 @@ void OpRunAction::init_Tree()
 		T -> Branch("StepPrevKE"   ,StepPrevKE     ,"StepPrevKE[nStep]/D");
 		if(PC->GetParBool("OpticalPhysics"))
 		{
-			T -> Branch("StepNSecondaryOP",&StepNSecondaryOP);
+			T -> Branch("StepNSecondaryOP",StepNSecondaryOP,"StepNSecondaryOP[nStep]/D");
 		}
 	}
 	if(PC -> GetParBool("OpTrack"))
